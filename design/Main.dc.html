@@ -19,6 +19,8 @@ button{font-family:inherit}
 button:focus-visible{outline:2px solid #ffc94d;outline-offset:2px}
 @media (max-width: 1023px){[data-bs-root]{height:auto!important;overflow:visible!important}[data-bs-side]{overflow:visible!important}}
 @media (max-width: 640px){[data-bs-legend]{display:none!important}}
+@keyframes so-float{0%{opacity:0;transform:translateY(10px) scale(0.7)}12%{opacity:1;transform:translateY(0) scale(1.2)}24%{transform:translateY(0) scale(1)}75%{opacity:1}100%{opacity:0;transform:translateY(-28px) scale(1)}}
+@media (prefers-reduced-motion: reduce){[data-so-float]{animation-name:none!important}}
 </style>
 </helmet>
 <div data-bs-root="1" style="height: 100vh; min-height: 640px; overflow: hidden; display: flex; flex-direction: column; background: #070a12; color: #d8e1f0; font-family: Inter, system-ui, sans-serif; font-size: 14px">
@@ -40,7 +42,7 @@ button:focus-visible{outline:2px solid #ffc94d;outline-offset:2px}
       <canvas ref="{{setCanvas}}" data-broadside-canvas="1" onPointerDown="{{onDown}}" onPointerMove="{{onMove}}" onPointerUp="{{onUp}}" onPointerLeave="{{onLeave}}" onWheel="{{onWheel}}" onDoubleClick="{{onDbl}}" onContextMenu="{{noMenu}}" style="position: absolute; inset: 0; width: 100%; height: 100%; display: block; touch-action: none; cursor: {{cursor}}" aria-label="3D tactical map. Click inside your manoeuvre zone to set a destination, double-click to set it and commit; click a ship to inspect it; drag to rotate the view; right-drag or shift-drag to pan; scroll to zoom toward the cursor." role="img"></canvas>
 
 
-      <div ref="{{setLabelR}}" style="position: absolute; left: 0; top: 0; transform: translate(-9999px, 0); pointer-events: none; display: flex; align-items: center; gap: 6px; padding: 2px 8px; border-radius: 4px; background: rgba(0,0,0,0.65); border: 1px solid #5aa9ff; color: #d6e9ff; font-size: 12px; font-weight: 600; white-space: nowrap">CNS Resolute<sc-if value="{{tagShowR}}" hint-placeholder-val="{{ false }}"><span tabIndex="0" role="button" aria-label="Show the dice rolled against this ship last turn" onMouseEnter="{{tipR}}" onMouseLeave="{{tipOff}}" onFocus="{{tipR}}" onBlur="{{tipOff}}" style="pointer-events: auto; cursor: help; padding: 0 5px; border-radius: 3px; background: {{tagBgR}}; color: {{tagFgR}}; font-family: 'JetBrains Mono', monospace">{{dmgR}}</span></sc-if>
+      <div ref="{{setLabelR}}" style="position: absolute; left: 0; top: 0; transform: translate(-9999px, 0); pointer-events: none; display: flex; align-items: center; gap: 6px; padding: 2px 8px; border-radius: 4px; background: rgba(0,0,0,0.65); border: 1px solid #5aa9ff; color: #d6e9ff; font-size: 12px; font-weight: 600; white-space: nowrap"><div aria-hidden="true" style="position: absolute; bottom: calc(100% + 6px); left: 50%; transform: translateX(-50%); display: flex; flex-direction: column; align-items: center; gap: 2px; pointer-events: none"><sc-for list="{{floatR}}" as="f" hint-placeholder-count="0"><div data-so-float="1" style="{{f.style}}"><sc-if value="{{f.fire}}" hint-placeholder-val="{{ false }}"><svg width="16" height="16" viewBox="0 0 24 24" fill="#ff7a1a" aria-hidden="true"><path d="M12 2c1 3.5-1.5 5-1.5 7.5 0 1.4 1 2.5 2.3 2.5 1.8 0 2.7-1.6 2.2-3.7C17.5 10.5 19 13 19 15.5 19 19.6 15.9 22 12 22s-7-2.4-7-6.3C5 11 9.5 8.5 12 2z"></path></svg></sc-if><span>{{f.text}}</span></div></sc-for></div>CNS Resolute<sc-if value="{{tagShowR}}" hint-placeholder-val="{{ false }}"><span tabIndex="0" role="button" aria-label="Show the dice rolled against this ship last turn" onMouseEnter="{{tipR}}" onMouseLeave="{{tipOff}}" onFocus="{{tipR}}" onBlur="{{tipOff}}" style="pointer-events: auto; cursor: help; padding: 0 5px; border-radius: 3px; background: {{tagBgR}}; color: {{tagFgR}}; font-family: 'JetBrains Mono', monospace">{{dmgR}}</span></sc-if>
         <sc-if value="{{tipShowR}}" hint-placeholder-val="{{ false }}">
           <div style="position: absolute; {{tipPosR}} left: 50%; transform: translateX(-50%); width: 320px; max-height: 340px; overflow: hidden; display: flex; flex-direction: column; gap: 8px; padding: 10px 12px; background: rgba(4,6,12,0.96); border: 1px solid #33425f; border-radius: 8px; color: #d8e1f0; font-weight: 400; white-space: normal; z-index: 5">
             <span style="font-size: 11px; font-weight: 700; letter-spacing: 0.08em; color: #93a3bf">{{tipHead}}</span>
@@ -52,7 +54,7 @@ button:focus-visible{outline:2px solid #ffc94d;outline-offset:2px}
             </sc-for>
           </div>
         </sc-if></div>
-      <div ref="{{setLabelM}}" style="position: absolute; left: 0; top: 0; transform: translate(-9999px, 0); pointer-events: none; display: flex; align-items: center; gap: 6px; padding: 2px 8px; border-radius: 4px; background: rgba(0,0,0,0.65); border: 1px solid #ff6a3d; color: #ffd9cc; font-size: 12px; font-weight: 600; white-space: nowrap">Maw of Ruin<sc-if value="{{tagShowM}}" hint-placeholder-val="{{ false }}"><span tabIndex="0" role="button" aria-label="Show the dice rolled against this ship last turn" onMouseEnter="{{tipM}}" onMouseLeave="{{tipOff}}" onFocus="{{tipM}}" onBlur="{{tipOff}}" style="pointer-events: auto; cursor: help; padding: 0 5px; border-radius: 3px; background: {{tagBgM}}; color: {{tagFgM}}; font-family: 'JetBrains Mono', monospace">{{dmgM}}</span></sc-if>
+      <div ref="{{setLabelM}}" style="position: absolute; left: 0; top: 0; transform: translate(-9999px, 0); pointer-events: none; display: flex; align-items: center; gap: 6px; padding: 2px 8px; border-radius: 4px; background: rgba(0,0,0,0.65); border: 1px solid #ff6a3d; color: #ffd9cc; font-size: 12px; font-weight: 600; white-space: nowrap"><div aria-hidden="true" style="position: absolute; bottom: calc(100% + 6px); left: 50%; transform: translateX(-50%); display: flex; flex-direction: column; align-items: center; gap: 2px; pointer-events: none"><sc-for list="{{floatM}}" as="f" hint-placeholder-count="0"><div data-so-float="1" style="{{f.style}}"><sc-if value="{{f.fire}}" hint-placeholder-val="{{ false }}"><svg width="16" height="16" viewBox="0 0 24 24" fill="#ff7a1a" aria-hidden="true"><path d="M12 2c1 3.5-1.5 5-1.5 7.5 0 1.4 1 2.5 2.3 2.5 1.8 0 2.7-1.6 2.2-3.7C17.5 10.5 19 13 19 15.5 19 19.6 15.9 22 12 22s-7-2.4-7-6.3C5 11 9.5 8.5 12 2z"></path></svg></sc-if><span>{{f.text}}</span></div></sc-for></div>Maw of Ruin<sc-if value="{{tagShowM}}" hint-placeholder-val="{{ false }}"><span tabIndex="0" role="button" aria-label="Show the dice rolled against this ship last turn" onMouseEnter="{{tipM}}" onMouseLeave="{{tipOff}}" onFocus="{{tipM}}" onBlur="{{tipOff}}" style="pointer-events: auto; cursor: help; padding: 0 5px; border-radius: 3px; background: {{tagBgM}}; color: {{tagFgM}}; font-family: 'JetBrains Mono', monospace">{{dmgM}}</span></sc-if>
         <sc-if value="{{tipShowM}}" hint-placeholder-val="{{ false }}">
           <div style="position: absolute; {{tipPosM}} left: 50%; transform: translateX(-50%); width: 320px; max-height: 340px; overflow: hidden; display: flex; flex-direction: column; gap: 8px; padding: 10px 12px; background: rgba(4,6,12,0.96); border: 1px solid #33425f; border-radius: 8px; color: #d8e1f0; font-weight: 400; white-space: normal; z-index: 5">
             <span style="font-size: 11px; font-weight: 700; letter-spacing: 0.08em; color: #93a3bf">{{tipHead}}</span>
@@ -423,7 +425,7 @@ class Component extends DCLogic {
     this.fx.forEach((f) => f.kill && f.kill());
     this.fx = [];
     this.g.summary = ''; this.g.taken = { resolute: 0, maw: 0 };
-    this.g.turnRolls = { resolute: [], maw: [] }; this.g.tray = []; this.g.pending = null;
+    this.g.turnRolls = { resolute: [], maw: [] }; this.g.tray = []; this.g.pending = null; this.g.floaters = { resolute: [], maw: [] };
     this.seq = null; this.rolling = null; this.seqId = (this.seqId || 0) + 1; this.ui.tip = null;
     this.pushLog('PRE-BATTLE', [{ side: 'sys', text: 'Contact! CNS Resolute and Maw of Ruin close at 90u. Plot your course: click inside the blue manoeuvre zone.' }]);
     if (this.three) { this.placeShips(); this.three.objs.resolute.root.visible = true; this.three.objs.maw.root.visible = true; this.three.objs.resolute.model.visible = true; this.three.objs.maw.model.visible = true; this.frameShips(); this.refreshOverlays(); }
@@ -467,6 +469,7 @@ class Component extends DCLogic {
     g.dest = null; this.ui.hover = null; this.ui.order = 'steady';
     g.taken = { resolute: 0, maw: 0 };
     g.turnRolls = { resolute: [], maw: [] };
+    g.floaters = { resolute: [], maw: [] };
     this.ui.tip = null;
     if (g.plotting === 'resolute') {
       if (this.modeHot()) { g.phase = 'handoff'; this.refreshOverlays(); this.bump(); return; }
@@ -510,6 +513,7 @@ class Component extends DCLogic {
       const toR = ramM ? this.d6() : 1 + Math.floor(Math.random() * 3);
       R.hull = Math.max(0, R.hull - toR); M.hull = Math.max(0, M.hull - toM);
       g.taken.resolute += toR; g.taken.maw += toM; g.collided = true;
+      this.floater('resolute', 'hull', '−' + toR); this.floater('maw', 'hull', '−' + toM);
       const ux = (M.x - R.x) / (dist || 1), uy = (M.y - R.y) / (dist || 1), push = (4 - dist) / 2;
       R.x -= ux * push; R.y -= uy * push; M.x += ux * push; M.y += uy * push;
       this.spark(R.x, R.y, 0xffffff, 6); this.spark(M.x, M.y, 0xffffff, 6);
@@ -597,6 +601,19 @@ class Component extends DCLogic {
     return 0;
   }
 
+  // Floating combat text above a ship: 'shield' (blue number), 'hull' (yellow number), 'word' (critical damage), 'fire' (flame + yellow number).
+  floater(id, kind, text, idx) {
+    if (this.autoAll) return;
+    const g = this.g;
+    if (!g.floaters) g.floaters = { resolute: [], maw: [] };
+    g.floaters[id].push({ kind: kind, text: text, delay: (idx || 0) * 0.35 });
+    this.bump();
+  }
+
+  critWord(c) {
+    return { breach: 'Hull breach', fire: '', engines: 'Engines damaged', steering: 'Steering damaged', gundeck: 'Weapons damaged', bridge: 'Bridge hit' }[c.k];
+  }
+
   record(rec, about) {
     const g = this.g;
     g.tray.push(rec);
@@ -617,6 +634,9 @@ class Component extends DCLogic {
       B.hull = Math.max(0, B.hull - o.dmg);
       g.taken[B.id] += o.dmg;
       o.crits.forEach((c) => { if (c.k !== 'breach') B.crits.push(c); });
+      let k = 0;
+      if (o.dmg > 0) this.floater(B.id, 'hull', '−' + o.dmg, k++);
+      o.crits.forEach((c) => { if (c.k === 'fire') this.floater(B.id, 'fire', '', k++); else this.floater(B.id, 'word', this.critWord(c), k++); });
     });
     this.inspDirty = true;
     // End phase: fires burn, then each side rolls damage control for its own ship.
@@ -626,6 +646,7 @@ class Component extends DCLogic {
       const fires = this.count(s, 'fire');
       if (fires > 0) {
         s.hull = Math.max(0, s.hull - fires); g.taken[id] += fires;
+        this.floater(id, 'fire', '−' + fires);
         this.record({ owner: id, label: s.def.name + ' is burning', result: fires + ' fire damage', dice: [] }, id);
       }
       if (s.hull > 0 && s.crits.length) {
@@ -641,7 +662,7 @@ class Component extends DCLogic {
     }
     for (const id of ['resolute', 'maw']) {
       const s = g.ships[id];
-      if (s.hull <= 0 && !s.dead) { s.dead = true; this.record({ owner: id, label: s.def.name + ' is destroyed!', result: '', dice: [] }, id); yield { type: 'fx', kind: 'explode', ship: s }; }
+      if (s.hull <= 0 && !s.dead) { s.dead = true; s.deadAt = performance.now(); this.record({ owner: id, label: s.def.name + ' is destroyed!', result: '', dice: [] }, id); yield { type: 'fx', kind: 'explode', ship: s }; }
     }
     const part = (id) => {
       const o = out[id], nm = id === 'resolute' ? 'Resolute' : 'Maw of Ruin';
@@ -682,7 +703,7 @@ class Component extends DCLogic {
     const sh = Math.min(shield, normal.length);
     const through = normal.slice(sh).concat(hits.filter((h) => h.lance));
     this.record({ owner: B.id, label: B.def.name + ' · ' + FN[facing] + ' shields (' + shield + ')', result: sh > 0 ? 'absorb ' + sh + ' hit' + (sh === 1 ? '' : 's') : (shield ? 'only lance hits' : 'no shields on this facing'), dice: [] }, B.id);
-    if (sh > 0) yield { type: 'fx', kind: 'shield', id: B.id };
+    if (sh > 0) { this.floater(B.id, 'shield', '−' + sh); yield { type: 'fx', kind: 'shield', id: B.id }; }
     if (!through.length) return;
     const saveTN = Math.max(2, Math.min(6, B.def.armour - (oB === 'brace' ? 1 : 0)));
     const crits6 = through.filter((h) => h.v === 6).length;
@@ -914,7 +935,7 @@ class Component extends DCLogic {
     ['resolute', 'maw'].forEach((id) => {
       const el = this.labelEls[id]; if (!el) return;
       const s = this.g.ships[id], o = t3.objs[id];
-      if (s.dead || s.fled) { el.style.transform = 'translate(-9999px, 0)'; return; }
+      if (s.fled || (s.dead && performance.now() - (s.deadAt || 0) > 3200)) { el.style.transform = 'translate(-9999px, 0)'; return; }
       const v = o.root.position.clone(); v.y = 4.2; v.project(t3.camera);
       if (v.z > 1) { el.style.transform = 'translate(-9999px, 0)'; return; }
       const x = (v.x + 1) / 2 * w, y = (1 - v.y) / 2 * h;
@@ -1324,6 +1345,14 @@ class Component extends DCLogic {
       const show = (g.phase === 'orders' || g.phase === 'over' || g.phase === 'handoff') && (n > 0 || rolls > 0) && !g.ships[id].dead;
       return { show: show, text: n > 0 ? '−' + n : '0', bg: n > 0 ? 'rgba(255,77,77,0.18)' : 'rgba(147,163,191,0.15)', fg: n > 0 ? '#ff8a8a' : '#b9c6dc' };
     };
+    const floats = (id) => ((g.floaters || {})[id] || []).map((f) => {
+      const base = 'display: flex; align-items: center; gap: 4px; white-space: nowrap; text-shadow: 0 0 4px #000, 0 0 8px #000, 0 0 2px #000; animation: so-float 2.8s ease-out ' + f.delay + 's both;';
+      const num = ' font-family: JetBrains Mono, monospace; font-weight: 700; font-size: 23px;';
+      if (f.kind === 'shield') return { fire: false, text: f.text, style: base + num + ' color: #5aa9ff;' };
+      if (f.kind === 'hull') return { fire: false, text: f.text, style: base + num + ' color: #ffc94d;' };
+      if (f.kind === 'fire') return { fire: true, text: f.text, style: base + num + ' color: #ffc94d;' };
+      return { fire: false, text: f.text, style: base + ' font-family: Inter, sans-serif; font-weight: 700; font-size: 15px; letter-spacing: 0.04em; color: #ffa478;' };
+    });
     const tipTurn = g.phase === 'orders' ? g.turn - 1 : g.turn;
     const tipRows = this.ui.tip ? g.turnRolls[this.ui.tip].slice(-8).map((r) => recRow(r, 1)) : [];
     const hist = (g.tray || []).slice(-3);
@@ -1353,6 +1382,7 @@ class Component extends DCLogic {
       dmgR: tag('resolute').text, dmgM: tag('maw').text, tagShowR: tag('resolute').show, tagShowM: tag('maw').show,
       tagBgR: tag('resolute').bg, tagBgM: tag('maw').bg, tagFgR: tag('resolute').fg, tagFgM: tag('maw').fg,
       tipR: this.tipR, tipM: this.tipM, tipOff: this.tipOff,
+      floatR: floats('resolute'), floatM: floats('maw'),
       tipPosR: this.labelY.resolute > 0.45 ? 'bottom: calc(100% + 6px);' : 'top: calc(100% + 6px);',
       tipPosM: this.labelY.maw > 0.45 ? 'bottom: calc(100% + 6px);' : 'top: calc(100% + 6px);',
       tipShowR: this.ui.tip === 'resolute' && tag('resolute').show, tipShowM: this.ui.tip === 'maw' && tag('maw').show,
