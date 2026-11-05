@@ -37,15 +37,22 @@ button:focus-visible{outline:2px solid #ffc94d;outline-offset:2px}
 
   <div style="flex: 1; display: flex; flex-wrap: wrap; min-height: 0">
 
-    <section aria-label="Battle map" style="flex: 999 1 640px; min-width: 0; min-height: 560px; height: 100%; position: relative; background: #04060b; overflow: hidden">
-      <canvas ref="{{setCanvas}}" data-broadside-canvas="1" onPointerDown="{{onDown}}" onPointerMove="{{onMove}}" onPointerUp="{{onUp}}" onPointerLeave="{{onLeave}}" onWheel="{{onWheel}}" onContextMenu="{{noMenu}}" style="position: absolute; inset: 0; width: 100%; height: 100%; display: block; touch-action: none; cursor: {{cursor}}" aria-label="3D tactical map. Click inside your manoeuvre zone to set a destination; drag to rotate the view; right-drag or shift-drag to pan; scroll to zoom toward the cursor." role="img"></canvas>
+    <section aria-label="Battle map" style="flex: 999 1 640px; min-width: 0; min-height: 560px; height: 100%; position: relative; background: #000000; overflow: hidden">
+      <canvas ref="{{setCanvas}}" data-broadside-canvas="1" onPointerDown="{{onDown}}" onPointerMove="{{onMove}}" onPointerUp="{{onUp}}" onPointerLeave="{{onLeave}}" onWheel="{{onWheel}}" onDoubleClick="{{onDbl}}" onContextMenu="{{noMenu}}" style="position: absolute; inset: 0; width: 100%; height: 100%; display: block; touch-action: none; cursor: {{cursor}}" aria-label="3D tactical map. Click inside your manoeuvre zone to set a destination, double-click to set it and commit; click a ship to inspect it; drag to rotate the view; right-drag or shift-drag to pan; scroll to zoom toward the cursor." role="img"></canvas>
 
-      <div style="position: absolute; top: 14px; left: 50%; transform: translateX(-50%); max-width: calc(100% - 32px); padding: 8px 16px; background: rgba(8,12,22,0.86); border: 1px solid {{bannerBorder}}; border-radius: 8px; font-size: 13px; color: #e6edf8; text-align: center; pointer-events: none">{{banner}}</div>
+      <div style="position: absolute; top: 14px; left: 50%; transform: translateX(-50%); max-width: calc(100% - 32px); padding: 8px 16px; background: rgba(8,12,22,0.86); border: 1px solid {{bannerBorder}}; border-radius: 8px; font-size: 13px; color: #e6edf8; text-align: center; pointer-events: none">
+        <div>{{banner}}</div>
+        <sc-if value="{{hasSummary}}" hint-placeholder-val="{{ false }}"><div style="margin-top: 4px; font-size: 12px; color: #ffc94d">{{summary}}</div></sc-if>
+      </div>
 
-      <div data-bs-legend="1" style="position: absolute; left: 14px; bottom: 14px; display: flex; flex-direction: column; gap: 6px; padding: 10px 12px; background: rgba(8,12,22,0.86); border: 1px solid #1c2638; border-radius: 8px; font-size: 12px; color: #b9c6dc; pointer-events: none">
+      <div ref="{{setLabelR}}" style="position: absolute; left: 0; top: 0; transform: translate(-9999px, 0); pointer-events: none; display: flex; align-items: center; gap: 6px; padding: 2px 8px; border-radius: 4px; background: rgba(0,0,0,0.65); border: 1px solid #5aa9ff; color: #d6e9ff; font-size: 12px; font-weight: 600; white-space: nowrap">CNS Resolute<span style="color: #ff8a8a; font-family: 'JetBrains Mono', monospace">{{dmgR}}</span></div>
+      <div ref="{{setLabelM}}" style="position: absolute; left: 0; top: 0; transform: translate(-9999px, 0); pointer-events: none; display: flex; align-items: center; gap: 6px; padding: 2px 8px; border-radius: 4px; background: rgba(0,0,0,0.65); border: 1px solid #ff6a3d; color: #ffd9cc; font-size: 12px; font-weight: 600; white-space: nowrap">Maw of Ruin<span style="color: #ff8a8a; font-family: 'JetBrains Mono', monospace">{{dmgM}}</span></div>
+
+      <div data-bs-legend="1" style="position: absolute; left: 14px; bottom: 14px; display: flex; flex-direction: column; gap: 6px; padding: 10px 12px; background: rgba(0,0,0,0.7); border: 1px solid #1c2638; border-radius: 8px; font-size: 12px; color: #b9c6dc; pointer-events: none; max-width: 300px">
         <div style="display: flex; align-items: center; gap: 8px"><span style="width: 12px; height: 12px; border-radius: 50%; background: #5aa9ff"></span>CNS Resolute — Concord Navy</div>
         <div style="display: flex; align-items: center; gap: 8px"><span style="width: 12px; height: 12px; border-radius: 50%; background: #ff6a3d"></span>Maw of Ruin — Reaver Clans</div>
         <div style="display: flex; align-items: center; gap: 8px"><span style="width: 12px; height: 8px; background: rgba(90,169,255,0.35); border: 1px solid #5aa9ff"></span>Manoeuvre zone · shaded wedges = firing arcs</div>
+        <div style="color: #93a3bf">Click a ship to inspect · double-click to commit · drag to rotate · right-drag to pan · wheel to zoom</div>
       </div>
 
       <div style="position: absolute; right: 14px; bottom: 14px; display: flex; gap: 8px; flex-wrap: wrap; justify-content: flex-end">
@@ -80,35 +87,68 @@ button:focus-visible{outline:2px solid #ffc94d;outline-offset:2px}
       </sc-if>
     </section>
 
-    <aside data-bs-side="1" aria-label="Fleet status and orders" style="flex: 1 1 360px; min-width: 0; height: 100%; box-sizing: border-box; overflow-y: auto; display: flex; flex-direction: column; gap: 12px; padding: 14px; background: #0a0f1a; border-left: 1px solid #1c2638">
+    <aside data-bs-side="1" aria-label="Ship inspector and orders" style="flex: 1 1 360px; min-width: 0; height: 100%; box-sizing: border-box; overflow-y: auto; display: flex; flex-direction: column; gap: 12px; padding: 14px; background: #0a0f1a; border-left: 1px solid #1c2638">
 
-      <sc-for list="{{ships}}" as="s" hint-placeholder-count="2">
-        <div style="display: flex; flex-direction: column; gap: 8px; padding: 12px 14px; background: #0d1220; border: 1px solid #1c2638; border-top: 3px solid {{s.color}}; border-radius: 8px">
-          <div style="display: flex; justify-content: space-between; align-items: baseline; gap: 8px">
-            <div style="display: flex; flex-direction: column; gap: 2px">
-              <span style="font-family: 'Chakra Petch', sans-serif; font-weight: 700; font-size: 16px; color: {{s.color}}">{{s.name}}</span>
-              <span style="font-size: 12px; color: #93a3bf">{{s.cls}}</span>
+      <section aria-label="Ship inspector" style="display: flex; flex-direction: column; gap: 10px; padding: 12px 14px; background: #0d1220; border: 1px solid #1c2638; border-top: 3px solid {{insp.color}}; border-radius: 8px">
+        <div role="group" aria-label="Select ship" style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 6px">
+          <sc-for list="{{shipTabs}}" as="t" hint-placeholder-count="2">
+            <button onClick="{{t.pick}}" aria-pressed="{{t.pressed}}" style="{{t.style}}">{{t.name}}</button>
+          </sc-for>
+        </div>
+        <div style="display: flex; justify-content: space-between; align-items: center; gap: 8px">
+          <span style="font-size: 12px; color: #93a3bf">{{insp.cls}}</span>
+          <span style="font-size: 11px; font-weight: 700; letter-spacing: 0.06em; padding: 3px 8px; border-radius: 4px; background: {{insp.statusBg}}; color: {{insp.statusFg}}">{{insp.status}}</span>
+        </div>
+        <div style="position: relative; width: 100%; max-width: 340px; aspect-ratio: 1 / 1; align-self: center; background: #000000; border: 1px solid #1c2638; border-radius: 6px; overflow: hidden">
+          <canvas ref="{{setInspect}}" data-bs-inspect="1" aria-hidden="true" style="position: absolute; inset: 0; width: 100%; height: 100%; display: block"></canvas>
+          <svg viewBox="0 0 300 300" role="img" aria-label="{{insp.aria}}" style="position: absolute; inset: 0; width: 100%; height: 100%">
+            <sc-for list="{{insp.weapons}}" as="w" hint-placeholder-count="4">
+              <path d="{{w.wedge}}" fill="{{w.fill}}" stroke="{{w.stroke}}" stroke-width="1.2" stroke-dasharray="{{w.dash}}"></path>
+            </sc-for>
+            <sc-for list="{{insp.rings}}" as="r" hint-placeholder-count="2">
+              <ellipse cx="150" cy="150" rx="{{r.rx}}" ry="{{r.ry}}" fill="none" stroke="{{insp.color}}" stroke-opacity="{{r.op}}" stroke-width="2"></ellipse>
+            </sc-for>
+            <sc-for list="{{insp.dmg}}" as="d" hint-placeholder-count="0">
+              <circle cx="{{d.x}}" cy="{{d.y}}" r="4.5" fill="#ff4d4d" fill-opacity="0.9" stroke="#2a0505" stroke-width="1.5"></circle>
+            </sc-for>
+            <sc-for list="{{insp.weapons}}" as="w" hint-placeholder-count="4">
+              <circle cx="{{w.hx}}" cy="{{w.hy}}" r="3.5" fill="{{w.stroke}}"></circle>
+            </sc-for>
+          </svg>
+          <sc-for list="{{insp.weapons}}" as="w" hint-placeholder-count="4">
+            <div style="{{w.labelStyle}}">
+              <div style="font-size: 10px; font-weight: 700; letter-spacing: 0.06em; color: #eef3fb">{{w.name}}</div>
+              <div style="font-family: 'JetBrains Mono', monospace; font-size: 10px; color: {{w.statColor}}">{{w.stats}}</div>
             </div>
-            <span style="font-size: 11px; font-weight: 700; letter-spacing: 0.06em; padding: 3px 8px; border-radius: 4px; background: {{s.statusBg}}; color: {{s.statusFg}}">{{s.status}}</span>
+          </sc-for>
+        </div>
+        <div style="display: flex; align-items: center; gap: 10px">
+          <span style="font-size: 11px; color: #93a3bf; width: 54px">HULL</span>
+          <div style="display: flex; gap: 3px; flex-wrap: wrap; flex: 1">
+            <sc-for list="{{insp.pips}}" as="p" hint-placeholder-count="12"><span style="{{p}}"></span></sc-for>
           </div>
-          <div style="display: flex; align-items: center; gap: 10px">
-            <span style="font-size: 11px; color: #93a3bf; width: 34px">HULL</span>
-            <div style="display: flex; gap: 3px; flex-wrap: wrap; flex: 1">
-              <sc-for list="{{s.pips}}" as="p" hint-placeholder-count="12"><span style="{{p}}"></span></sc-for>
-            </div>
-            <span style="font-family: 'JetBrains Mono', monospace; font-size: 12px; color: #d8e1f0">{{s.hullText}}</span>
+          <span style="font-family: 'JetBrains Mono', monospace; font-size: 12px; color: #d8e1f0">{{insp.hullText}}</span>
+        </div>
+        <div style="display: flex; align-items: center; gap: 10px">
+          <span style="font-size: 11px; color: #93a3bf; width: 54px">SHIELDS</span>
+          <div style="display: flex; gap: 4px; flex: 1">
+            <sc-for list="{{insp.shieldPips}}" as="p" hint-placeholder-count="2"><span style="{{p}}"></span></sc-for>
           </div>
-          <div style="display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 6px; font-size: 11px; color: #93a3bf">
-            <div style="display: flex; flex-direction: column; gap: 2px"><span>SPEED</span><span style="font-family: 'JetBrains Mono', monospace; font-size: 13px; color: #e6edf8">{{s.speed}}</span></div>
-            <div style="display: flex; flex-direction: column; gap: 2px"><span>TURN</span><span style="font-family: 'JetBrains Mono', monospace; font-size: 13px; color: #e6edf8">{{s.turnTxt}}</span></div>
-            <div style="display: flex; flex-direction: column; gap: 2px"><span>SHIELDS</span><span style="font-family: 'JetBrains Mono', monospace; font-size: 13px; color: #e6edf8">{{s.shields}}</span></div>
-            <div style="display: flex; flex-direction: column; gap: 2px"><span>ARMOUR</span><span style="font-family: 'JetBrains Mono', monospace; font-size: 13px; color: #e6edf8">{{s.armour}}</span></div>
-          </div>
-          <sc-if value="{{s.hasCrits}}" hint-placeholder-val="{{ false }}">
+          <span style="font-family: 'JetBrains Mono', monospace; font-size: 12px; color: #d8e1f0">{{insp.shields}}</span>
+        </div>
+        <div style="display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 6px; font-size: 11px; color: #93a3bf">
+          <div style="display: flex; flex-direction: column; gap: 2px"><span>SPEED</span><span style="font-family: 'JetBrains Mono', monospace; font-size: 13px; color: #e6edf8">{{insp.speed}}</span></div>
+          <div style="display: flex; flex-direction: column; gap: 2px"><span>TURN</span><span style="font-family: 'JetBrains Mono', monospace; font-size: 13px; color: #e6edf8">{{insp.turnTxt}}</span></div>
+          <div style="display: flex; flex-direction: column; gap: 2px"><span>ARMOUR</span><span style="font-family: 'JetBrains Mono', monospace; font-size: 13px; color: #e6edf8">{{insp.armour}}</span></div>
+        </div>
+        <sc-if value="{{insp.hasCrits}}" hint-placeholder-val="{{ false }}">
           <div style="display: flex; flex-wrap: wrap; gap: 6px; align-items: center">
-            <sc-for list="{{s.crits}}" as="c" hint-placeholder-count="1">
+            <sc-for list="{{insp.crits}}" as="c" hint-placeholder-count="1">
               <span style="font-size: 11px; font-weight: 600; padding: 3px 8px; border-radius: 4px; background: #3a2208; color: #ffc94d; border: 1px solid #6b4310">{{c}}</span>
             </sc-for>
+          </div>
+        </sc-if>
+      </section>
           </div>
           </sc-if>
         </div>
@@ -137,26 +177,6 @@ button:focus-visible{outline:2px solid #ffc94d;outline-offset:2px}
         <button onClick="{{commit}}" disabled="{{commitDisabled}}" style="{{commitStyle}}">{{commitLabel}}</button>
       </div>
 
-      <div style="display: flex; flex-direction: column; gap: 8px; padding: 12px 14px; background: #0d1220; border: 1px solid #1c2638; border-radius: 8px; flex: 1 0 260px; min-height: 260px">
-        <h2 style="margin: 0; font-family: 'Chakra Petch', sans-serif; font-size: 15px; letter-spacing: 0.06em; color: #eef3fb">BATTLE LOG</h2>
-        <div style="display: flex; flex-direction: column; gap: 10px; flex: 1 1 0; min-height: 0; overflow-y: auto; padding-right: 4px" role="log" aria-live="polite">
-          <sc-for list="{{log}}" as="t" hint-placeholder-count="1">
-            <div style="display: flex; flex-direction: column; gap: 6px">
-              <span style="font-size: 11px; font-weight: 700; letter-spacing: 0.08em; color: #93a3bf">{{t.head}}</span>
-              <sc-for list="{{t.entries}}" as="e" hint-placeholder-count="3">
-                <div style="{{e.style}}">
-                  <span style="font-size: 12px; line-height: 1.4; color: #d8e1f0">{{e.text}}</span>
-                  <sc-if value="{{e.hasDice}}" hint-placeholder-val="{{ false }}">
-                    <div style="display: flex; flex-wrap: wrap; gap: 3px; margin-top: 4px">
-                      <sc-for list="{{e.dice}}" as="d" hint-placeholder-count="4"><span style="{{d.style}}">{{d.v}}</span></sc-for>
-                    </div>
-                  </sc-if>
-                </div>
-              </sc-for>
-            </div>
-          </sc-for>
-        </div>
-      </div>
     </aside>
   </div>
 </div>
@@ -173,6 +193,19 @@ class Component extends DCLogic {
     this.fx = [];
     this.anim = null;
     this.setCanvas = (el) => { if (el) this.canvas = el; };
+    this.setInspect = (el) => { if (el) this.inspCanvas = el; };
+    this.labelEls = {};
+    this.setLabelR = (el) => { if (el) this.labelEls.resolute = el; };
+    this.setLabelM = (el) => { if (el) this.labelEls.maw = el; };
+    this.ui.sel = 'resolute';
+    this.pickShipR = () => this.selectShip('resolute');
+    this.pickShipM = () => this.selectShip('maw');
+    this.onDbl = (e) => {
+      if (!this.g || this.g.phase !== 'orders') return;
+      const p = this.pickMap(e); if (!p || this.shipAt(p)) return;
+      this.setDest(p.x, p.y);
+      this.commitOrders();
+    };
     this.onDown = (e) => this.pointerDown(e);
     this.onMove = (e) => this.pointerMove(e);
     this.onUp = (e) => this.pointerUp(e);
@@ -421,9 +454,18 @@ class Component extends DCLogic {
     this.anim = null;
     this.fx.forEach((f) => f.kill && f.kill());
     this.fx = [];
+    this.g.summary = ''; this.g.taken = { resolute: 0, maw: 0 };
     this.pushLog('PRE-BATTLE', [{ side: 'sys', text: 'Contact! CNS Resolute and Maw of Ruin close at 90u. Plot your course: click inside the blue manoeuvre zone.' }]);
     if (this.three) { this.placeShips(); this.three.objs.resolute.root.visible = true; this.three.objs.maw.root.visible = true; this.three.objs.resolute.model.visible = true; this.three.objs.maw.model.visible = true; this.frameShips(); this.refreshOverlays(); }
     if (!silent) this.bump();
+  }
+
+  selectShip(id) { this.ui.sel = id; this.inspDirty = true; this.bump(); }
+
+  shipAt(p) {
+    const ids = ['resolute', 'maw'];
+    for (let i = 0; i < ids.length; i++) { const s = this.g.ships[ids[i]]; if (!s.dead && Math.hypot(s.x - p.x, s.y - p.y) < 4.5) return ids[i]; }
+    return null;
   }
 
   bump() { this.setState({ v: (this.state.v || 0) + 1 }); }
@@ -453,6 +495,7 @@ class Component extends DCLogic {
     if (g.phase !== 'orders' || !g.dest) return;
     g.orders[g.plotting] = { order: this.ui.order, dest: g.dest };
     g.dest = null; this.ui.hover = null; this.ui.order = 'steady';
+    g.taken = { resolute: 0, maw: 0 };
     if (g.plotting === 'resolute') {
       if (this.modeHot()) { g.phase = 'handoff'; this.refreshOverlays(); this.bump(); return; }
       const plan = this.aiPlan(g.ships.maw, g.ships.resolute);
@@ -493,6 +536,7 @@ class Component extends DCLogic {
       const toM = ramR ? this.d6() : 1 + Math.floor(Math.random() * 3);
       const toR = ramM ? this.d6() : 1 + Math.floor(Math.random() * 3);
       R.hull = Math.max(0, R.hull - toR); M.hull = Math.max(0, M.hull - toM);
+      g.taken.resolute += toR; g.taken.maw += toM; g.collided = true;
       log.push({ side: 'sys', strong: true, text: 'COLLISION! ' + (ramM ? 'Maw of Ruin rams with its prow — ' : '') + 'Resolute takes ' + toR + ', Maw of Ruin takes ' + toM + ' damage.' });
       const ux = (M.x - R.x) / (dist || 1), uy = (M.y - R.y) / (dist || 1), push = (4 - dist) / 2;
       R.x -= ux * push; R.y -= uy * push; M.x += ux * push; M.y += uy * push;
@@ -525,6 +569,7 @@ class Component extends DCLogic {
       const r = res[id]; if (!r) return;
       const B = g.ships[this.other(id)];
       B.hull = Math.max(0, B.hull - r.dmg);
+      g.taken[B.id] += r.dmg;
       r.crits.forEach((c) => { if (c.k !== 'breach') B.crits.push(c); });
     });
     // End phase: fires burn, then damage control.
@@ -532,7 +577,7 @@ class Component extends DCLogic {
       const s = g.ships[id];
       if (s.hull <= 0) return;
       const fires = this.count(s, 'fire');
-      if (fires > 0) { s.hull = Math.max(0, s.hull - fires); end.push({ side: id, text: s.def.name + ' burns: ' + fires + ' damage from fire.' }); }
+      if (fires > 0) { s.hull = Math.max(0, s.hull - fires); g.taken[id] += fires; end.push({ side: id, text: s.def.name + ' burns: ' + fires + ' damage from fire.' }); }
       if (s.crits.length) {
         const rolls = [], keep = [];
         s.crits.forEach((c) => { const tn = c.k === 'fire' ? 4 : 5, v = this.d6(), ok = v >= tn; rolls.push({ v: v, kind: ok ? 'save' : 'fail' }); if (!ok) keep.push(c); });
@@ -543,6 +588,16 @@ class Component extends DCLogic {
     });
     ['resolute', 'maw'].forEach((id) => { const s = g.ships[id]; if (s.hull <= 0 && !s.dead) { s.dead = true; end.push({ side: 'sys', strong: true, text: s.def.name + ' is destroyed!' }); this.explode(s); } });
     if (end.length) this.pushLog('TURN ' + g.turn + ' · END PHASE', end);
+    const part = (id) => {
+      const r = res[id]; if (!r) return null;
+      const nm = id === 'resolute' ? 'Resolute' : 'Maw of Ruin';
+      if (!r.shots.length) return nm + ': no weapons bore';
+      return nm + ' dealt ' + r.dmg + (r.crits.length ? ' (' + r.crits.map((c) => this.D.CRIT[c.roll]).join(', ') + ')' : '');
+    };
+    const parts = [part('resolute'), part('maw')].filter(Boolean);
+    g.summary = 'Turn ' + g.turn + ': ' + (g.collided ? 'Collision! ' : '') + (parts.length ? parts.join(' · ') : 'no shots fired');
+    g.collided = false;
+    this.inspDirty = true;
     g.pending = null;
     const R = g.ships.resolute, M = g.ships.maw;
     const rOut = R.dead || R.fled, mOut = M.dead || M.fled;
@@ -578,6 +633,8 @@ class Component extends DCLogic {
     this.alive = false;
     if (this.raf) cancelAnimationFrame(this.raf);
     if (this.ro) this.ro.disconnect();
+    if (this.ro2) this.ro2.disconnect();
+    if (this.insp) this.insp.r.dispose();
     if (this.three) this.three.renderer.dispose();
   }
 
@@ -590,7 +647,7 @@ class Component extends DCLogic {
     renderer.toneMapping = T.ACESFilmicToneMapping;
     renderer.toneMappingExposure = 1.15;
     const scene = new T.Scene();
-    scene.background = new T.Color(0x04060b);
+    scene.background = new T.Color(0x000000);
     const camera = new T.PerspectiveCamera(40, 1.6, 0.5, 2000);
     scene.add(new T.HemisphereLight(0xbfd4ff, 0x1a1420, 0.9));
     const key = new T.DirectionalLight(0xfff1e0, 2.4); key.position.set(40, 80, 30); scene.add(key);
@@ -613,6 +670,7 @@ class Component extends DCLogic {
     this.last = performance.now();
     const loop = (now) => { if (!this.alive) return; this.frame(now); this.raf = requestAnimationFrame(loop); };
     this.raf = requestAnimationFrame(loop);
+    this.initInspector();
     this.ui.loadNote = 'Loading ship models…';
     this.bump();
     Promise.all(['resolute', 'maw'].map((id) => this.loadModel(id).catch(() => null))).then((r) => {
@@ -633,20 +691,15 @@ class Component extends DCLogic {
 
   buildBackdrop() {
     const T = this.three.T, sc = this.three.scene, W = this.D.W, H = this.D.H;
-    const n = 2600, pos = new Float32Array(n * 3), col = new Float32Array(n * 3);
+    const n = 2000, pos = new Float32Array(n * 3), col = new Float32Array(n * 3);
     for (let i = 0; i < n; i++) {
       const r = 400 + Math.random() * 500, th = Math.random() * Math.PI * 2, ph = Math.acos(Math.random() * 1.6 - 0.6);
       pos[i * 3] = r * Math.sin(ph) * Math.cos(th); pos[i * 3 + 1] = -Math.abs(r * Math.cos(ph)) - 40; pos[i * 3 + 2] = r * Math.sin(ph) * Math.sin(th);
-      const k = 0.5 + Math.random() * 0.5, tint = Math.random();
+      const k = 0.25 + Math.random() * 0.55, tint = Math.random();
       col[i * 3] = k * (tint < 0.2 ? 0.8 : 1); col[i * 3 + 1] = k * 0.92; col[i * 3 + 2] = k * (tint > 0.75 ? 1 : 0.85);
     }
     const g = new T.BufferGeometry(); g.setAttribute('position', new T.BufferAttribute(pos, 3)); g.setAttribute('color', new T.BufferAttribute(col, 3));
     sc.add(new T.Points(g, new T.PointsMaterial({ size: 2.2, sizeAttenuation: false, vertexColors: true, transparent: true, opacity: 0.85 })));
-    // Nebula wash far below the play plane
-    const neb = new T.Sprite(new T.SpriteMaterial({ toneMapped: false, map: this.three.glowTex, color: 0x1b2b5a, transparent: true, opacity: 0.55, depthWrite: false }));
-    neb.position.set(-60, -180, -40); neb.scale.set(520, 360, 1); sc.add(neb);
-    const neb2 = new T.Sprite(new T.SpriteMaterial({ toneMapped: false, map: this.three.glowTex, color: 0x4a1a2a, transparent: true, opacity: 0.4, depthWrite: false }));
-    neb2.position.set(120, -200, 60); neb2.scale.set(420, 300, 1); sc.add(neb2);
     // Faint reference grid (orientation aid only — movement is free, not square-based)
     const lp = [];
     for (let x = -W / 2; x <= W / 2; x += 10) lp.push(x, 0, -H / 2, x, 0, H / 2);
@@ -700,6 +753,58 @@ class Component extends DCLogic {
       obj.model.remove(obj.stand);
       obj.model.add(m);
       obj.ghostSrc = m;
+      this.inspAdd(id, m);
+    });
+  }
+
+  initInspector() {
+    const T = this.three.T, cv = this.inspCanvas || document.querySelector('[data-bs-inspect]');
+    if (!cv) return;
+    const r = new T.WebGLRenderer({ canvas: cv, antialias: true, alpha: true });
+    r.setPixelRatio(Math.min(2, window.devicePixelRatio || 1));
+    r.outputEncoding = T.sRGBEncoding; r.toneMapping = T.ACESFilmicToneMapping; r.toneMappingExposure = 1.3;
+    r.setClearColor(0x000000, 0);
+    const sc = new T.Scene();
+    sc.add(new T.HemisphereLight(0xdfe8ff, 0x202030, 1.1));
+    const d = new T.DirectionalLight(0xffffff, 2.2); d.position.set(4, 20, 6); sc.add(d);
+    // Orthographic, straight down, bow toward the top of the panel: 15u across = the SVG overlay's 300 px.
+    const cam = new T.OrthographicCamera(-7.5, 7.5, 7.5, -7.5, 0.1, 100);
+    cam.position.set(0, 40, 0); cam.up.set(0, 0, -1); cam.lookAt(0, 0, 0);
+    this.insp = { T: T, r: r, sc: sc, cam: cam, models: {} };
+    const fit = () => { const p = cv.parentElement; if (!p) return; r.setSize(Math.max(1, p.clientWidth), Math.max(1, p.clientHeight), false); this.inspDirty = true; };
+    fit();
+    if (window.ResizeObserver) { this.ro2 = new ResizeObserver(fit); this.ro2.observe(cv.parentElement); }
+    this.inspDirty = true;
+  }
+
+  inspAdd(id, src) {
+    if (!this.insp) return;
+    const g = new this.insp.T.Group();
+    g.add(src.clone(true));
+    g.rotation.y = Math.PI;
+    this.insp.sc.add(g);
+    this.insp.models[id] = g;
+    this.inspDirty = true;
+  }
+
+  renderInspector() {
+    const I = this.insp; if (!I) return;
+    Object.keys(I.models).forEach((id) => { I.models[id].visible = id === this.ui.sel && !this.g.ships[id].dead; });
+    I.r.render(I.sc, I.cam);
+    this.inspDirty = false;
+  }
+
+  // Name tags that float above each ship in screen space.
+  placeLabels() {
+    const t3 = this.three, w = this.canvas.clientWidth, h = this.canvas.clientHeight;
+    ['resolute', 'maw'].forEach((id) => {
+      const el = this.labelEls[id]; if (!el) return;
+      const s = this.g.ships[id], o = t3.objs[id];
+      if (s.dead || s.fled) { el.style.transform = 'translate(-9999px, 0)'; return; }
+      const v = o.root.position.clone(); v.y = 4.2; v.project(t3.camera);
+      if (v.z > 1) { el.style.transform = 'translate(-9999px, 0)'; return; }
+      const x = (v.x + 1) / 2 * w, y = (1 - v.y) / 2 * h;
+      el.style.transform = 'translate(' + x.toFixed(1) + 'px, ' + y.toFixed(1) + 'px) translate(-50%, -100%)';
     });
   }
 
@@ -901,8 +1006,11 @@ class Component extends DCLogic {
       if (now - this.anim.t0 >= this.anim.dur) { this.anim = null; this.afterFire(); }
     }
     ['resolute', 'maw'].forEach((id, i) => { const o = t3.objs[id]; o.model.position.y = Math.sin(now / 900 + i * 2) * 0.12; });
+    ['resolute', 'maw'].forEach((id) => { t3.objs[id].ring.material.opacity = id === this.ui.sel ? 0.95 : 0.4; });
     this.fx = this.fx.filter((f) => f.update(dt));
     t3.renderer.render(t3.scene, cam);
+    this.placeLabels();
+    if (this.inspDirty) this.renderInspector();
   }
 
   // Orbit camera: target on the plane, distance, tilt from vertical, yaw around the vertical axis.
@@ -978,27 +1086,73 @@ class Component extends DCLogic {
   pointerUp(e) {
     const d = this.drag; this.drag = null;
     if (!d || d.moved || d.button !== 0) return;
-    const p = this.pickMap(e); if (p) this.setDest(p.x, p.y);
+    const p = this.pickMap(e); if (!p) return;
+    const hit = this.shipAt(p);
+    if (hit) { this.selectShip(hit); return; }
+    this.setDest(p.x, p.y);
   }
 
   /* ───────────── VIEW MODEL ───────────── */
+  // Top-down inspector overlay. SVG space: 300×300 = 15u, ship centred at (150,150), bow up, 20 px per u.
+  inspectVals(s) {
+    const def = s.def, hw = def.id === 'resolute' ? 25 : 18, bow = 70;
+    const e = this.env(s, 'steady');
+    const pt = (cx, cy, r, deg) => (cx + r * Math.cos(deg * Math.PI / 180)).toFixed(1) + ',' + (cy - r * Math.sin(deg * Math.PI / 180)).toFixed(1);
+    const wedge = (cx, cy, r, a0, a1) => 'M' + cx + ',' + cy + ' L' + pt(cx, cy, r, a1) + ' A' + r + ',' + r + ' 0 0 1 ' + pt(cx, cy, r, a0) + ' Z';
+    const layout = {
+      port: { hx: 150 - hw, hy: 150, wedge: wedge(150 - hw, 150, 58, 135, 225), lx: 6, ly: 226, anchor: 'start' },
+      stbd: { hx: 150 + hw, hy: 150, wedge: wedge(150 + hw, 150, 58, -45, 45), lx: 294, ly: 226, anchor: 'end' },
+      fore: { hx: 150, hy: bow, wedge: wedge(150, bow, 42, 45, 135), lx: 150, ly: 4, anchor: 'middle' },
+      all: { hx: 150, hy: 165, wedge: 'M150,165 m-34,0 a34,34 0 1,0 68,0 a34,34 0 1,0 -68,0', lx: 150, ly: 266, anchor: 'middle' }
+    };
+    const weapons = def.weapons.map((w) => {
+      const L = layout[w.arcs.length > 1 ? 'all' : w.arcs[0]];
+      const dice = this.weaponDice(s, w, 'steady'), reduced = dice < w.dice;
+      const deck = w.broadside && s.crits.some((c) => c.k === 'gundeck' && c.side === w.side);
+      const col = w.lance ? '#ffc94d' : def.color;
+      return {
+        wedge: L.wedge, hx: L.hx, hy: L.hy,
+        labelStyle: 'position: absolute; top: ' + (L.ly / 3).toFixed(2) + '%; ' + (L.anchor === 'start' ? 'left: ' + (L.lx / 3).toFixed(2) + '%; text-align: left;' : L.anchor === 'end' ? 'right: ' + ((300 - L.lx) / 3).toFixed(2) + '%; text-align: right;' : 'left: 50%; transform: translateX(-50%); text-align: center;') + ' max-width: 46%; line-height: 1.3; pointer-events: none; text-shadow: 0 0 3px #000, 0 0 6px #000;',
+        fill: w.arcs.length > 1 ? 'none' : (w.lance ? 'rgba(255,201,77,0.18)' : (def.id === 'resolute' ? 'rgba(90,169,255,0.2)' : 'rgba(255,106,61,0.2)')),
+        stroke: deck ? '#ff4d4d' : col, dash: deck || w.arcs.length > 1 ? '4 3' : 'none',
+        name: w.name.replace('Starboard', 'Stbd').toUpperCase() + (w.lance ? ' · LANCE' : ''),
+        stats: dice + 'd6 · ' + w.range + 'u' + (w.arcs.length > 1 ? ' · all arcs' : '') + (reduced ? ' (was ' + w.dice + ')' : '') + (w.id === 'maw' && def.ram ? ' · ram prow' : ''),
+        statColor: reduced ? '#ffc94d' : '#b9c6dc'
+      };
+    });
+    const rings = [];
+    for (let i = 0; i < def.shields; i++) rings.push({ rx: hw + 30 + i * 9, ry: 96 + i * 9, op: 0.75 - i * 0.2 });
+    const lost = def.hull - s.hull, dmg = [];
+    for (let i = 0; i < lost; i++) dmg.push({ x: (150 + (((i * 5) % 7) - 3) / 3 * (hw - 7)).toFixed(1), y: (bow + 14 + ((i * 7) % 13) / 12 * 132).toFixed(1) });
+    const pips = [];
+    for (let i = 0; i < def.hull; i++) pips.push('width: 10px; height: 14px; border-radius: 2px; ' + (i < s.hull ? 'background: ' + def.color : 'background: #1a2335; box-shadow: inset 0 0 0 1px #2a3650'));
+    const shieldPips = [];
+    for (let i = 0; i < def.shields; i++) shieldPips.push('width: 22px; height: 14px; border-radius: 7px; box-shadow: inset 0 0 0 2px ' + def.color + '; background: ' + (def.id === 'resolute' ? 'rgba(90,169,255,0.25)' : 'rgba(255,106,61,0.25)'));
+    let status = 'OPERATIONAL', bg = '#11301f', fg = '#7be3a4';
+    if (s.dead) { status = 'DESTROYED'; bg = '#3a0f12'; fg = '#ff8a8a'; }
+    else if (s.fled) { status = 'DISENGAGED'; bg = '#2a2a2a'; fg = '#cfcfcf'; }
+    else if (this.crippled(s)) { status = 'CRIPPLED'; bg = '#3a2208'; fg = '#ffc94d'; }
+    return {
+      color: def.color, cls: def.cls, status: status, statusBg: bg, statusFg: fg,
+      weapons: weapons, rings: rings, dmg: dmg, pips: pips, shieldPips: shieldPips,
+      hullText: s.hull + '/' + def.hull, shields: def.shields + ' (stops ' + def.shields + ' hit' + (def.shields === 1 ? '' : 's') + '/turn)',
+      speed: e.speed + 'u', turnTxt: e.turn + '°', armour: def.armour + '+',
+      crits: s.crits.map((c) => this.critName(c)), hasCrits: s.crits.length > 0,
+      aria: 'Top-down view of ' + def.name + ': hull ' + s.hull + ' of ' + def.hull + ', shields ' + def.shields + ', weapons: ' + weapons.map((w) => w.name + ' ' + w.stats).join('; ')
+    };
+  }
+
   renderVals() {
     const g = this.g, D = this.D;
     const phaseLabel = { orders: 'ORDERS', handoff: 'ORDERS', moving: 'MOVEMENT', firing: 'GUNNERY', over: 'BATTLE OVER' }[g.phase];
     const plot = g.ships[g.plotting];
-    const ships = ['resolute', 'maw'].map((id) => {
-      const s = g.ships[id], e = this.env(s, 'steady');
-      const pips = [];
-      for (let i = 0; i < s.def.hull; i++) pips.push('width: 10px; height: 14px; border-radius: 2px; ' + (i < s.hull ? 'background: ' + s.def.color : 'background: #1a2335; box-shadow: inset 0 0 0 1px #2a3650'));
-      let status = 'OPERATIONAL', bg = '#11301f', fg = '#7be3a4';
-      if (s.dead) { status = 'DESTROYED'; bg = '#3a0f12'; fg = '#ff8a8a'; }
-      else if (s.fled) { status = 'DISENGAGED'; bg = '#2a2a2a'; fg = '#cfcfcf'; }
-      else if (this.crippled(s)) { status = 'CRIPPLED'; bg = '#3a2208'; fg = '#ffc94d'; }
+    const insp = this.inspectVals(g.ships[this.ui.sel]);
+    const shipTabs = ['resolute', 'maw'].map((id) => {
+      const s = g.ships[id], on = this.ui.sel === id;
       return {
-        name: s.def.name, cls: s.def.cls, color: s.def.color, pips: pips, hullText: s.hull + '/' + s.def.hull,
-        speed: e.speed + 'u', turnTxt: e.turn + '°', shields: String(s.def.shields), armour: s.def.armour + '+',
-        crits: s.crits.map((c) => this.critName(c)), hasCrits: s.crits.length > 0,
-        status: status, statusBg: bg, statusFg: fg
+        name: s.def.name, pressed: on ? 'true' : 'false', pick: id === 'resolute' ? this.pickShipR : this.pickShipM,
+        style: 'min-height: 44px; border-radius: 6px; cursor: pointer; font-family: Chakra Petch, sans-serif; font-weight: 700; font-size: 14px; ' +
+          (on ? 'background: ' + s.def.color + '; color: #070a12; border: 1px solid ' + s.def.color + ';' : 'background: #111a2c; color: ' + s.def.color + '; border: 1px solid #26324a;')
       };
     });
     const canOrder = g.phase === 'orders';
@@ -1028,41 +1182,24 @@ class Component extends DCLogic {
     let banner = '', bannerBorder = '#26324a';
     if (g.phase === 'orders') {
       const e = this.env(plot, this.ui.order);
-      banner = plot.def.name + ' — plot a course: ' + e.minMove.toFixed(0) + '–' + e.maxMove.toFixed(0) + 'u, up to ' + Math.round(e.turn) + '° off the bow. Drag to rotate · right-drag to pan · scroll to zoom.';
+      banner = plot.def.name + ' — plot a course: ' + e.minMove.toFixed(0) + '–' + e.maxMove.toFixed(0) + 'u, up to ' + Math.round(e.turn) + '° off the bow. Double-click to plot and commit.';
       bannerBorder = plot.def.color;
     } else if (g.phase === 'handoff') banner = 'Orders sealed — waiting for the Reaver commander';
     else if (g.phase === 'moving') banner = 'Movement — both ships execute their orders simultaneously';
     else if (g.phase === 'firing') { banner = 'Gunnery — both ships fire simultaneously'; bannerBorder = '#ffc94d'; }
     else if (g.phase === 'over') banner = 'Battle over';
-    const dieStyle = (k, side) => {
-      const base = 'display: inline-flex; align-items: center; justify-content: center; width: 20px; height: 20px; border-radius: 4px; font-family: JetBrains Mono, monospace; font-size: 12px; font-weight: 700;';
-      const col = side === 'maw' ? '#ff6a3d' : '#5aa9ff';
-      if (k === 'crit') return base + ' background: #ffc94d; color: #1a1204;';
-      if (k === 'hit') return base + ' background: ' + col + '; color: #070a12;';
-      if (k === 'save') return base + ' background: #e6edf8; color: #070a12;';
-      if (k === 'fail') return base + ' background: transparent; color: #ff8a8a; box-shadow: inset 0 0 0 1px #ff8a8a;';
-      return base + ' background: transparent; color: #6f7f9c; box-shadow: inset 0 0 0 1px #33425f;';
-    };
-    const log = g.log.map((t) => ({
-      head: t.head,
-      entries: t.entries.map((e) => {
-        const col = e.side === 'resolute' ? '#5aa9ff' : e.side === 'maw' ? '#ff6a3d' : '#93a3bf';
-        return {
-          text: e.text, hasDice: !!(e.dice && e.dice.length),
-          dice: (e.dice || []).map((d) => ({ v: d.v, style: dieStyle(d.kind, e.side) })),
-          style: 'padding: 4px 0 4px 10px; box-shadow: inset 2px 0 0 ' + col + ';' + (e.strong ? ' background: rgba(255,201,77,0.07);' : '')
-        };
-      })
-    }));
     const win = g.winner;
     return {
       turn: g.turn, phaseLabel: phaseLabel,
       modeLabel: this.modeHot() ? 'Hot-seat · 2 players' : 'Versus AI · you command Resolute',
-      ships: ships, orderOpts: orderOpts, canOrder: canOrder,
+      insp: insp, shipTabs: shipTabs, orderOpts: orderOpts, canOrder: canOrder,
       plotName: canOrder ? plot.def.name : '—', plotColor: canOrder ? plot.def.color : '#93a3bf',
       destDist: destDist, destBearing: destBearing, destTurn: destTurn,
       commit: this.commit, commitDisabled: commitDisabled, commitLabel: commitLabel, commitStyle: commitStyle,
-      banner: banner, bannerBorder: bannerBorder, log: log,
+      banner: banner, bannerBorder: bannerBorder,
+      hasSummary: g.phase === 'orders' && !!g.summary, summary: g.summary,
+      dmgR: g.taken.resolute > 0 && g.phase !== 'moving' ? '−' + g.taken.resolute : '', dmgM: g.taken.maw > 0 && g.phase !== 'moving' ? '−' + g.taken.maw : '',
+      setLabelR: this.setLabelR, setLabelM: this.setLabelM, setInspect: this.setInspect, onDbl: this.onDbl,
       loading: this.ui.loading, loadNote: this.ui.loadNote,
       showHandoff: g.phase === 'handoff', takeOver: this.takeOver,
       showOver: g.phase === 'over',
