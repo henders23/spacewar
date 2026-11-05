@@ -1,0 +1,1036 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Broadside — Battle</title>
+<script src="./support.js"></script>
+<script src="/_blob/76572be99572cd8ed8ed4272d2870a10"></script>
+<script src="/_blob/7051b159a61afe5ce88c4ad5afc962da"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@500;600;700&amp;family=Inter:wght@400;500;600&amp;family=JetBrains+Mono:wght@500;700&amp;display=swap">
+<style>
+body{margin:0;background:#070a12}
+a{color:#5aa9ff}a:hover{color:#8cc4ff}
+button{font-family:inherit}
+button:focus-visible{outline:2px solid #ffc94d;outline-offset:2px}
+</style>
+</helmet>
+<div style="min-height: 100vh; display: flex; flex-direction: column; background: #070a12; color: #d8e1f0; font-family: Inter, system-ui, sans-serif; font-size: 14px">
+
+  <header style="display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 12px; padding: 12px 20px; border-bottom: 1px solid #1c2638; background: #0a0f1a">
+    <div style="display: flex; align-items: baseline; gap: 14px; flex-wrap: wrap">
+      <h1 style="margin: 0; font-family: 'Chakra Petch', sans-serif; font-weight: 700; font-size: 22px; letter-spacing: 0.12em; color: #eef3fb">BROADSIDE</h1>
+      <span style="color: #93a3bf; font-size: 13px">Engagement mockup · 1v1 capital duel</span>
+    </div>
+    <div style="display: flex; align-items: center; gap: 16px; flex-wrap: wrap">
+      <span style="font-family: 'JetBrains Mono', monospace; font-size: 13px; color: #c5d1e6">TURN {{turn}} · {{phaseLabel}}</span>
+      <span style="font-size: 12px; color: #93a3bf; padding: 4px 10px; border: 1px solid #26324a; border-radius: 999px">{{modeLabel}}</span>
+      <button onClick="{{restart}}" style="min-height: 44px; padding: 0 16px; background: transparent; color: #d8e1f0; border: 1px solid #33425f; border-radius: 6px; cursor: pointer; font-size: 13px; font-weight: 600">New battle</button>
+    </div>
+  </header>
+
+  <div style="flex: 1; display: flex; flex-wrap: wrap; min-height: 0">
+
+    <section aria-label="Battle map" style="flex: 999 1 640px; min-width: 0; min-height: 560px; position: relative; background: #04060b; overflow: hidden">
+      <canvas ref="{{setCanvas}}" data-broadside-canvas="1" onPointerDown="{{onDown}}" onPointerMove="{{onMove}}" onPointerUp="{{onUp}}" onPointerLeave="{{onLeave}}" onWheel="{{onWheel}}" onContextMenu="{{noMenu}}" style="position: absolute; inset: 0; width: 100%; height: 100%; display: block; touch-action: none; cursor: {{cursor}}" aria-label="3D tactical map. Click inside your manoeuvre zone to set a destination; drag to pan; scroll to zoom." role="img"></canvas>
+
+      <div style="position: absolute; top: 14px; left: 50%; transform: translateX(-50%); max-width: calc(100% - 32px); padding: 8px 16px; background: rgba(8,12,22,0.86); border: 1px solid {{bannerBorder}}; border-radius: 8px; font-size: 13px; color: #e6edf8; text-align: center; pointer-events: none">{{banner}}</div>
+
+      <div style="position: absolute; left: 14px; bottom: 14px; display: flex; flex-direction: column; gap: 6px; padding: 10px 12px; background: rgba(8,12,22,0.86); border: 1px solid #1c2638; border-radius: 8px; font-size: 12px; color: #b9c6dc; pointer-events: none">
+        <div style="display: flex; align-items: center; gap: 8px"><span style="width: 12px; height: 12px; border-radius: 50%; background: #5aa9ff"></span>CNS Resolute — Concord Navy</div>
+        <div style="display: flex; align-items: center; gap: 8px"><span style="width: 12px; height: 12px; border-radius: 50%; background: #ff6a3d"></span>Maw of Ruin — Reaver Clans</div>
+        <div style="display: flex; align-items: center; gap: 8px"><span style="width: 12px; height: 8px; background: rgba(90,169,255,0.35); border: 1px solid #5aa9ff"></span>Manoeuvre zone · shaded wedges = firing arcs</div>
+      </div>
+
+      <div style="position: absolute; right: 14px; bottom: 14px; display: flex; gap: 8px; flex-wrap: wrap; justify-content: flex-end">
+        <button onClick="{{toggleEnemyArcs}}" aria-pressed="{{enemyArcsPressed}}" style="min-height: 44px; padding: 0 14px; background: {{enemyArcsBg}}; color: #e6edf8; border: 1px solid #33425f; border-radius: 6px; cursor: pointer; font-size: 12px; font-weight: 600">Enemy arcs</button>
+        <button onClick="{{zoomIn}}" aria-label="Zoom in" style="width: 44px; height: 44px; background: rgba(8,12,22,0.86); color: #e6edf8; border: 1px solid #33425f; border-radius: 6px; cursor: pointer; display: flex; align-items: center; justify-content: center"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14"></path></svg></button>
+        <button onClick="{{zoomOut}}" aria-label="Zoom out" style="width: 44px; height: 44px; background: rgba(8,12,22,0.86); color: #e6edf8; border: 1px solid #33425f; border-radius: 6px; cursor: pointer; display: flex; align-items: center; justify-content: center"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M5 12h14"></path></svg></button>
+        <button onClick="{{recenter}}" aria-label="Recenter camera" style="width: 44px; height: 44px; background: rgba(8,12,22,0.86); color: #e6edf8; border: 1px solid #33425f; border-radius: 6px; cursor: pointer; display: flex; align-items: center; justify-content: center"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="3"></circle><path d="M12 2v4M12 18v4M2 12h4M18 12h4"></path></svg></button>
+      </div>
+
+      <sc-if value="{{loading}}" hint-placeholder-val="{{ false }}">
+        <div style="position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; background: rgba(4,6,11,0.7); color: #c5d1e6; font-size: 14px">{{loadNote}}</div>
+      </sc-if>
+
+      <sc-if value="{{showHandoff}}" hint-placeholder-val="{{ false }}">
+        <div style="position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; background: rgba(4,6,11,0.94)">
+          <div style="display: flex; flex-direction: column; align-items: center; gap: 16px; padding: 32px; max-width: 420px; text-align: center">
+            <h2 style="margin: 0; font-family: 'Chakra Petch', sans-serif; font-size: 26px; color: #ff6a3d">Reaver commander</h2>
+            <p style="margin: 0; color: #c5d1e6; line-height: 1.5">Resolute's orders are sealed. Pass the device to the Reaver player, then plot Maw of Ruin's course.</p>
+            <button onClick="{{takeOver}}" style="min-height: 44px; padding: 0 22px; background: #ff6a3d; color: #1a0a04; border: 0; border-radius: 6px; cursor: pointer; font-weight: 700; font-size: 14px">I'm the Reaver — show my ship</button>
+          </div>
+        </div>
+      </sc-if>
+
+      <sc-if value="{{showOver}}" hint-placeholder-val="{{ false }}">
+        <div style="position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; background: rgba(4,6,11,0.72)">
+          <div style="display: flex; flex-direction: column; align-items: center; gap: 14px; padding: 32px 40px; background: #0d1220; border: 1px solid {{overBorder}}; border-radius: 10px; max-width: 460px; text-align: center">
+            <h2 style="margin: 0; font-family: 'Chakra Petch', sans-serif; font-size: 30px; color: {{overColor}}">{{overTitle}}</h2>
+            <p style="margin: 0; color: #c5d1e6; line-height: 1.5">{{overText}}</p>
+            <button onClick="{{restart}}" style="min-height: 44px; padding: 0 22px; background: #d8e1f0; color: #070a12; border: 0; border-radius: 6px; cursor: pointer; font-weight: 700; font-size: 14px">Fight again</button>
+          </div>
+        </div>
+      </sc-if>
+    </section>
+
+    <aside aria-label="Fleet status and orders" style="flex: 1 1 360px; min-width: 0; display: flex; flex-direction: column; gap: 12px; padding: 14px; background: #0a0f1a; border-left: 1px solid #1c2638">
+
+      <sc-for list="{{ships}}" as="s" hint-placeholder-count="2">
+        <div style="display: flex; flex-direction: column; gap: 8px; padding: 12px 14px; background: #0d1220; border: 1px solid #1c2638; border-top: 3px solid {{s.color}}; border-radius: 8px">
+          <div style="display: flex; justify-content: space-between; align-items: baseline; gap: 8px">
+            <div style="display: flex; flex-direction: column; gap: 2px">
+              <span style="font-family: 'Chakra Petch', sans-serif; font-weight: 700; font-size: 16px; color: {{s.color}}">{{s.name}}</span>
+              <span style="font-size: 12px; color: #93a3bf">{{s.cls}}</span>
+            </div>
+            <span style="font-size: 11px; font-weight: 700; letter-spacing: 0.06em; padding: 3px 8px; border-radius: 4px; background: {{s.statusBg}}; color: {{s.statusFg}}">{{s.status}}</span>
+          </div>
+          <div style="display: flex; align-items: center; gap: 10px">
+            <span style="font-size: 11px; color: #93a3bf; width: 34px">HULL</span>
+            <div style="display: flex; gap: 3px; flex-wrap: wrap; flex: 1">
+              <sc-for list="{{s.pips}}" as="p" hint-placeholder-count="12"><span style="{{p}}"></span></sc-for>
+            </div>
+            <span style="font-family: 'JetBrains Mono', monospace; font-size: 12px; color: #d8e1f0">{{s.hullText}}</span>
+          </div>
+          <div style="display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 6px; font-size: 11px; color: #93a3bf">
+            <div style="display: flex; flex-direction: column; gap: 2px"><span>SPEED</span><span style="font-family: 'JetBrains Mono', monospace; font-size: 13px; color: #e6edf8">{{s.speed}}</span></div>
+            <div style="display: flex; flex-direction: column; gap: 2px"><span>TURN</span><span style="font-family: 'JetBrains Mono', monospace; font-size: 13px; color: #e6edf8">{{s.turnTxt}}</span></div>
+            <div style="display: flex; flex-direction: column; gap: 2px"><span>SHIELDS</span><span style="font-family: 'JetBrains Mono', monospace; font-size: 13px; color: #e6edf8">{{s.shields}}</span></div>
+            <div style="display: flex; flex-direction: column; gap: 2px"><span>ARMOUR</span><span style="font-family: 'JetBrains Mono', monospace; font-size: 13px; color: #e6edf8">{{s.armour}}</span></div>
+          </div>
+          <div style="display: flex; flex-wrap: wrap; gap: 6px; min-height: 22px; align-items: center">
+            <sc-for list="{{s.crits}}" as="c" hint-placeholder-count="0">
+              <span style="font-size: 11px; font-weight: 600; padding: 3px 8px; border-radius: 4px; background: #3a2208; color: #ffc94d; border: 1px solid #6b4310">{{c}}</span>
+            </sc-for>
+            <sc-if value="{{s.noCrits}}" hint-placeholder-val="{{ true }}"><span style="font-size: 11px; color: #6f7f9c">No critical damage</span></sc-if>
+          </div>
+        </div>
+      </sc-for>
+
+      <div style="display: flex; flex-direction: column; gap: 10px; padding: 12px 14px; background: #0d1220; border: 1px solid #1c2638; border-radius: 8px">
+        <div style="display: flex; justify-content: space-between; align-items: baseline">
+          <h2 style="margin: 0; font-family: 'Chakra Petch', sans-serif; font-size: 15px; letter-spacing: 0.06em; color: #eef3fb">ORDERS</h2>
+          <span style="font-size: 12px; color: {{plotColor}}; font-weight: 600">{{plotName}}</span>
+        </div>
+        <div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 6px">
+          <sc-for list="{{orderOpts}}" as="o" hint-placeholder-count="5">
+            <button onClick="{{o.pick}}" disabled="{{o.disabled}}" aria-pressed="{{o.pressed}}" title="{{o.desc}}" style="{{o.style}}">
+              <span style="display: block; font-weight: 700; font-size: 12px">{{o.label}}</span>
+              <span style="display: block; font-size: 11px; opacity: 0.85; margin-top: 2px">{{o.short}}</span>
+            </button>
+          </sc-for>
+        </div>
+        <div style="display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 6px; font-size: 11px; color: #93a3bf; padding: 8px 10px; background: #080c16; border-radius: 6px">
+          <div style="display: flex; flex-direction: column; gap: 2px"><span>MOVE</span><span style="font-family: 'JetBrains Mono', monospace; font-size: 13px; color: #e6edf8">{{destDist}}</span></div>
+          <div style="display: flex; flex-direction: column; gap: 2px"><span>BEARING</span><span style="font-family: 'JetBrains Mono', monospace; font-size: 13px; color: #e6edf8">{{destBearing}}</span></div>
+          <div style="display: flex; flex-direction: column; gap: 2px"><span>NEW HEADING</span><span style="font-family: 'JetBrains Mono', monospace; font-size: 13px; color: #e6edf8">{{destTurn}}</span></div>
+        </div>
+        <button onClick="{{commit}}" disabled="{{commitDisabled}}" style="{{commitStyle}}">{{commitLabel}}</button>
+      </div>
+
+      <div style="display: flex; flex-direction: column; gap: 8px; padding: 12px 14px; background: #0d1220; border: 1px solid #1c2638; border-radius: 8px; flex: 1; min-height: 200px">
+        <h2 style="margin: 0; font-family: 'Chakra Petch', sans-serif; font-size: 15px; letter-spacing: 0.06em; color: #eef3fb">BATTLE LOG</h2>
+        <div style="display: flex; flex-direction: column; gap: 10px; max-height: 300px; overflow-y: auto; padding-right: 4px" role="log" aria-live="polite">
+          <sc-for list="{{log}}" as="t" hint-placeholder-count="1">
+            <div style="display: flex; flex-direction: column; gap: 6px">
+              <span style="font-size: 11px; font-weight: 700; letter-spacing: 0.08em; color: #93a3bf">{{t.head}}</span>
+              <sc-for list="{{t.entries}}" as="e" hint-placeholder-count="3">
+                <div style="{{e.style}}">
+                  <span style="font-size: 12px; line-height: 1.4; color: #d8e1f0">{{e.text}}</span>
+                  <sc-if value="{{e.hasDice}}" hint-placeholder-val="{{ false }}">
+                    <div style="display: flex; flex-wrap: wrap; gap: 3px; margin-top: 4px">
+                      <sc-for list="{{e.dice}}" as="d" hint-placeholder-count="4"><span style="{{d.style}}">{{d.v}}</span></sc-for>
+                    </div>
+                  </sc-if>
+                </div>
+              </sc-for>
+            </div>
+          </sc-for>
+        </div>
+      </div>
+    </aside>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"mode":{"editor":"enum","options":["Versus AI","Hot-seat"],"default":"Versus AI"},"animSpeed":{"editor":"range","min":0.5,"max":2,"step":0.25,"default":1,"unit":"x"},"$preview":{"width":1440,"height":900}}'>
+class Component extends DCLogic {
+  constructor(props) {
+    super(props);
+    this.state = { v: 0 };
+    this.D = this.defs();
+    this.ui = { order: 'steady', enemyArcs: false, loading: true, loadNote: 'Loading 3D engine…', hover: null };
+    this.cam = { tx: 0, tz: 0, dist: 118, tilt: 0.62 };
+    this.fx = [];
+    this.anim = null;
+    this.setCanvas = (el) => { if (el) this.canvas = el; };
+    this.onDown = (e) => this.pointerDown(e);
+    this.onMove = (e) => this.pointerMove(e);
+    this.onUp = (e) => this.pointerUp(e);
+    this.onLeave = () => { this.ui.hover = null; this.drag = null; this.refreshHover(); };
+    this.onWheel = (e) => { this.cam.dist = Math.min(230, Math.max(22, this.cam.dist * Math.exp(e.deltaY * 0.0012))); };
+    this.noMenu = (e) => e.preventDefault();
+    this.restart = () => this.newGame();
+    this.commit = () => this.commitOrders();
+    this.takeOver = () => { this.g.phase = 'orders'; this.g.plotting = 'maw'; this.ui.order = 'steady'; this.refreshOverlays(); this.bump(); };
+    this.toggleEnemyArcs = () => { this.ui.enemyArcs = !this.ui.enemyArcs; this.refreshOverlays(); this.bump(); };
+    this.zoomIn = () => { this.cam.dist = Math.max(22, this.cam.dist * 0.8); };
+    this.zoomOut = () => { this.cam.dist = Math.min(230, this.cam.dist * 1.25); };
+    this.recenter = () => this.frameShips();
+    this.newGame(true);
+  }
+
+  /* ───────────── DATA ───────────── */
+  defs() {
+    return {
+      W: 120, H: 80,
+      CRIT: ['', 'Hull Breach', 'Fire!', 'Engines Hit', 'Steering Jammed', 'Gun Deck Hit', 'Bridge Hit'],
+      CRITKEY: ['', 'breach', 'fire', 'engines', 'steering', 'gundeck', 'bridge'],
+      ORDERS: [
+        { id: 'steady', label: 'Steady', short: 'No modifiers', desc: 'Standard manoeuvre: move between half and full Speed, turn up to the Turn value.' },
+        { id: 'aaf', label: 'All Ahead Full', short: 'Speed ×1.5 · Turn ½ · −1 to hit', desc: 'Must move at least full Speed, up to 1.5× Speed. Turn limit halved. This ship is −1 to hit.' },
+        { id: 'about', label: 'Come About', short: 'Turn +30° · Speed ½', desc: 'Turn limit +30°, maximum move halved, minimum move 2.' },
+        { id: 'lock', label: 'Lock On', short: '+1 to hit · Turn ½', desc: 'Gunners steady their aim: +1 to hit this turn, but the Turn limit is halved.' },
+        { id: 'brace', label: 'Brace for Impact', short: '+1 save · half dice', desc: 'Armour saves improve by 1 this turn, but every weapon rolls half dice (round up).' }
+      ],
+      SHIPS: {
+        resolute: {
+          id: 'resolute', name: 'CNS Resolute', cls: 'Dominion-class battleship · Concord Navy', color: '#5aa9ff', hex: 0x5aa9ff,
+          speed: 12, turn: 45, hull: 14, shields: 2, armour: 4, ram: false,
+          start: { x: -44, y: -14, h: 0 },
+          weapons: [
+            { id: 'port', name: 'Port broadside', dice: 7, range: 30, arcs: ['port'], broadside: true, side: 'port' },
+            { id: 'stbd', name: 'Starboard broadside', dice: 7, range: 30, arcs: ['stbd'], broadside: true, side: 'stbd' },
+            { id: 'lance', name: 'Prow lance', dice: 2, range: 30, arcs: ['fore'], lance: true },
+            { id: 'turret', name: 'Dorsal turrets', dice: 2, range: 18, arcs: ['fore', 'port', 'stbd', 'aft'] }
+          ],
+          assets: { mesh: '/_blob/1fca825c5afff9c46079621b608990d1', base: '/_blob/f3ccc5c71b8e6ac2ef74b6f4d0ed9ca5', normal: '/_blob/753f29aba03865a232ca1701e429a756', rm: '/_blob/64f67c2fe01d74c018b3a4def2eec0b5' }
+        },
+        maw: {
+          id: 'maw', name: 'Maw of Ruin', cls: 'Ravager-class battleship · Reaver Clans', color: '#ff6a3d', hex: 0xff6a3d,
+          speed: 16, turn: 60, hull: 13, shields: 2, armour: 5, ram: true,
+          start: { x: 44, y: 14, h: Math.PI },
+          weapons: [
+            { id: 'port', name: 'Port broadside', dice: 6, range: 24, arcs: ['port'], broadside: true, side: 'port' },
+            { id: 'stbd', name: 'Starboard broadside', dice: 6, range: 24, arcs: ['stbd'], broadside: true, side: 'stbd' },
+            { id: 'maw', name: 'Graviton maw', dice: 4, range: 18, arcs: ['fore'], lance: true },
+            { id: 'turret', name: 'Spinal turrets', dice: 2, range: 18, arcs: ['fore', 'port', 'stbd', 'aft'] }
+          ],
+          assets: { mesh: '/_blob/c644ca5c0c860be99b90b776783c832d', base: '/_blob/a3fec9d6b439e84422b2180316fbad33', normal: '/_blob/1631962b096ed9a4432e4b3c0abb9c29', rm: '/_blob/7dfc69f5529eb78e929aebbda296f429' }
+        }
+      }
+    };
+  }
+
+  /* ───────────── RULES ENGINE ───────────── */
+  d6() { return 1 + Math.floor(Math.random() * 6); }
+  norm(a) { while (a > Math.PI) a -= 2 * Math.PI; while (a <= -Math.PI) a += 2 * Math.PI; return a; }
+  deg(r) { return Math.round(r * 180 / Math.PI); }
+  count(s, k) { return s.crits.filter((c) => c.k === k).length; }
+  crippled(s) { return s.hull <= s.def.hull / 2; }
+  other(id) { return id === 'resolute' ? 'maw' : 'resolute'; }
+
+  mkShip(def) { return { def: def, id: def.id, x: def.start.x, y: def.start.y, h: def.start.h, hull: def.hull, crits: [], dead: false, fled: false }; }
+
+  env(s, order) {
+    const speed = Math.max(4, s.def.speed - 4 * this.count(s, 'engines'));
+    let turn = Math.max(15, s.def.turn - 15 * this.count(s, 'steering'));
+    let minMove = speed / 2, maxMove = speed;
+    if (order === 'aaf') { minMove = speed; maxMove = speed * 1.5; turn = turn / 2; }
+    if (order === 'about') { minMove = 2; maxMove = speed / 2; turn = turn + 30; }
+    if (order === 'lock') { turn = turn / 2; }
+    return { speed: speed, turn: turn, minMove: minMove, maxMove: maxMove };
+  }
+
+  clampDest(s, order, px, py) {
+    const e = this.env(s, order);
+    const tl = e.turn * Math.PI / 180;
+    let d = Math.hypot(px - s.x, py - s.y);
+    let b = d < 1e-6 ? 0 : this.norm(Math.atan2(py - s.y, px - s.x) - s.h);
+    b = Math.max(-tl, Math.min(tl, b));
+    d = Math.max(e.minMove, Math.min(e.maxMove, d));
+    return { x: s.x + d * Math.cos(s.h + b), y: s.y + d * Math.sin(s.h + b) };
+  }
+
+  // Constant-curvature arc from (x,y,h) through dest. Final heading = h + 2·bearing.
+  path(s, dest) {
+    const x0 = s.x, y0 = s.y, h0 = s.h;
+    const dx = dest.x - x0, dy = dest.y - y0, d = Math.hypot(dx, dy);
+    const b = d < 1e-6 ? 0 : this.norm(Math.atan2(dy, dx) - h0);
+    if (Math.abs(b) < 1e-3) {
+      return { b: 0, d: d, at: (t) => ({ x: x0 + dx * t, y: y0 + dy * t, h: h0 }) };
+    }
+    const R = d / (2 * Math.abs(Math.sin(b))), sg = Math.sign(b);
+    const cx = x0 - sg * R * Math.sin(h0), cy = y0 + sg * R * Math.cos(h0);
+    return { b: b, d: d, at: (t) => { const hh = h0 + 2 * b * t; return { x: cx + sg * R * Math.sin(hh), y: cy - sg * R * Math.cos(hh), h: hh }; } };
+  }
+
+  arcOf(s, tx, ty) {
+    const a = this.norm(Math.atan2(ty - s.y, tx - s.x) - s.h) * 180 / Math.PI;
+    if (Math.abs(a) <= 45) return 'fore';
+    if (a > 45 && a <= 135) return 'port';
+    if (a < -45 && a >= -135) return 'stbd';
+    return 'aft';
+  }
+
+  toHitTN(range, narrow, order, s) {
+    let tn = range <= 12 ? 3 : range <= 24 ? 4 : 5;
+    if (narrow) tn += 1;
+    if (order === 'aaf') tn += 1;
+    if (order === 'lock') tn -= 1;
+    if (this.count(s, 'bridge') > 0) tn += 1;
+    return Math.max(2, Math.min(6, tn));
+  }
+
+  weaponDice(s, w, order) {
+    let d = w.dice;
+    if (w.broadside && this.crippled(s)) d = Math.ceil(d / 2);
+    if (w.broadside) { const n = s.crits.filter((c) => c.k === 'gundeck' && c.side === w.side).length; for (let i = 0; i < n; i++) d = Math.ceil(d / 2); }
+    if (order === 'brace') d = Math.ceil(d / 2);
+    return d;
+  }
+
+  // One ship's full gunnery against the other. Pure w.r.t. ship state (results applied later → simultaneous fire).
+  gunnery(A, B, oA, oB) {
+    const out = { dmg: 0, crits: [], entries: [], shots: [], absorbed: 0 };
+    const r = Math.hypot(B.x - A.x, B.y - A.y);
+    const arc = this.arcOf(A, B.x, B.y);
+    const narrow = ['fore', 'aft'].indexOf(this.arcOf(B, A.x, A.y)) >= 0;
+    const arcName = { fore: 'fore', port: 'port', stbd: 'starboard', aft: 'aft' }[arc];
+    const hits = [];
+    let anyFired = false;
+    A.def.weapons.forEach((w) => {
+      if (w.arcs.indexOf(arc) < 0 || r > w.range) return;
+      const n = this.weaponDice(A, w, oA);
+      if (n <= 0) return;
+      anyFired = true;
+      const tn = this.toHitTN(r, narrow, oA, A);
+      const rolls = []; for (let i = 0; i < n; i++) rolls.push(this.d6());
+      const hit = (v) => v !== 1 && (v === 6 || v >= tn);
+      rolls.forEach((v) => { const h = hit(v); out.shots.push({ w: w, hit: h }); if (h) hits.push({ v: v, lance: !!w.lance, w: w }); });
+      out.entries.push({ side: A.id, text: w.name + (w.lance ? ' (lance)' : '') + ' — ' + n + 'd6 needing ' + tn + '+' + (narrow ? ' (narrow profile)' : ''), dice: rolls.map((v) => ({ v: v, kind: hit(v) ? (v === 6 ? 'crit' : 'hit') : 'miss' })) });
+    });
+    if (!anyFired) {
+      out.entries.push({ side: A.id, text: 'No weapons bear — target ' + Math.round(r) + 'u away in ' + arcName + ' arc.' });
+      return out;
+    }
+    // Shields absorb ordinary (non-lance) hits, weakest first; 6s are absorbed last.
+    const normal = hits.filter((h) => !h.lance).sort((a, b) => a.v - b.v);
+    const lances = hits.filter((h) => h.lance);
+    const sh = Math.min(B.def.shields, normal.length);
+    out.absorbed = sh;
+    const through = normal.slice(sh).concat(lances);
+    if (hits.length === 0) { out.entries.push({ side: A.id, text: 'All shots miss.' }); return out; }
+    let saveTN = B.def.armour - (oB === 'brace' ? 1 : 0);
+    saveTN = Math.max(2, Math.min(6, saveTN));
+    const saves = [];
+    let unsaved = 0;
+    through.forEach((h) => {
+      const sv = this.d6();
+      const saved = sv !== 1 && sv >= saveTN;
+      saves.push({ v: sv, kind: saved ? 'save' : 'fail' });
+      if (!saved) {
+        unsaved++;
+        out.dmg += h.lance ? 2 : 1;
+        if (h.v === 6) {
+          const c = this.d6();
+          const crit = { k: this.D.CRITKEY[c], roll: c };
+          if (crit.k === 'gundeck') crit.side = this.d6() <= 3 ? 'port' : 'stbd';
+          if (crit.k === 'breach') out.dmg += 1;
+          out.crits.push(crit);
+        }
+      }
+    });
+    let text = hits.length + ' hit' + (hits.length === 1 ? '' : 's') + '. ';
+    if (sh > 0) text += 'Shields absorb ' + sh + '. ';
+    if (through.length > 0) text += 'Armour saves on ' + saveTN + '+:';
+    else text += 'Nothing gets through.';
+    out.entries.push({ side: B.id, text: text, dice: saves.length ? saves : null });
+    if (through.length > 0) out.entries.push({ side: A.id, strong: true, text: out.dmg + ' damage to ' + B.def.name + (out.crits.length ? ' · CRITICAL: ' + out.crits.map((c) => this.critName(c)).join(', ') : '') });
+    return out;
+  }
+
+  critName(c) { return this.D.CRIT[c.roll] + (c.side ? ' (' + (c.side === 'port' ? 'port' : 'starboard') + ')' : ''); }
+
+  /* ───────────── AI ───────────── */
+  firepower(A, ax, ay, ah, B, bx, by, bh, order) {
+    const sA = { x: ax, y: ay, h: ah, crits: A.crits, def: A.def, hull: A.hull };
+    const sB = { x: bx, y: by, h: bh };
+    const r = Math.hypot(bx - ax, by - ay);
+    const arc = this.arcOf(sA, bx, by);
+    const narrow = ['fore', 'aft'].indexOf(this.arcOf(sB, ax, ay)) >= 0;
+    let fp = 0;
+    A.def.weapons.forEach((w) => {
+      if (w.arcs.indexOf(arc) < 0 || r > w.range) return;
+      const tn = this.toHitTN(r, narrow, order, sA);
+      fp += this.weaponDice(sA, w, order) * (7 - tn) / 6 * (w.lance ? 2.2 : 1);
+    });
+    return fp;
+  }
+
+  aiPlan(me, foe) {
+    const fe = this.env(foe, 'steady');
+    const pf = { x: foe.x + Math.cos(foe.h) * fe.speed * 0.75, y: foe.y + Math.sin(foe.h) * fe.speed * 0.75, h: foe.h };
+    const opts = this.count(me, 'bridge') > 0 ? ['steady'] : ['steady', 'aaf', 'about', 'lock', 'brace'];
+    let best = null;
+    opts.forEach((o) => {
+      const e = this.env(me, o);
+      for (let i = 0; i <= 10; i++) {
+        const b = (-e.turn + 2 * e.turn * i / 10) * Math.PI / 180;
+        for (let j = 0; j <= 3; j++) {
+          const d = e.minMove + (e.maxMove - e.minMove) * j / 3;
+          const dest = { x: me.x + d * Math.cos(me.h + b), y: me.y + d * Math.sin(me.h + b) };
+          const end = this.path(me, dest).at(1);
+          const r = Math.hypot(end.x - pf.x, end.y - pf.y);
+          let fp = this.firepower(me, end.x, end.y, end.h, foe, pf.x, pf.y, pf.h, o);
+          let efp = this.firepower(foe, pf.x, pf.y, pf.h, me, end.x, end.y, end.h, 'steady');
+          if (o === 'brace') efp *= 0.65;
+          let score = fp * 1.25 - efp;
+          if (fp === 0) score -= r * 0.09;
+          if (me.def.ram && r < 4 && this.arcOf({ x: end.x, y: end.y, h: end.h }, pf.x, pf.y) === 'fore') score += 2.5;
+          if (Math.abs(end.x) > this.D.W / 2 - 6 || Math.abs(end.y) > this.D.H / 2 - 6) score -= 6;
+          if (Math.abs(end.x) > this.D.W / 2 || Math.abs(end.y) > this.D.H / 2) score -= 100;
+          score += Math.random() * 0.8;
+          if (!best || score > best.score) best = { score: score, order: o, dest: dest };
+        }
+      }
+    });
+    return best;
+  }
+
+  /* ───────────── GAME FLOW ───────────── */
+  newGame(silent) {
+    const S = this.D.SHIPS;
+    this.g = {
+      turn: 1, phase: 'orders', plotting: 'resolute',
+      ships: { resolute: this.mkShip(S.resolute), maw: this.mkShip(S.maw) },
+      orders: {}, dest: null, log: [], winner: null, overText: ''
+    };
+    this.ui.order = 'steady';
+    this.ui.hover = null;
+    this.anim = null;
+    this.fx.forEach((f) => f.kill && f.kill());
+    this.fx = [];
+    this.pushLog('PRE-BATTLE', [{ side: 'sys', text: 'Contact! CNS Resolute and Maw of Ruin close at 90u. Plot your course: click inside the blue manoeuvre zone.' }]);
+    if (this.three) { this.placeShips(); this.three.objs.resolute.root.visible = true; this.three.objs.maw.root.visible = true; this.three.objs.resolute.model.visible = true; this.three.objs.maw.model.visible = true; this.frameShips(); this.refreshOverlays(); }
+    if (!silent) this.bump();
+  }
+
+  bump() { this.setState({ v: (this.state.v || 0) + 1 }); }
+
+  pushLog(head, entries) { this.g.log.unshift({ head: head, entries: entries }); if (this.g.log.length > 30) this.g.log.pop(); }
+
+  modeHot() { return (this.props.mode || 'Versus AI') === 'Hot-seat'; }
+
+  setDest(mx, my) {
+    if (this.g.phase !== 'orders') return;
+    const s = this.g.ships[this.g.plotting];
+    this.g.dest = this.clampDest(s, this.ui.order, mx, my);
+    this.refreshOverlays();
+    this.bump();
+  }
+
+  pickOrder(id) {
+    if (this.g.phase !== 'orders') return;
+    this.ui.order = id;
+    if (this.g.dest) { const s = this.g.ships[this.g.plotting]; this.g.dest = this.clampDest(s, id, this.g.dest.x, this.g.dest.y); }
+    this.refreshOverlays();
+    this.bump();
+  }
+
+  commitOrders() {
+    const g = this.g;
+    if (g.phase !== 'orders' || !g.dest) return;
+    g.orders[g.plotting] = { order: this.ui.order, dest: g.dest };
+    g.dest = null; this.ui.hover = null; this.ui.order = 'steady';
+    if (g.plotting === 'resolute') {
+      if (this.modeHot()) { g.phase = 'handoff'; this.refreshOverlays(); this.bump(); return; }
+      const plan = this.aiPlan(g.ships.maw, g.ships.resolute);
+      g.orders.maw = { order: plan.order, dest: plan.dest };
+    }
+    this.beginMovement();
+  }
+
+  beginMovement() {
+    const g = this.g;
+    g.phase = 'moving';
+    const ent = [];
+    ['resolute', 'maw'].forEach((id) => {
+      const s = g.ships[id], o = g.orders[id];
+      o.path = this.path(s, o.dest);
+      const ord = this.D.ORDERS.filter((x) => x.id === o.order)[0];
+      ent.push({ side: id, text: s.def.name + ': ' + ord.label + ' — moves ' + o.path.d.toFixed(1) + 'u, turns ' + Math.abs(this.deg(2 * o.path.b)) + '°' + (o.path.b > 0.001 ? ' to port.' : o.path.b < -0.001 ? ' to starboard.' : ' (straight).') });
+    });
+    this.pushLog('TURN ' + g.turn, ent);
+    this.anim = { kind: 'move', t0: performance.now(), dur: 2600 / this.speedMul() };
+    this.refreshOverlays();
+    this.bump();
+  }
+
+  speedMul() { const v = Number(this.props.animSpeed); return v > 0 ? v : 1; }
+
+  afterMove() {
+    const g = this.g, R = g.ships.resolute, M = g.ships.maw, log = this.g.log[0].entries;
+    ['resolute', 'maw'].forEach((id) => { const s = g.ships[id], e = g.orders[id].path.at(1); s.x = e.x; s.y = e.y; s.h = this.norm(e.h); });
+    // Disengagement: ending outside the arena means the ship has fled.
+    ['resolute', 'maw'].forEach((id) => { const s = g.ships[id]; if (Math.abs(s.x) > this.D.W / 2 || Math.abs(s.y) > this.D.H / 2) { s.fled = true; log.push({ side: 'sys', text: s.def.name + ' leaves the battle zone and disengages!' }); } });
+    // Collision
+    const dist = Math.hypot(R.x - M.x, R.y - M.y);
+    if (dist < 4 && !R.fled && !M.fled) {
+      const ramR = R.def.ram && this.arcOf(R, M.x, M.y) === 'fore';
+      const ramM = M.def.ram && this.arcOf(M, R.x, R.y) === 'fore';
+      const toM = ramR ? this.d6() : 1 + Math.floor(Math.random() * 3);
+      const toR = ramM ? this.d6() : 1 + Math.floor(Math.random() * 3);
+      R.hull = Math.max(0, R.hull - toR); M.hull = Math.max(0, M.hull - toM);
+      log.push({ side: 'sys', strong: true, text: 'COLLISION! ' + (ramM ? 'Maw of Ruin rams with its prow — ' : '') + 'Resolute takes ' + toR + ', Maw of Ruin takes ' + toM + ' damage.' });
+      const ux = (M.x - R.x) / (dist || 1), uy = (M.y - R.y) / (dist || 1), push = (4 - dist) / 2;
+      R.x -= ux * push; R.y -= uy * push; M.x += ux * push; M.y += uy * push;
+      this.spark(R.x, R.y, 0xffffff, 6); this.spark(M.x, M.y, 0xffffff, 6);
+    }
+    this.placeShips();
+    // Simultaneous gunnery: both resolved against the same positions, applied afterwards.
+    const res = { resolute: null, maw: null };
+    if (!R.fled && !M.fled) {
+      res.resolute = this.gunnery(R, M, g.orders.resolute.order, g.orders.maw.order);
+      res.maw = this.gunnery(M, R, g.orders.maw.order, g.orders.resolute.order);
+    }
+    g.pending = res;
+    g.phase = 'firing';
+    this.pushLog('TURN ' + g.turn + ' · GUNNERY', [].concat(res.resolute ? res.resolute.entries : [], res.maw ? res.maw.entries : []));
+    let maxT = 0;
+    ['resolute', 'maw'].forEach((id) => {
+      const r = res[id]; if (!r) return;
+      const A = g.ships[id], B = g.ships[this.other(id)];
+      r.shots.forEach((sh, i) => { const t = (id === 'maw' ? 0.12 : 0) + i * 0.09 / this.speedMul(); maxT = Math.max(maxT, t); this.bolt(A, B, sh, t, i); });
+      if (r.absorbed > 0) this.shieldFlash(B.id, 0.4 / this.speedMul());
+    });
+    this.anim = { kind: 'fire', t0: performance.now(), dur: (maxT + 1.1 / this.speedMul()) * 1000 };
+    this.bump();
+  }
+
+  afterFire() {
+    const g = this.g, res = g.pending, end = [];
+    ['resolute', 'maw'].forEach((id) => {
+      const r = res[id]; if (!r) return;
+      const B = g.ships[this.other(id)];
+      B.hull = Math.max(0, B.hull - r.dmg);
+      r.crits.forEach((c) => { if (c.k !== 'breach') B.crits.push(c); });
+    });
+    // End phase: fires burn, then damage control.
+    ['resolute', 'maw'].forEach((id) => {
+      const s = g.ships[id];
+      if (s.hull <= 0) return;
+      const fires = this.count(s, 'fire');
+      if (fires > 0) { s.hull = Math.max(0, s.hull - fires); end.push({ side: id, text: s.def.name + ' burns: ' + fires + ' damage from fire.' }); }
+      if (s.crits.length) {
+        const rolls = [], keep = [];
+        s.crits.forEach((c) => { const tn = c.k === 'fire' ? 4 : 5, v = this.d6(), ok = v >= tn; rolls.push({ v: v, kind: ok ? 'save' : 'fail' }); if (!ok) keep.push(c); });
+        const fixed = s.crits.length - keep.length;
+        end.push({ side: id, text: s.def.name + ' damage control (Fire 4+, others 5+): ' + fixed + ' of ' + s.crits.length + ' repaired.', dice: rolls });
+        s.crits = keep;
+      }
+    });
+    ['resolute', 'maw'].forEach((id) => { const s = g.ships[id]; if (s.hull <= 0 && !s.dead) { s.dead = true; end.push({ side: 'sys', strong: true, text: s.def.name + ' is destroyed!' }); this.explode(s); } });
+    if (end.length) this.pushLog('TURN ' + g.turn + ' · END PHASE', end);
+    g.pending = null;
+    const R = g.ships.resolute, M = g.ships.maw;
+    const rOut = R.dead || R.fled, mOut = M.dead || M.fled;
+    if (rOut || mOut) {
+      g.phase = 'over';
+      if (rOut && mOut) { g.winner = 'draw'; g.overText = 'Both ships are out of the fight. Mutual destruction — nobody holds the field.'; }
+      else if (mOut) { g.winner = 'resolute'; g.overText = M.dead ? 'Maw of Ruin breaks apart under Concord broadsides after ' + g.turn + ' turns.' : 'Maw of Ruin flees the battle zone. The Concord holds the field.'; }
+      else { g.winner = 'maw'; g.overText = R.dead ? 'CNS Resolute is torn open by the Reaver after ' + g.turn + ' turns.' : 'CNS Resolute disengages. The Reavers claim the field.'; }
+    } else {
+      g.turn += 1; g.phase = 'orders'; g.plotting = 'resolute'; g.orders = {};
+    }
+    this.anim = null;
+    this.refreshOverlays();
+    this.bump();
+  }
+
+  /* ───────────── THREE.JS SCENE ───────────── */
+  componentDidMount() {
+    this.alive = true;
+    let tries = 0;
+    const wait = () => {
+      if (!this.alive) return;
+      const T = window.THREE;
+      if (!this.canvas) this.canvas = document.querySelector('[data-broadside-canvas]');
+      if (T && T.GLTFLoader && this.canvas) { this.init3D(); return; }
+      if (++tries > 200) { this.ui.loadNote = '3D engine failed to load.'; this.bump(); return; }
+      setTimeout(wait, 75);
+    };
+    wait();
+  }
+
+  componentWillUnmount() {
+    this.alive = false;
+    if (this.raf) cancelAnimationFrame(this.raf);
+    if (this.ro) this.ro.disconnect();
+    if (this.three) this.three.renderer.dispose();
+  }
+
+  init3D() {
+    const T = window.THREE;
+    const canvas = this.canvas;
+    const renderer = new T.WebGLRenderer({ canvas: canvas, antialias: true });
+    renderer.setPixelRatio(Math.min(2, window.devicePixelRatio || 1));
+    renderer.outputEncoding = T.sRGBEncoding;
+    renderer.toneMapping = T.ACESFilmicToneMapping;
+    renderer.toneMappingExposure = 1.15;
+    const scene = new T.Scene();
+    scene.background = new T.Color(0x04060b);
+    const camera = new T.PerspectiveCamera(40, 1.6, 0.5, 2000);
+    scene.add(new T.HemisphereLight(0xbfd4ff, 0x1a1420, 0.9));
+    const key = new T.DirectionalLight(0xfff1e0, 2.4); key.position.set(40, 80, 30); scene.add(key);
+    const rim = new T.DirectionalLight(0x7fa8ff, 1.0); rim.position.set(-50, 30, -60); scene.add(rim);
+    this.three = { T: T, renderer: renderer, scene: scene, camera: camera, objs: {}, overlay: new T.Group(), hover: new T.Group(), fxg: new T.Group(), ray: new T.Raycaster(), plane: new T.Plane(new T.Vector3(0, 1, 0), 0) };
+    scene.add(this.three.overlay); scene.add(this.three.hover); scene.add(this.three.fxg);
+    this.three.glowTex = this.radialTex();
+    this.buildBackdrop();
+    ['resolute', 'maw'].forEach((id) => { this.three.objs[id] = this.buildShipObj(this.D.SHIPS[id]); });
+    this.placeShips();
+    this.frameShips(true);
+    this.refreshOverlays();
+    const fit = () => {
+      const p = canvas.parentElement; if (!p) return;
+      const w = Math.max(1, p.clientWidth), h = Math.max(1, p.clientHeight);
+      renderer.setSize(w, h, false); camera.aspect = w / h; camera.updateProjectionMatrix();
+    };
+    fit();
+    if (window.ResizeObserver) { this.ro = new ResizeObserver(fit); this.ro.observe(canvas.parentElement); }
+    this.last = performance.now();
+    const loop = (now) => { if (!this.alive) return; this.frame(now); this.raf = requestAnimationFrame(loop); };
+    this.raf = requestAnimationFrame(loop);
+    this.ui.loadNote = 'Loading ship models…';
+    this.bump();
+    Promise.all(['resolute', 'maw'].map((id) => this.loadModel(id).catch(() => null))).then((r) => {
+      this.ui.loading = false;
+      if (r.indexOf(null) >= 0) this.pushLog('SYSTEM', [{ side: 'sys', text: 'A ship model could not load; showing a stand-in hull.' }]);
+      this.refreshOverlays();
+      this.bump();
+    });
+  }
+
+  radialTex() {
+    const T = this.three.T, c = document.createElement('canvas'); c.width = c.height = 128;
+    const x = c.getContext('2d'), gr = x.createRadialGradient(64, 64, 0, 64, 64, 64);
+    gr.addColorStop(0, 'rgba(255,255,255,1)'); gr.addColorStop(0.25, 'rgba(255,255,255,0.55)'); gr.addColorStop(1, 'rgba(255,255,255,0)');
+    x.fillStyle = gr; x.fillRect(0, 0, 128, 128);
+    const t = new T.CanvasTexture(c); t.encoding = T.sRGBEncoding; return t;
+  }
+
+  buildBackdrop() {
+    const T = this.three.T, sc = this.three.scene, W = this.D.W, H = this.D.H;
+    const n = 2600, pos = new Float32Array(n * 3), col = new Float32Array(n * 3);
+    for (let i = 0; i < n; i++) {
+      const r = 400 + Math.random() * 500, th = Math.random() * Math.PI * 2, ph = Math.acos(Math.random() * 1.6 - 0.6);
+      pos[i * 3] = r * Math.sin(ph) * Math.cos(th); pos[i * 3 + 1] = -Math.abs(r * Math.cos(ph)) - 40; pos[i * 3 + 2] = r * Math.sin(ph) * Math.sin(th);
+      const k = 0.5 + Math.random() * 0.5, tint = Math.random();
+      col[i * 3] = k * (tint < 0.2 ? 0.8 : 1); col[i * 3 + 1] = k * 0.92; col[i * 3 + 2] = k * (tint > 0.75 ? 1 : 0.85);
+    }
+    const g = new T.BufferGeometry(); g.setAttribute('position', new T.BufferAttribute(pos, 3)); g.setAttribute('color', new T.BufferAttribute(col, 3));
+    sc.add(new T.Points(g, new T.PointsMaterial({ size: 2.2, sizeAttenuation: false, vertexColors: true, transparent: true, opacity: 0.85 })));
+    // Nebula wash far below the play plane
+    const neb = new T.Sprite(new T.SpriteMaterial({ map: this.three.glowTex, color: 0x1b2b5a, transparent: true, opacity: 0.55, depthWrite: false }));
+    neb.position.set(-60, -180, -40); neb.scale.set(520, 360, 1); sc.add(neb);
+    const neb2 = new T.Sprite(new T.SpriteMaterial({ map: this.three.glowTex, color: 0x4a1a2a, transparent: true, opacity: 0.4, depthWrite: false }));
+    neb2.position.set(120, -200, 60); neb2.scale.set(420, 300, 1); sc.add(neb2);
+    // Faint reference grid (orientation aid only — movement is free, not square-based)
+    const lp = [];
+    for (let x = -W / 2; x <= W / 2; x += 10) lp.push(x, 0, -H / 2, x, 0, H / 2);
+    for (let y = -H / 2; y <= H / 2; y += 10) lp.push(-W / 2, 0, y, W / 2, 0, y);
+    const gg = new T.BufferGeometry(); gg.setAttribute('position', new T.Float32BufferAttribute(lp, 3));
+    sc.add(new T.LineSegments(gg, new T.LineBasicMaterial({ color: 0x1a2a44, transparent: true, opacity: 0.35 })));
+    const bp = [-W / 2, 0, -H / 2, W / 2, 0, -H / 2, W / 2, 0, H / 2, -W / 2, 0, H / 2];
+    const bg = new T.BufferGeometry(); bg.setAttribute('position', new T.Float32BufferAttribute(bp, 3));
+    sc.add(new T.LineLoop(bg, new T.LineBasicMaterial({ color: 0x3a5a8a, transparent: true, opacity: 0.8 })));
+  }
+
+  buildShipObj(def) {
+    const T = this.three.T;
+    const root = new T.Group();
+    const model = new T.Group(); root.add(model);
+    // Stand-in hull until the real model arrives
+    const stand = new T.Group();
+    const mat = new T.MeshStandardMaterial({ color: 0x8a94a6, metalness: 0.6, roughness: 0.45 });
+    const hullM = new T.Mesh(new T.BoxGeometry(1.8, 1.1, 6), mat); hullM.position.y = 0.8; stand.add(hullM);
+    const prow = new T.Mesh(new T.ConeGeometry(0.9, 2, 4), mat); prow.rotation.x = Math.PI / 2; prow.position.set(0, 0.8, 4); stand.add(prow);
+    model.add(stand);
+    const ring = new T.Mesh(new T.RingGeometry(4.3, 4.7, 48), new T.MeshBasicMaterial({ color: def.hex, transparent: true, opacity: 0.55, side: T.DoubleSide, depthWrite: false }));
+    ring.rotation.x = -Math.PI / 2; ring.position.y = 0.03; root.add(ring);
+    const glow = new T.Sprite(new T.SpriteMaterial({ map: this.three.glowTex, color: def.id === 'resolute' ? 0x6fb6ff : 0xff5030, transparent: true, opacity: 0.9, blending: T.AdditiveBlending, depthWrite: false }));
+    glow.position.set(0, 1.3, -3.9); glow.scale.set(2.6, 2.6, 1); root.add(glow);
+    const shield = new T.Mesh(new T.SphereGeometry(1, 28, 18), new T.MeshBasicMaterial({ color: def.hex, transparent: true, opacity: 0, blending: T.AdditiveBlending, depthWrite: false }));
+    shield.scale.set(2.8, 2.0, 4.9); shield.position.y = 1.2; root.add(shield);
+    this.three.scene.add(root);
+    return { root: root, model: model, stand: stand, ring: ring, glow: glow, shield: shield, flash: 0, ghostSrc: null };
+  }
+
+  loadModel(id) {
+    const T = this.three.T, def = this.D.SHIPS[id], a = def.assets, obj = this.three.objs[id];
+    const tl = new T.TextureLoader();
+    const tex = (u) => new Promise((ok) => tl.load(u, ok, undefined, () => ok(null)));
+    return fetch(a.mesh).then((r) => r.json()).then((j) => {
+      const bin = atob(j.glb), buf = new Uint8Array(bin.length);
+      for (let i = 0; i < bin.length; i++) buf[i] = bin.charCodeAt(i);
+      return Promise.all([new Promise((ok, bad) => new T.GLTFLoader().parse(buf.buffer, '', ok, bad)), tex(a.base), tex(a.normal), tex(a.rm)]);
+    }).then((res) => {
+      const gltf = res[0], base = res[1], normal = res[2], rm = res[3];
+      [base, normal, rm].forEach((t) => { if (t) { t.flipY = false; t.anisotropy = 4; } });
+      if (base) base.encoding = T.sRGBEncoding;
+      const mat = new T.MeshStandardMaterial({ map: base, normalMap: normal, roughnessMap: rm, metalnessMap: rm, metalness: rm ? 1 : 0.6, roughness: rm ? 1 : 0.5, color: base ? 0xffffff : 0x8a94a6 });
+      const m = gltf.scene;
+      m.traverse((o) => { if (o.isMesh) o.material = mat; });
+      const box = new T.Box3().setFromObject(m), size = box.getSize(new T.Vector3()), c = box.getCenter(new T.Vector3());
+      const k = 7.2 / Math.max(size.x, size.z);
+      m.scale.setScalar(k);
+      m.position.set(-c.x * k, -box.min.y * k + 0.3, -c.z * k);
+      obj.model.remove(obj.stand);
+      obj.model.add(m);
+      obj.ghostSrc = m;
+    });
+  }
+
+  m2v(x, y, h) { return new this.three.T.Vector3(x, h || 0, -y); }
+
+  placeShips() {
+    if (!this.three) return;
+    ['resolute', 'maw'].forEach((id) => {
+      const s = this.g.ships[id], o = this.three.objs[id];
+      o.root.position.set(s.x, 0, -s.y);
+      o.root.rotation.y = s.h + Math.PI / 2;
+    });
+  }
+
+  frameShips(instant) {
+    const R = this.g.ships.resolute, M = this.g.ships.maw;
+    this.cam.tx = (R.x + M.x) / 2; this.cam.tz = -(R.y + M.y) / 2;
+    const span = Math.max(Math.hypot(R.x - M.x, R.y - M.y) + 34, 60);
+    this.cam.dist = Math.min(200, span * 1.15);
+  }
+
+  disposeGroup(g) {
+    while (g.children.length) {
+      const c = g.children.pop();
+      c.traverse((o) => { if (o.geometry && !o.userData.shared) o.geometry.dispose(); if (o.material && !o.userData.sharedMat) o.material.dispose(); });
+    }
+  }
+
+  sector(x, y, r0, r1, a0, a1, color, op, lineOp) {
+    const T = this.three.T, grp = new T.Group();
+    const geo = new T.RingGeometry(Math.max(0.01, r0), r1, 64, 1, a0, a1 - a0);
+    const m = new T.Mesh(geo, new T.MeshBasicMaterial({ color: color, transparent: true, opacity: op, side: T.DoubleSide, depthWrite: false }));
+    m.rotation.x = -Math.PI / 2; m.position.set(x, 0.05, -y); grp.add(m);
+    if (lineOp) {
+      const pts = [], N = 48;
+      for (let i = 0; i <= N; i++) { const a = a0 + (a1 - a0) * i / N; pts.push(this.m2v(x + r1 * Math.cos(a), y + r1 * Math.sin(a), 0.07)); }
+      for (let i = N; i >= 0; i--) { const a = a0 + (a1 - a0) * i / N; pts.push(this.m2v(x + r0 * Math.cos(a), y + r0 * Math.sin(a), 0.07)); }
+      const lg = new T.BufferGeometry().setFromPoints(pts);
+      grp.add(new T.LineLoop(lg, new T.LineBasicMaterial({ color: color, transparent: true, opacity: lineOp })));
+    }
+    return grp;
+  }
+
+  circle(x, y, r, color, op) {
+    const T = this.three.T, pts = [];
+    for (let i = 0; i <= 96; i++) { const a = i / 96 * Math.PI * 2; pts.push(this.m2v(x + r * Math.cos(a), y + r * Math.sin(a), 0.06)); }
+    const l = new T.Line(new T.BufferGeometry().setFromPoints(pts), new T.LineDashedMaterial({ color: color, transparent: true, opacity: op, dashSize: 1.2, gapSize: 1.2 }));
+    l.computeLineDistances();
+    return l;
+  }
+
+  arcsFor(grp, def, x, y, h, op) {
+    const D = Math.PI / 180;
+    const ranges = {};
+    def.weapons.forEach((w) => w.arcs.forEach((a) => { if (w.dice > 1) ranges[a] = Math.max(ranges[a] || 0, w.range); }));
+    const span = { fore: [-45, 45], port: [45, 135], stbd: [-135, -45], aft: [135, 225] };
+    Object.keys(span).forEach((a) => {
+      const r = ranges[a]; if (!r) return;
+      const strong = a === 'port' || a === 'stbd' || a === 'fore';
+      grp.add(this.sector(x, y, 0, r, h + span[a][0] * D, h + span[a][1] * D, def.hex, strong ? op : op * 0.5, strong ? op * 4 : op * 2));
+    });
+    grp.add(this.circle(x, y, 12, 0xffffff, 0.18));
+    grp.add(this.circle(x, y, 24, 0xffffff, 0.12));
+  }
+
+  pathLine(s, dest, color, op) {
+    const T = this.three.T, p = this.path(s, dest), pts = [];
+    for (let i = 0; i <= 32; i++) { const q = p.at(i / 32); pts.push(this.m2v(q.x, q.y, 0.25)); }
+    return new T.Line(new T.BufferGeometry().setFromPoints(pts), new T.LineBasicMaterial({ color: color, transparent: true, opacity: op }));
+  }
+
+  ghost(def, x, y, h, op) {
+    const T = this.three.T, src = this.three.objs[def.id].ghostSrc, grp = new T.Group();
+    if (src) {
+      const c = src.clone(true);
+      c.traverse((o) => { if (o.isMesh) { o.userData.shared = true; o.material = new T.MeshBasicMaterial({ color: def.hex, transparent: true, opacity: op, depthWrite: false }); } });
+      grp.add(c);
+    } else {
+      const m = new T.Mesh(new T.ConeGeometry(1.2, 6, 4), new T.MeshBasicMaterial({ color: def.hex, transparent: true, opacity: op }));
+      m.rotation.x = Math.PI / 2; m.position.y = 0.8; grp.add(m);
+    }
+    const ring = new T.Mesh(new T.RingGeometry(1.0, 1.5, 32), new T.MeshBasicMaterial({ color: def.hex, transparent: true, opacity: Math.min(1, op * 2.2), side: T.DoubleSide, depthWrite: false }));
+    ring.rotation.x = -Math.PI / 2; ring.position.y = 0.08; ring.rotation.z = 0; grp.add(ring);
+    grp.position.set(x, 0, -y); grp.rotation.y = h + Math.PI / 2;
+    return grp;
+  }
+
+  refreshOverlays() {
+    if (!this.three) return;
+    const ov = this.three.overlay, g = this.g;
+    this.disposeGroup(ov);
+    if (g.phase !== 'orders') { this.refreshHover(); return; }
+    const me = g.ships[g.plotting], foe = g.ships[this.other(g.plotting)];
+    const e = this.env(me, this.ui.order), D = Math.PI / 180;
+    ov.add(this.sector(me.x, me.y, e.minMove, e.maxMove, me.h - e.turn * D, me.h + e.turn * D, me.def.hex, 0.16, 0.85));
+    if (this.ui.enemyArcs) this.arcsFor(ov, foe.def, foe.x, foe.y, foe.h, 0.05);
+    if (g.dest) {
+      const end = this.path(me, g.dest).at(1);
+      ov.add(this.pathLine(me, g.dest, me.def.hex, 0.95));
+      this.arcsFor(ov, me.def, end.x, end.y, end.h, 0.06);
+      ov.add(this.ghost(me.def, end.x, end.y, end.h, 0.38));
+    } else {
+      this.arcsFor(ov, me.def, me.x, me.y, me.h, 0.035);
+    }
+    this.refreshHover();
+  }
+
+  refreshHover() {
+    if (!this.three) return;
+    const hv = this.three.hover, g = this.g;
+    this.disposeGroup(hv);
+    if (g.phase !== 'orders') return;
+    const me = g.ships[g.plotting];
+    if (this.ui.hover) {
+      const hd = this.clampDest(me, this.ui.order, this.ui.hover.x, this.ui.hover.y);
+      const he = this.path(me, hd).at(1);
+      hv.add(this.pathLine(me, hd, 0xffffff, 0.45));
+      hv.add(this.ghost(me.def, he.x, he.y, he.h, 0.16));
+    }
+  }
+
+  /* ───────────── EFFECTS ───────────── */
+  bolt(A, B, shot, delay, i) {
+    if (!this.three) return;
+    const T = this.three.T, w = shot.w;
+    const lance = !!w.lance, col = A.id === 'resolute' ? (lance ? 0xbfe4ff : 0x7cc0ff) : (lance ? 0xff3cc8 : 0xff7a3d);
+    const side = w.side === 'port' ? 1 : w.side === 'stbd' ? -1 : 0;
+    const along = ((i % 5) - 2) * 0.9;
+    const ox = A.x + Math.cos(A.h) * (lance ? 3.6 : along) + Math.cos(A.h + Math.PI / 2) * side * 1.1;
+    const oy = A.y + Math.sin(A.h) * (lance ? 3.6 : along) + Math.sin(A.h + Math.PI / 2) * side * 1.1;
+    let tx = B.x + (Math.random() - 0.5) * 2.4, ty = B.y + (Math.random() - 0.5) * 2.4;
+    if (!shot.hit) { const a = Math.random() * Math.PI * 2; tx = B.x + Math.cos(a) * (5 + Math.random() * 4); ty = B.y + Math.sin(a) * (5 + Math.random() * 4); }
+    const from = this.m2v(ox, oy, 1.4), to = this.m2v(tx, ty, 1.2);
+    const mesh = new T.Mesh(new T.BoxGeometry(1, 1, 1), new T.MeshBasicMaterial({ color: col, transparent: true, opacity: 0, blending: T.AdditiveBlending, depthWrite: false }));
+    const thick = lance ? 0.45 : 0.18;
+    this.three.fxg.add(mesh);
+    const len = from.distanceTo(to), fly = (lance ? 0.12 : 0.32) / this.speedMul();
+    const fx = { t: -delay, done: false, hitDone: false };
+    fx.update = (dt) => {
+      fx.t += dt;
+      if (fx.t < 0) return true;
+      if (lance) {
+        const k = fx.t / fly;
+        mesh.material.opacity = k < 1 ? 1 : Math.max(0, 1 - (fx.t - fly) / 0.35);
+        mesh.scale.set(thick, thick, len); mesh.position.copy(from).lerp(to, 0.5); mesh.lookAt(to);
+      } else {
+        const k = Math.min(1, fx.t / fly), seg = Math.min(4, len * 0.25);
+        const head = from.clone().lerp(to, k), tail = from.clone().lerp(to, Math.max(0, k - seg / len));
+        mesh.material.opacity = k < 1 ? 1 : 0;
+        mesh.scale.set(thick, thick, Math.max(0.1, head.distanceTo(tail))); mesh.position.copy(head).lerp(tail, 0.5); mesh.lookAt(head);
+      }
+      if (fx.t >= fly && !fx.hitDone) { fx.hitDone = true; if (shot.hit) this.spark(tx, ty, col, lance ? 4.5 : 2.6); }
+      if (fx.t > fly + 0.4) { this.three.fxg.remove(mesh); mesh.geometry.dispose(); mesh.material.dispose(); return false; }
+      return true;
+    };
+    fx.kill = () => { this.three.fxg.remove(mesh); };
+    this.fx.push(fx);
+  }
+
+  spark(x, y, col, size) {
+    if (!this.three) return;
+    const T = this.three.T;
+    const sp = new T.Sprite(new T.SpriteMaterial({ map: this.three.glowTex, color: col, transparent: true, blending: T.AdditiveBlending, depthWrite: false }));
+    sp.position.copy(this.m2v(x, y, 1.6)); this.three.fxg.add(sp);
+    const fx = { t: 0 };
+    fx.update = (dt) => { fx.t += dt; const k = fx.t / 0.45; sp.scale.setScalar(size * (0.4 + k)); sp.material.opacity = Math.max(0, 1 - k); if (k >= 1) { this.three.fxg.remove(sp); sp.material.dispose(); return false; } return true; };
+    fx.kill = () => this.three.fxg.remove(sp);
+    this.fx.push(fx);
+  }
+
+  shieldFlash(id, delay) {
+    if (!this.three) return;
+    const o = this.three.objs[id], fx = { t: -delay };
+    fx.update = (dt) => { fx.t += dt; if (fx.t < 0) return true; o.shield.material.opacity = Math.max(0, 0.35 * (1 - fx.t / 0.9)); return fx.t < 0.9; };
+    this.fx.push(fx);
+  }
+
+  explode(s) {
+    if (!this.three) return;
+    const o = this.three.objs[s.id];
+    for (let i = 0; i < 9; i++) { const fx = { t: -i * 0.12 }; const self = this; const jx = s.x + (Math.random() - 0.5) * 6, jy = s.y + (Math.random() - 0.5) * 6; fx.update = (dt) => { fx.t += dt; if (fx.t >= 0 && !fx.f) { fx.f = 1; self.spark(jx, jy, i % 2 ? 0xffc94d : 0xff6a3d, 9 + Math.random() * 6); } return !fx.f; }; this.fx.push(fx); }
+    const fx = { t: 0 };
+    fx.update = (dt) => { fx.t += dt; if (fx.t > 0.6) { o.model.visible = false; o.glow.visible = false; o.ring.visible = false; return false; } return true; };
+    this.fx.push(fx);
+  }
+
+  /* ───────────── LOOP & INPUT ───────────── */
+  frame(now) {
+    const t3 = this.three, dt = Math.min(0.05, (now - this.last) / 1000); this.last = now;
+    const c = this.cam, cam = t3.camera;
+    cam.position.set(c.tx, c.dist * Math.cos(c.tilt), c.tz + c.dist * Math.sin(c.tilt));
+    cam.lookAt(c.tx, 0, c.tz);
+    const g = this.g;
+    if (this.anim && this.anim.kind === 'move') {
+      const k = Math.min(1, (now - this.anim.t0) / this.anim.dur), e = k < 0.5 ? 2 * k * k : 1 - Math.pow(-2 * k + 2, 2) / 2;
+      ['resolute', 'maw'].forEach((id) => { const p = g.orders[id].path.at(e), o = t3.objs[id]; o.root.position.set(p.x, 0, -p.y); o.root.rotation.y = p.h + Math.PI / 2; o.glow.scale.setScalar(2.6 + 2.2 * Math.sin(Math.PI * k)); });
+      if (k >= 1) { this.anim = null; this.afterMove(); }
+    } else if (this.anim && this.anim.kind === 'fire') {
+      if (now - this.anim.t0 >= this.anim.dur) { this.anim = null; this.afterFire(); }
+    }
+    ['resolute', 'maw'].forEach((id, i) => { const o = t3.objs[id]; o.model.position.y = Math.sin(now / 900 + i * 2) * 0.12; });
+    this.fx = this.fx.filter((f) => f.update(dt));
+    t3.renderer.render(t3.scene, cam);
+  }
+
+  pickMap(e) {
+    const t3 = this.three; if (!t3) return null;
+    const r = this.canvas.getBoundingClientRect();
+    const v = new t3.T.Vector2(((e.clientX - r.left) / r.width) * 2 - 1, -((e.clientY - r.top) / r.height) * 2 + 1);
+    t3.ray.setFromCamera(v, t3.camera);
+    const p = new t3.T.Vector3();
+    if (!t3.ray.ray.intersectPlane(t3.plane, p)) return null;
+    return { x: p.x, y: -p.z };
+  }
+
+  pointerDown(e) {
+    this.drag = { x: e.clientX, y: e.clientY, moved: false, tx: this.cam.tx, tz: this.cam.tz };
+    if (e.currentTarget && e.currentTarget.setPointerCapture) { try { e.currentTarget.setPointerCapture(e.pointerId); } catch (err) {} }
+  }
+
+  pointerMove(e) {
+    if (this.drag) {
+      const dx = e.clientX - this.drag.x, dy = e.clientY - this.drag.y;
+      if (Math.abs(dx) + Math.abs(dy) > 6) this.drag.moved = true;
+      if (this.drag.moved) {
+        const h = this.canvas.clientHeight || 600, wpp = 2 * this.cam.dist * Math.tan(20 * Math.PI / 180) / h;
+        this.cam.tx = this.drag.tx - dx * wpp; this.cam.tz = this.drag.tz - dy * wpp * 1.25;
+      }
+      return;
+    }
+    if (this.g.phase !== 'orders' || !this.three) return;
+    const p = this.pickMap(e); if (!p) return;
+    this.ui.hover = p;
+    this.refreshHover();
+  }
+
+  pointerUp(e) {
+    const d = this.drag; this.drag = null;
+    if (!d || d.moved || e.button === 2) return;
+    const p = this.pickMap(e); if (p) this.setDest(p.x, p.y);
+  }
+
+  /* ───────────── VIEW MODEL ───────────── */
+  renderVals() {
+    const g = this.g, D = this.D;
+    const phaseLabel = { orders: 'ORDERS', handoff: 'ORDERS', moving: 'MOVEMENT', firing: 'GUNNERY', over: 'BATTLE OVER' }[g.phase];
+    const plot = g.ships[g.plotting];
+    const ships = ['resolute', 'maw'].map((id) => {
+      const s = g.ships[id], e = this.env(s, 'steady');
+      const pips = [];
+      for (let i = 0; i < s.def.hull; i++) pips.push('width: 10px; height: 14px; border-radius: 2px; ' + (i < s.hull ? 'background: ' + s.def.color : 'background: #1a2335; box-shadow: inset 0 0 0 1px #2a3650'));
+      let status = 'OPERATIONAL', bg = '#11301f', fg = '#7be3a4';
+      if (s.dead) { status = 'DESTROYED'; bg = '#3a0f12'; fg = '#ff8a8a'; }
+      else if (s.fled) { status = 'DISENGAGED'; bg = '#2a2a2a'; fg = '#cfcfcf'; }
+      else if (this.crippled(s)) { status = 'CRIPPLED'; bg = '#3a2208'; fg = '#ffc94d'; }
+      return {
+        name: s.def.name, cls: s.def.cls, color: s.def.color, pips: pips, hullText: s.hull + '/' + s.def.hull,
+        speed: e.speed + 'u', turnTxt: e.turn + '°', shields: String(s.def.shields), armour: s.def.armour + '+',
+        crits: s.crits.map((c) => this.critName(c)), noCrits: s.crits.length === 0,
+        status: status, statusBg: bg, statusFg: fg
+      };
+    });
+    const canOrder = g.phase === 'orders';
+    const bridge = this.count(plot, 'bridge') > 0;
+    const orderOpts = D.ORDERS.map((o) => {
+      const sel = this.ui.order === o.id, dis = !canOrder || (bridge && o.id !== 'steady');
+      return {
+        label: o.label, short: o.short, desc: o.desc, pressed: sel ? 'true' : 'false', disabled: dis,
+        pick: () => this.pickOrder(o.id),
+        style: 'min-height: 44px; text-align: left; padding: 8px 10px; border-radius: 6px; cursor: ' + (dis ? 'not-allowed' : 'pointer') + '; ' +
+          (sel ? 'background: ' + plot.def.color + '; color: #070a12; border: 1px solid ' + plot.def.color + ';' : 'background: #111a2c; color: #d8e1f0; border: 1px solid #26324a;') + (dis && !sel ? ' opacity: 0.45;' : '') + (o.id === 'brace' ? ' grid-column: span 2;' : '')
+      };
+    });
+    let destDist = '—', destBearing = '—', destTurn = '—';
+    if (g.dest && canOrder) {
+      const p = this.path(plot, g.dest);
+      destDist = p.d.toFixed(1) + 'u';
+      const bd = this.deg(p.b);
+      destBearing = bd === 0 ? 'dead ahead' : Math.abs(bd) + '° ' + (bd > 0 ? 'port' : 'stbd');
+      const td = this.deg(2 * p.b);
+      destTurn = td === 0 ? 'unchanged' : Math.abs(td) + '° ' + (td > 0 ? 'to port' : 'to stbd');
+    }
+    const commitDisabled = !(canOrder && g.dest);
+    const commitLabel = !canOrder ? (g.phase === 'over' ? 'Battle over' : 'Resolving…') : g.dest ? 'Commit orders — ' + plot.def.name : 'Click the map to plot a course';
+    const commitStyle = 'min-height: 48px; border-radius: 6px; font-weight: 700; font-size: 14px; border: 0; cursor: ' + (commitDisabled ? 'not-allowed' : 'pointer') + '; ' +
+      (commitDisabled ? 'background: #1a2335; color: #93a3bf;' : 'background: ' + plot.def.color + '; color: #070a12;');
+    let banner = '', bannerBorder = '#26324a';
+    if (g.phase === 'orders') {
+      const e = this.env(plot, this.ui.order);
+      banner = plot.def.name + ' — plot a course: ' + e.minMove.toFixed(0) + '–' + e.maxMove.toFixed(0) + 'u, up to ' + Math.round(e.turn) + '° off the bow. Drag to pan, scroll to zoom.';
+      bannerBorder = plot.def.color;
+    } else if (g.phase === 'handoff') banner = 'Orders sealed — waiting for the Reaver commander';
+    else if (g.phase === 'moving') banner = 'Movement — both ships execute their orders simultaneously';
+    else if (g.phase === 'firing') { banner = 'Gunnery — both ships fire simultaneously'; bannerBorder = '#ffc94d'; }
+    else if (g.phase === 'over') banner = 'Battle over';
+    const dieStyle = (k, side) => {
+      const base = 'display: inline-flex; align-items: center; justify-content: center; width: 20px; height: 20px; border-radius: 4px; font-family: JetBrains Mono, monospace; font-size: 12px; font-weight: 700;';
+      const col = side === 'maw' ? '#ff6a3d' : '#5aa9ff';
+      if (k === 'crit') return base + ' background: #ffc94d; color: #1a1204;';
+      if (k === 'hit') return base + ' background: ' + col + '; color: #070a12;';
+      if (k === 'save') return base + ' background: #e6edf8; color: #070a12;';
+      if (k === 'fail') return base + ' background: transparent; color: #ff8a8a; box-shadow: inset 0 0 0 1px #ff8a8a;';
+      return base + ' background: transparent; color: #6f7f9c; box-shadow: inset 0 0 0 1px #33425f;';
+    };
+    const log = g.log.map((t) => ({
+      head: t.head,
+      entries: t.entries.map((e) => {
+        const col = e.side === 'resolute' ? '#5aa9ff' : e.side === 'maw' ? '#ff6a3d' : '#93a3bf';
+        return {
+          text: e.text, hasDice: !!(e.dice && e.dice.length),
+          dice: (e.dice || []).map((d) => ({ v: d.v, style: dieStyle(d.kind, e.side) })),
+          style: 'padding: 4px 0 4px 10px; box-shadow: inset 2px 0 0 ' + col + ';' + (e.strong ? ' background: rgba(255,201,77,0.07);' : '')
+        };
+      })
+    }));
+    const win = g.winner;
+    return {
+      turn: g.turn, phaseLabel: phaseLabel,
+      modeLabel: this.modeHot() ? 'Hot-seat · 2 players' : 'Versus AI · you command Resolute',
+      ships: ships, orderOpts: orderOpts,
+      plotName: canOrder ? plot.def.name : '—', plotColor: canOrder ? plot.def.color : '#93a3bf',
+      destDist: destDist, destBearing: destBearing, destTurn: destTurn,
+      commit: this.commit, commitDisabled: commitDisabled, commitLabel: commitLabel, commitStyle: commitStyle,
+      banner: banner, bannerBorder: bannerBorder, log: log,
+      loading: this.ui.loading, loadNote: this.ui.loadNote,
+      showHandoff: g.phase === 'handoff', takeOver: this.takeOver,
+      showOver: g.phase === 'over',
+      overTitle: win === 'draw' ? 'Mutual destruction' : win === 'resolute' ? 'Concord victory' : 'Reaver victory',
+      overColor: win === 'draw' ? '#ffc94d' : win === 'resolute' ? '#5aa9ff' : '#ff6a3d',
+      overBorder: win === 'draw' ? '#6b4310' : win === 'resolute' ? '#2a5a8f' : '#8f3a22',
+      overText: g.overText,
+      restart: this.restart, toggleEnemyArcs: this.toggleEnemyArcs,
+      enemyArcsPressed: this.ui.enemyArcs ? 'true' : 'false', enemyArcsBg: this.ui.enemyArcs ? '#26324a' : 'rgba(8,12,22,0.86)',
+      zoomIn: this.zoomIn, zoomOut: this.zoomOut, recenter: this.recenter,
+      setCanvas: this.setCanvas, onDown: this.onDown, onMove: this.onMove, onUp: this.onUp, onLeave: this.onLeave, onWheel: this.onWheel, noMenu: this.noMenu,
+      cursor: g.phase === 'orders' ? 'crosshair' : 'default'
+    };
+  }
+}
+</script>
+</body>
+</html>
