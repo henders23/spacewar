@@ -38,7 +38,7 @@ button:focus-visible{outline:2px solid #ffc94d;outline-offset:2px}
   <div style="flex: 1; display: flex; flex-wrap: wrap; min-height: 0">
 
     <section aria-label="Battle map" style="flex: 999 1 640px; min-width: 0; min-height: 560px; height: 100%; position: relative; background: #04060b; overflow: hidden">
-      <canvas ref="{{setCanvas}}" data-broadside-canvas="1" onPointerDown="{{onDown}}" onPointerMove="{{onMove}}" onPointerUp="{{onUp}}" onPointerLeave="{{onLeave}}" onWheel="{{onWheel}}" onContextMenu="{{noMenu}}" style="position: absolute; inset: 0; width: 100%; height: 100%; display: block; touch-action: none; cursor: {{cursor}}" aria-label="3D tactical map. Click inside your manoeuvre zone to set a destination; drag to pan; scroll to zoom." role="img"></canvas>
+      <canvas ref="{{setCanvas}}" data-broadside-canvas="1" onPointerDown="{{onDown}}" onPointerMove="{{onMove}}" onPointerUp="{{onUp}}" onPointerLeave="{{onLeave}}" onWheel="{{onWheel}}" onContextMenu="{{noMenu}}" style="position: absolute; inset: 0; width: 100%; height: 100%; display: block; touch-action: none; cursor: {{cursor}}" aria-label="3D tactical map. Click inside your manoeuvre zone to set a destination; drag to rotate the view; right-drag or shift-drag to pan; scroll to zoom toward the cursor." role="img"></canvas>
 
       <div style="position: absolute; top: 14px; left: 50%; transform: translateX(-50%); max-width: calc(100% - 32px); padding: 8px 16px; background: rgba(8,12,22,0.86); border: 1px solid {{bannerBorder}}; border-radius: 8px; font-size: 13px; color: #e6edf8; text-align: center; pointer-events: none">{{banner}}</div>
 
@@ -168,7 +168,8 @@ class Component extends DCLogic {
     this.state = { v: 0 };
     this.D = this.defs();
     this.ui = { order: 'steady', enemyArcs: false, loading: true, loadNote: 'Loading 3D engine…', hover: null };
-    this.cam = { tx: 0, tz: 0, dist: 118, tilt: 0.62 };
+    this.cam = { tx: 0, tz: 0, dist: 118, tilt: 0.62, yaw: 0 };
+    this.userCam = false;
     this.fx = [];
     this.anim = null;
     this.setCanvas = (el) => { if (el) this.canvas = el; };
@@ -176,7 +177,7 @@ class Component extends DCLogic {
     this.onMove = (e) => this.pointerMove(e);
     this.onUp = (e) => this.pointerUp(e);
     this.onLeave = () => { this.ui.hover = null; this.drag = null; this.refreshHover(); };
-    this.onWheel = (e) => { this.cam.dist = Math.min(230, Math.max(22, this.cam.dist * Math.exp(e.deltaY * 0.0012))); };
+    this.onWheel = (e) => this.wheelZoom(e);
     this.noMenu = (e) => e.preventDefault();
     this.restart = () => this.newGame();
     this.commit = () => this.commitOrders();
@@ -472,6 +473,7 @@ class Component extends DCLogic {
     });
     this.pushLog('TURN ' + g.turn, ent);
     this.anim = { kind: 'move', t0: performance.now(), dur: 2600 / this.speedMul() };
+    this.userCam = false;
     this.refreshOverlays();
     this.bump();
   }
@@ -887,10 +889,10 @@ class Component extends DCLogic {
   /* ───────────── LOOP & INPUT ───────────── */
   frame(now) {
     const t3 = this.three, dt = Math.min(0.05, (now - this.last) / 1000); this.last = now;
-    const c = this.cam, cam = t3.camera;
-    cam.position.set(c.tx, c.dist * Math.cos(c.tilt), c.tz + c.dist * Math.sin(c.tilt));
-    cam.lookAt(c.tx, 0, c.tz);
     const g = this.g;
+    if (this.anim && !this.userCam && (g.phase === 'moving' || g.phase === 'firing')) this.followShips(dt);
+    this.applyCam();
+    const cam = t3.camera;
     if (this.anim && this.anim.kind === 'move') {
       const k = Math.min(1, (now - this.anim.t0) / this.anim.dur), e = k < 0.5 ? 2 * k * k : 1 - Math.pow(-2 * k + 2, 2) / 2;
       ['resolute', 'maw'].forEach((id) => { const p = g.orders[id].path.at(e), o = t3.objs[id]; o.root.position.set(p.x, 0, -p.y); o.root.rotation.y = p.h + Math.PI / 2; o.glow.scale.setScalar(2.6 + 2.2 * Math.sin(Math.PI * k)); });
@@ -901,6 +903,36 @@ class Component extends DCLogic {
     ['resolute', 'maw'].forEach((id, i) => { const o = t3.objs[id]; o.model.position.y = Math.sin(now / 900 + i * 2) * 0.12; });
     this.fx = this.fx.filter((f) => f.update(dt));
     t3.renderer.render(t3.scene, cam);
+  }
+
+  // Orbit camera: target on the plane, distance, tilt from vertical, yaw around the vertical axis.
+  applyCam() {
+    const c = this.cam, cam = this.three.camera, st = Math.sin(c.tilt);
+    cam.position.set(c.tx + c.dist * st * Math.sin(c.yaw), c.dist * Math.cos(c.tilt), c.tz + c.dist * st * Math.cos(c.yaw));
+    cam.lookAt(c.tx, 0, c.tz);
+    cam.updateMatrixWorld();
+  }
+
+  // During movement/gunnery, glide the camera to the ships' midpoint and pull back if they would leave the view.
+  followShips(dt) {
+    const o = this.three.objs, a = o.resolute.root.position, b = o.maw.root.position;
+    const mx = (a.x + b.x) / 2, mz = (a.z + b.z) / 2, sep = Math.hypot(a.x - b.x, a.z - b.z);
+    const k = Math.min(1, dt * 2.5);
+    this.cam.tx += (mx - this.cam.tx) * k;
+    this.cam.tz += (mz - this.cam.tz) * k;
+    const need = Math.min(230, sep * 1.25 + 30);
+    if (this.cam.dist < need) this.cam.dist += (need - this.cam.dist) * k;
+  }
+
+  // Zoom toward the point under the cursor: the map point under the pointer stays put.
+  wheelZoom(e) {
+    if (!this.three) return;
+    if (this.anim) this.userCam = true;
+    const before = this.pickMap(e);
+    this.cam.dist = Math.min(230, Math.max(18, this.cam.dist * Math.exp(e.deltaY * 0.0012)));
+    this.applyCam();
+    const after = this.pickMap(e);
+    if (before && after) { this.cam.tx += before.x - after.x; this.cam.tz += after.y - before.y; }
   }
 
   pickMap(e) {
@@ -914,7 +946,7 @@ class Component extends DCLogic {
   }
 
   pointerDown(e) {
-    this.drag = { x: e.clientX, y: e.clientY, moved: false, tx: this.cam.tx, tz: this.cam.tz };
+    this.drag = { x: e.clientX, y: e.clientY, moved: false, button: e.button, pan: e.button !== 0 || e.shiftKey, tx: this.cam.tx, tz: this.cam.tz, yaw: this.cam.yaw, tilt: this.cam.tilt };
     if (e.currentTarget && e.currentTarget.setPointerCapture) { try { e.currentTarget.setPointerCapture(e.pointerId); } catch (err) {} }
   }
 
@@ -923,8 +955,17 @@ class Component extends DCLogic {
       const dx = e.clientX - this.drag.x, dy = e.clientY - this.drag.y;
       if (Math.abs(dx) + Math.abs(dy) > 6) this.drag.moved = true;
       if (this.drag.moved) {
-        const h = this.canvas.clientHeight || 600, wpp = 2 * this.cam.dist * Math.tan(20 * Math.PI / 180) / h;
-        this.cam.tx = this.drag.tx - dx * wpp; this.cam.tz = this.drag.tz - dy * wpp * 1.25;
+        if (this.anim) this.userCam = true;
+        const c = this.cam;
+        if (this.drag.pan) {
+          const h = this.canvas.clientHeight || 600, wpp = 2 * c.dist * Math.tan(20 * Math.PI / 180) / h;
+          const rx = Math.cos(c.yaw), rz = -Math.sin(c.yaw), fx = -Math.sin(c.yaw), fz = -Math.cos(c.yaw);
+          c.tx = this.drag.tx - rx * dx * wpp + fx * dy * wpp * 1.25;
+          c.tz = this.drag.tz - rz * dx * wpp + fz * dy * wpp * 1.25;
+        } else {
+          c.yaw = this.drag.yaw - dx * 0.006;
+          c.tilt = Math.max(0.12, Math.min(1.15, this.drag.tilt - dy * 0.004));
+        }
       }
       return;
     }
@@ -936,7 +977,7 @@ class Component extends DCLogic {
 
   pointerUp(e) {
     const d = this.drag; this.drag = null;
-    if (!d || d.moved || e.button === 2) return;
+    if (!d || d.moved || d.button !== 0) return;
     const p = this.pickMap(e); if (p) this.setDest(p.x, p.y);
   }
 
@@ -987,7 +1028,7 @@ class Component extends DCLogic {
     let banner = '', bannerBorder = '#26324a';
     if (g.phase === 'orders') {
       const e = this.env(plot, this.ui.order);
-      banner = plot.def.name + ' — plot a course: ' + e.minMove.toFixed(0) + '–' + e.maxMove.toFixed(0) + 'u, up to ' + Math.round(e.turn) + '° off the bow. Drag to pan, scroll to zoom.';
+      banner = plot.def.name + ' — plot a course: ' + e.minMove.toFixed(0) + '–' + e.maxMove.toFixed(0) + 'u, up to ' + Math.round(e.turn) + '° off the bow. Drag to rotate · right-drag to pan · scroll to zoom.';
       bannerBorder = plot.def.color;
     } else if (g.phase === 'handoff') banner = 'Orders sealed — waiting for the Reaver commander';
     else if (g.phase === 'moving') banner = 'Movement — both ships execute their orders simultaneously';
