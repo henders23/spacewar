@@ -1,4 +1,4 @@
-# Broadside — Core Rules (draft v0.1)
+# Sealed Orders — Core Rules (draft v0.2, working title)
 
 Capital ships slugging it out in open space. Both admirals write orders in secret,
 every ship moves at the same moment, and then every gun fires at the same moment.
@@ -11,7 +11,7 @@ Movement is free (no squares or hexes).
 
 1. **Orders** — in secret, each player places a destination marker for every ship and may give it one special order. Orders are sealed once committed.
 2. **Movement** — orders are revealed; all ships move simultaneously, each sweeping a smooth curve to its marker. Then resolve collisions and ships leaving the zone.
-3. **Gunnery** — every weapon that bears fires. Damage is applied only after *all* ships have fired, so a ship destroyed this phase still gets its last broadside off.
+3. **Gunnery** — every weapon that bears fires. Each player rolls their own dice (to-hit and criticals for their weapons, armour saves for their ship). Damage is applied only after *all* ships have fired, so a ship destroyed this phase still gets its last broadside off.
 4. **End phase** — fires burn, damage control repairs criticals, destroyed ships are removed, check victory.
 
 ## 2. Orders & movement
@@ -51,7 +51,7 @@ Natural 6 always hits, natural 1 always misses; to-hit is clamped to 2+…6+.
 
 ## 4. Shields, armour & damage
 
-- **Shields** — each turn, cancel that many hits outright. Ordinary hits are removed first, 6s last.
+- **Shields (by facing)** — each ship has four shield values: fore / port / starboard / aft. Use the facing the shots arrive on (whichever of the target's arcs the firer sits in); that shield cancels that many hits outright. Ordinary hits are removed first, 6s last.
 - **Armour** — roll a d6 per remaining hit; meeting Armour saves it (a 1 always fails). Each failed save = 1 damage.
 - **Lances** — ignore shields; each failed save = 2 damage.
 - **Crippled** — at ≤ half Hull, broadsides roll half dice (round up). 0 Hull = destroyed.
@@ -69,7 +69,7 @@ A to-hit roll of a **natural 6 that causes damage** (gets past shields and armou
 | 5 | Gun Deck Hit | d6: 1–3 port, 4–6 starboard — that broadside rolls half dice | 5+ |
 | 6 | Bridge Hit | No special orders; −1 to hit | 5+ |
 
-Criticals stack and take effect after gunnery. **End phase:** each Fire! deals 1 damage, then roll a d6 per critical still active to repair it.
+Criticals stack and take effect after gunnery. The firer rolls on the table. **End phase:** each Fire! deals 1 damage, then each player rolls a d6 per critical still active on their own ship to repair it.
 
 ## 6. Collisions, disengaging & victory
 
@@ -80,7 +80,7 @@ Criticals stack and take effect after gunnery. **End phase:** each Fire! deals 1
 ## 7. Ship profiles
 
 ### CNS Resolute — Dominion-class battleship (Concord Navy)
-Speed 12u · Turn 45° · Hull 14 · Shields 2 · Armour 4+
+Speed 12u · Turn 45° · Hull 14 · Shields F2 P2 S2 A1 · Armour 4+
 
 | Weapon | Arc | Dice | Range | Notes |
 |---|---|---|---|---|
@@ -92,7 +92,7 @@ Speed 12u · Turn 45° · Hull 14 · Shields 2 · Armour 4+
 Model: `assets/ships/resolute.glb` (pack file "futuristic space battleship 3d model.glb").
 
 ### Maw of Ruin — Ravager-class battleship (Reaver Clans)
-Speed 16u · Turn 60° · Hull 13 · Shields 2 · Armour 5+
+Speed 16u · Turn 60° · Hull 13 · Shields F3 P2 S2 A1 · Armour 5+
 
 | Weapon | Arc | Dice | Range | Notes |
 |---|---|---|---|---|
@@ -106,6 +106,6 @@ Model: `assets/ships/maw.glb` (pack file "sci-fi battleship 3d model.glb").
 
 ## Designer's notes (online build)
 
-- **Server-authoritative turns**: clients submit `{destination, specialOrder}` per ship; the server validates against the manoeuvre zone, waits for both players (or a timer), rolls all dice and returns a replay log both clients animate identically.
-- **Balance snapshot**: `node tools/balance-sim.js` runs 1,500 AI-vs-AI duels. Current profiles: Resolute ≈48%, Maw ≈36%, mutual destruction ≈16%, ~7 turns per duel. The AI is a simple one-turn look-ahead, so treat this as a starting point.
+- **Server-authoritative turns**: clients submit `{destination, specialOrder}` per ship; the server validates against the manoeuvre zone and waits for both players (or a timer). In gunnery it prompts each player for their own rolls and generates each die on the player's click, so rolls stay tamper-proof, then streams results to both clients.
+- **Balance snapshot**: `node tools/balance-sim.js` runs 1,500 AI-vs-AI duels. Current profiles (facing shields): Resolute ≈51%, Maw ≈32%, mutual destruction ≈17%, ~6.5 turns per duel. The AI is a simple one-turn look-ahead, so treat this as a starting point.
 - **Open questions**: target priority for fleets; wreck hazards; firing in mid-move tick slices vs. end of move; altitude bands.
