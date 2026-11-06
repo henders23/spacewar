@@ -497,7 +497,8 @@ class Component extends DCLogic {
     this.startPlotting('concord');
     if (this.three) {
       this.placeShips();
-      this.ids().forEach((id) => { const o = this.three.objs[id]; o.root.visible = true; o.model.visible = true; o.glow.visible = true; o.ring.visible = true; });
+      this.ids().forEach((id) => { const o = this.three.objs[id]; o.root.visible = true; o.model.visible = true; o.glow.visible = true; o.ring.visible = true; o.dmgKey = null; o.list = 0; o.rollAmp = 0; });
+      this.killCam = null;
       this.frameShips(); this.refreshOverlays();
     }
     if (!silent) this.bump();
@@ -797,7 +798,7 @@ class Component extends DCLogic {
       return (maxT + 0.55 / this.speedMul()) * 1000;
     }
     if (q.kind === 'shield') { this.shieldFlash(q.id, 0); this.sfx('shield_zap', 0.8); return 320; }
-    if (q.kind === 'explode') { this.explode(q.ship); return 900; }
+    if (q.kind === 'explode') { this.explode(q.ship); return 2900; }
     return 0;
   }
 
@@ -831,6 +832,7 @@ class Component extends DCLogic {
       yield* this.attackSeq(A, g.orders[id] ? g.orders[id].order : 'steady', pend);
     }
     // Simultaneous fire: damage lands only after every ship has fired.
+    const before = this.perShip((id) => g.ships[id].hull);
     this.ids().forEach((id) => {
       const B = g.ships[id], o = pend[id];
       if (B.dead) return;
@@ -843,13 +845,16 @@ class Component extends DCLogic {
       o.crits.forEach((c) => { if (c.k === 'fire') this.floater(id, 'fire', '', k++); else this.floater(id, 'word', this.critWord(c), k++); });
     });
     this.inspDirty = true;
+    for (const id of this.ids()) { if (!g.ships[id].dead) yield* this.structural(g.ships[id], before[id]); }
     // End phase: fires burn, then each side rolls damage control for its own ships.
     for (const id of this.ids()) {
       const s = g.ships[id];
       if (s.dead || s.fled || s.hull <= 0) continue;
       const fires = this.count(s, 'fire');
       if (fires > 0) {
+        const hb = s.hull;
         s.hull = Math.max(0, s.hull - fires); g.taken[id] += fires;
+        yield* this.structural(s, hb);
         this.floater(id, 'fire', '−' + fires);
         this.record({ owner: id, label: s.def.name + ' is burning', result: fires + ' fire damage', dice: [] }, id);
       }
@@ -939,6 +944,28 @@ class Component extends DCLogic {
         this.record({ owner: A.id, label: 'Critical on ' + B.def.name, dice: [{ v: c, kind: 'crit' }], result: this.D.CRIT[c] + extra }, B.id);
       }
       P.dmg += dmg;
+    }
+  }
+
+  // Structural failure: the first time hull falls to 2/3 and to 1/3 of its starting value (rounded down),
+  // the ship suffers an extra critical. The damaged ship's own player rolls it.
+  *structural(s, before) {
+    const H = s.def.hull, marks = [Math.floor(H * 2 / 3), Math.floor(H / 3)];
+    for (const m of marks) {
+      if (!(before > m && s.hull <= m && s.hull > 0)) continue;
+      const c = (yield { type: 'roll', owner: s.id, n: 1, label: s.def.name + ' · structural failure', sub: 'Hull fell to ' + m + ' or below — 1d6 on the critical table' })[0];
+      const crit = { k: this.D.CRITKEY[c], roll: c };
+      let extra = '';
+      if (crit.k === 'gundeck') {
+        const sd = (yield { type: 'roll', owner: s.id, n: 1, label: s.def.name + ' · which gun deck?', sub: '1–3 port, 4–6 starboard' })[0];
+        crit.side = sd <= 3 ? 'port' : 'stbd'; extra = ' (' + (sd <= 3 ? 'port' : 'starboard') + ')';
+      }
+      if (crit.k === 'breach') { s.hull = Math.max(0, s.hull - 1); this.g.taken[s.id] += 1; } else s.crits.push(crit);
+      this.floater(s.id, 'word', 'Structural failure', 0);
+      if (crit.k === 'fire') this.floater(s.id, 'fire', '', 1); else this.floater(s.id, 'word', this.critWord(crit), 1);
+      this.record({ owner: s.id, label: s.def.name + ' · structural failure (hull ≤ ' + m + ')', dice: [{ v: c, kind: 'crit' }], result: this.D.CRIT[c] + extra }, s.id);
+      this.impact(s.id, 0, 1);
+      this.inspDirty = true;
     }
   }
 
@@ -1100,6 +1127,7 @@ class Component extends DCLogic {
       // Length normalised to 8u; beam ×1.5 and height ×1.3 so the hulls read broader and more solid from above.
       const k = def.len / size.z, kx = k * def.beam, ky = k * 1.3;
       def.halfBeamU = size.x * kx / 2;
+      def.deckY = 0.3 + size.y * ky * 0.8;
       m.scale.set(kx, ky, k);
       m.position.set(-c.x * kx, -box.min.y * ky + 0.3, -c.z * k);
       obj.model.remove(obj.stand);
@@ -1415,11 +1443,24 @@ class Component extends DCLogic {
     if (!this.three) return;
     const o = this.three.objs[s.id];
     this.sfx(s.def.len >= 8 ? 'explode_big' : 'explode_med', 1, 0, 1);
-    this.addShake(1.8); this.slowUntil = performance.now() + 350;
+    this.addShake(1.8); this.slowUntil = performance.now() + 1300;
+    const c = this.cam;
+    this.killCam = { t0: performance.now(), x: s.x, z: -s.y, saved: this.killCam ? this.killCam.saved : { tx: c.tx, tz: c.tz, dist: c.dist, tilt: c.tilt } };
     for (let i = 0; i < 9; i++) { const fx = { t: -i * 0.12 }; const self = this; const jx = s.x + (Math.random() - 0.5) * 6, jy = s.y + (Math.random() - 0.5) * 6; fx.update = (dt) => { fx.t += dt; if (fx.t >= 0 && !fx.f) { fx.f = 1; self.spark(jx, jy, i % 2 ? 0xffc94d : 0xff6a3d, 9 + Math.random() * 6); } return !fx.f; }; this.fx.push(fx); }
     const fx = { t: 0 };
     fx.update = (dt) => { fx.t += dt; if (fx.t > 0.6) { o.model.visible = false; o.glow.visible = false; o.ring.visible = false; return false; } return true; };
     this.fx.push(fx);
+  }
+
+  // Kill-cam: swoop low onto the dying ship, hold through the blast, then return the view.
+  runKillCam(now) {
+    const k = this.killCam, t = (now - k.t0) / 1000, c = this.cam, S = k.saved;
+    const ease = (a) => (a <= 0 ? 0 : a >= 1 ? 1 : a * a * (3 - 2 * a));
+    const shot = { tx: k.x, tz: k.z, dist: 26, tilt: 0.95 };
+    const mix = (a, b, e) => ({ tx: a.tx + (b.tx - a.tx) * e, tz: a.tz + (b.tz - a.tz) * e, dist: a.dist + (b.dist - a.dist) * e, tilt: a.tilt + (b.tilt - a.tilt) * e });
+    const v = t < 2.2 ? mix(S, shot, ease(t / 0.6)) : t < 2.9 ? mix(shot, S, ease((t - 2.2) / 0.7)) : S;
+    c.tx = v.tx; c.tz = v.tz; c.dist = v.dist; c.tilt = v.tilt;
+    if (t >= 2.9) this.killCam = null;
   }
 
   addShake(a) { this.shake = Math.min(2.5, this.shake + a); }
@@ -1442,33 +1483,67 @@ class Component extends DCLogic {
   }
 
   // Persistent damage: embers rise from burning ships, smoke trails crippled ones.
-  damageFx(dt) {
+  // Damage dressing attached to the ship model (so nothing is left behind on the board):
+  // scorch marks per hull point lost, small flames that grow with damage, big flames for Fire!, venting when crippled.
+  syncDamage(id) {
+    if (!this.three) return;
+    const T = this.three.T, s = this.g.ships[id], o = this.three.objs[id], def = s.def;
+    if (!o.dmg) { o.dmg = new T.Group(); o.model.add(o.dmg); }
+    const lost = def.hull - s.hull, fires = this.count(s, 'fire'), crip = this.crippled(s) && !s.dead;
+    const key = lost + '/' + fires + '/' + crip;
+    if (o.dmgKey === key) return;
+    o.dmgKey = key;
+    o.dmg.children.slice().forEach((c) => { o.dmg.remove(c); if (c.material) c.material.dispose(); });
+    const hb = (def.halfBeamU || 1.2) * 0.62, hl = def.len * 0.42, y = def.deckY || 1.2, salt = this.ids().indexOf(id) + 1;
+    const pt = (i) => {
+      const a = Math.sin((i + 1) * 12.9898 + salt * 78.233) * 43758.5453, b = Math.sin((i + 1) * 39.346 + salt * 11.135) * 24634.6345;
+      return [((a - Math.floor(a)) * 2 - 1) * hb, y, ((b - Math.floor(b)) * 2 - 1) * hl];
+    };
+    const sprite = (opts, p, sc) => { const sp = new T.Sprite(new T.SpriteMaterial(Object.assign({ toneMapped: false, map: this.three.glowTex, transparent: true, depthTest: false, depthWrite: false }, opts))); sp.position.set(p[0], p[1], p[2]); sp.scale.setScalar(sc); sp.renderOrder = 5; o.dmg.add(sp); return sp; };
+    for (let i = 0; i < Math.min(12, lost); i++) sprite({ color: 0x120804, opacity: 0.8 }, pt(i), 1.1 + (i % 3) * 0.25);
+    const small = Math.min(6, Math.ceil(lost / 2));
+    for (let i = 0; i < small + fires * 2; i++) {
+      const big = i >= small, sp = sprite({ color: big ? 0xff6a1a : 0xffa040, blending: T.AdditiveBlending }, pt(i), big ? 1.7 : 0.8);
+      sp.userData.flame = { base: big ? 1.7 : 0.8, ph: Math.random() * 10, big: big };
+    }
+    if (crip) [1, -1].forEach((side, k) => { const p = pt(20 + k); const v = new T.Object3D(); v.position.set(side * hb * 1.3, p[1], p[2]); v.userData.vent = { side: side, t: 0 }; o.dmg.add(v); });
+  }
+
+  damageFx(dt, now) {
     const T = this.three.T;
+    this.dmgTick = (this.dmgTick || 0) - dt;
+    if (this.dmgTick <= 0) { this.dmgTick = 0.2; this.ids().forEach((id) => this.syncDamage(id)); }
     this.ids().forEach((id) => {
-      const s = this.g.ships[id], o = this.three.objs[id];
-      if (s.dead || s.fled) return;
-      const fire = this.count(s, 'fire') > 0, crip = this.crippled(s);
-      if (!fire && !crip) return;
-      o.emitT = (o.emitT || 0) - dt;
-      if (o.emitT > 0) return;
-      o.emitT = fire ? 0.09 : 0.28;
-      const p = o.root.position, h = o.root.rotation.y - Math.PI / 2, along = (Math.random() - 0.5) * s.def.len * 0.7;
-      const x = p.x + Math.cos(h) * along, z = p.z - Math.sin(h) * along;
-      const sp = new T.Sprite(new T.SpriteMaterial(fire
-        ? { toneMapped: false, map: this.three.glowTex, color: Math.random() < 0.5 ? 0xff7a1a : 0xffc94d, transparent: true, blending: T.AdditiveBlending, depthWrite: false }
-        : { toneMapped: false, map: this.three.glowTex, color: 0x8a92a3, transparent: true, opacity: 0.3, depthWrite: false }));
-      sp.position.set(x, 1.6, z); this.three.fxg.add(sp);
-      const life = fire ? 0.9 : 2.2, fx = { t: 0 };
-      fx.update = (d) => {
-        fx.t += d; const k = fx.t / life;
-        sp.position.y += d * (fire ? 3 : 1.2); sp.position.x += d * (fire ? 0 : 0.6);
-        sp.scale.setScalar(fire ? 0.9 * (1 - k * 0.5) : 1.4 + k * 3.5);
-        sp.material.opacity = (fire ? 1 : 0.3) * (1 - k);
-        if (k >= 1) { this.three.fxg.remove(sp); sp.material.dispose(); return false; }
-        return true;
-      };
-      fx.kill = () => this.three.fxg.remove(sp);
-      this.fx.push(fx);
+      const o = this.three.objs[id];
+      if (!o.dmg) return;
+      o.dmg.children.slice().forEach((c) => {
+        const u = c.userData;
+        if (u.flame) {
+          const f = 0.75 + 0.25 * Math.sin(now / 70 + u.ph) + 0.15 * Math.sin(now / 23 + u.ph * 3);
+          c.scale.setScalar(u.base * f); c.material.opacity = 0.7 + 0.3 * f;
+          if (u.big && Math.random() < dt * 6) {
+            const e = new T.Sprite(new T.SpriteMaterial({ toneMapped: false, map: this.three.glowTex, color: 0xffc94d, transparent: true, blending: T.AdditiveBlending, depthTest: false, depthWrite: false }));
+            e.position.copy(c.position); e.scale.setScalar(0.45); e.renderOrder = 6; e.userData.ember = { t: 0, vx: (Math.random() - 0.5) * 0.8, vz: (Math.random() - 0.5) * 0.8 };
+            o.dmg.add(e);
+          }
+        } else if (u.ember) {
+          u.ember.t += dt; c.position.y += dt * 2.4; c.position.x += u.ember.vx * dt; c.position.z += u.ember.vz * dt;
+          c.material.opacity = Math.max(0, 1 - u.ember.t / 0.6);
+          if (u.ember.t > 0.6) { o.dmg.remove(c); c.material.dispose(); }
+        } else if (u.vent) {
+          u.vent.t -= dt;
+          if (u.vent.t <= 0) {
+            u.vent.t = 0.07;
+            const pf = new T.Sprite(new T.SpriteMaterial({ toneMapped: false, map: this.three.glowTex, color: 0xcfd8e6, transparent: true, opacity: 0.45, depthWrite: false }));
+            pf.position.copy(c.position); pf.scale.setScalar(0.5); pf.userData.puff = { t: 0, side: u.vent.side };
+            o.dmg.add(pf);
+          }
+        } else if (u.puff) {
+          u.puff.t += dt; c.position.x += u.puff.side * dt * 3.2; c.position.y += dt * 0.6;
+          c.scale.setScalar(0.5 + u.puff.t * 3); c.material.opacity = Math.max(0, 0.45 * (1 - u.puff.t / 0.8));
+          if (u.puff.t > 0.8) { o.dmg.remove(c); c.material.dispose(); }
+        }
+      });
     });
   }
 
@@ -1476,7 +1551,8 @@ class Component extends DCLogic {
   frame(now) {
     const t3 = this.three, dt = Math.min(0.05, (now - this.last) / 1000); this.last = now;
     const g = this.g;
-    if (!this.userCam && (g.phase === 'moving' || g.phase === 'firing')) this.followShips(dt);
+    if (this.killCam) this.runKillCam(now);
+    else if (!this.userCam && (g.phase === 'moving' || g.phase === 'firing')) this.followShips(dt);
     this.applyCam();
     const cam = t3.camera;
     if (this.anim && this.anim.kind === 'move') {
@@ -1486,10 +1562,20 @@ class Component extends DCLogic {
     }
     const fxDt = now < this.slowUntil ? dt * 0.3 : dt;
     this.shake *= Math.pow(0.03, dt);
-    this.ids().forEach((id) => { const o = t3.objs[id]; if (o.rollAmp) { o.rollT += fxDt; o.model.rotation.z = o.rollAmp * Math.exp(-o.rollT * 2.6) * Math.cos(o.rollT * 8); if (o.rollT > 2.5) { o.rollAmp = 0; o.model.rotation.z = 0; } } });
-    this.damageFx(fxDt);
+    this.ids().forEach((id, i) => {
+      const o = t3.objs[id], s = g.ships[id], crip = this.crippled(s) && !s.dead;
+      let roll = 0;
+      if (o.rollAmp) { o.rollT += fxDt; roll = o.rollAmp * Math.exp(-o.rollT * 2.6) * Math.cos(o.rollT * 8); if (o.rollT > 2.5) o.rollAmp = 0; }
+      o.list = (o.list || 0) + ((crip ? (i % 2 ? 0.16 : -0.16) : 0) - (o.list || 0)) * Math.min(1, fxDt * 1.5);
+      o.model.rotation.z = o.list + roll;
+      o.model.rotation.y = crip ? Math.sin(now / 1700 + i * 1.3) * 0.07 : 0;
+    });
+    this.damageFx(fxDt, now);
     this.ids().forEach((id, i) => { const o = t3.objs[id]; o.model.position.y = Math.sin(now / 900 + i * 2) * 0.12; o.ring.material.opacity = id === this.ui.sel ? 0.95 : (g.phase === 'orders' && id === g.plotting ? 0.8 : 0.4); });
-    this.fx = this.fx.filter((f) => f.update(fxDt));
+    // Effects may spawn new effects while updating; collect those separately so none are dropped.
+    const cur = this.fx; this.fx = [];
+    const kept = cur.filter((f) => f.update(fxDt));
+    this.fx = kept.concat(this.fx);
     t3.renderer.render(t3.scene, cam);
     this.placeLabels();
     this.placeBadges();
