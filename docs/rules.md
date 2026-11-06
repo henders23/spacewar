@@ -9,7 +9,7 @@ Movement is free (no squares or hexes).
 
 ## 1. The turn
 
-1. **Orders** — in secret, each player places a destination marker for every ship and may give it one special order. Orders are sealed once committed.
+1. **Orders** — in secret, each player places a destination marker for every ship in their squadron and may give each one special order. A squadron's orders are sealed together once committed.
 2. **Movement** — orders are revealed; all ships move simultaneously, each sweeping a smooth curve to its marker. Then resolve collisions and ships leaving the zone.
 3. **Gunnery** — every weapon that bears fires. Each player rolls their own dice (to-hit and criticals for their weapons, armour saves for their ship). Damage is applied only after *all* ships have fired, so a ship destroyed this phase still gets its last broadside off.
 4. **End phase** — fires burn, damage control repairs criticals, destroyed ships are removed, check victory.
@@ -38,7 +38,7 @@ It finishes pointing along the arc, so **its heading changes by twice the marker
 ## 3. Firing arcs & gunnery
 
 Arcs are four 90° quadrants measured from the ship's centre: **fore** (±45° of the bow), **port**, **starboard**, **aft**.
-Find which of the firer's arcs the target's centre is in; every weapon covering that arc and within range rolls its dice.
+**Targeting:** each weapon fires at the closest enemy ship in its arc and within its range, so one ship's batteries can engage different targets. Find which of the firer's arcs the target's centre is in; every weapon covering that arc and within range rolls its dice.
 
 | Range | To hit |
 |---|---|
@@ -51,7 +51,7 @@ Natural 6 always hits, natural 1 always misses; to-hit is clamped to 2+…6+.
 
 ## 4. Shields, armour & damage
 
-- **Shields (by facing)** — each ship has four shield values: fore / port / starboard / aft. Use the facing the shots arrive on (whichever of the target's arcs the firer sits in); that shield cancels that many hits outright. Ordinary hits are removed first, 6s last.
+- **Shields (by facing)** — each ship has four shield values: fore / port / starboard / aft. Use the facing the shots arrive on (whichever of the target's arcs the firer sits in); that shield cancels that many hits outright, and it is shared by every attack on that facing this turn. Ordinary hits are removed first, 6s last.
 - **Armour** — roll a d6 per remaining hit; meeting Armour saves it (a 1 always fails). Each failed save = 1 damage.
 - **Lances** — ignore shields; each failed save = 2 damage.
 - **Crippled** — at ≤ half Hull, broadsides roll half dice (round up). 0 Hull = destroyed.
@@ -73,11 +73,11 @@ Criticals stack and take effect after gunnery. The firer rolls on the table. **E
 
 ## 6. Collisions, disengaging & victory
 
-- **Collision** — ships ending with centres within 4u each take D3 damage (no saves) and are pushed apart. A **Ram Prow** with the enemy in its fore arc deals D6 instead.
+- **Collision** — any two ships (friend or foe) ending with centres within 4u each take D3 damage (no saves) and are pushed apart. A **Ram Prow** with the enemy in its fore arc deals D6 instead.
 - **Leaving the zone** — a ship ending outside the 120u × 80u zone has disengaged and counts as lost.
-- **Victory** — destroy or drive off the enemy flagship. Both lost in the same turn = mutual destruction.
+- **Victory** — destroy or drive off every ship in the enemy squadron. Last ships on both sides lost in the same turn = mutual destruction.
 
-## 7. Ship profiles
+## 7. Ship profiles (starter squadrons: Resolute + Vigilant vs Maw of Ruin + Carrion Wing)
 
 ### CNS Resolute — Dominion-class battleship (Concord Navy)
 Speed 12u · Turn 45° · Hull 14 · Shields F2 P2 S2 A1 · Armour 4+
@@ -104,8 +104,32 @@ Speed 16u · Turn 60° · Hull 13 · Shields F3 P2 S2 A1 · Armour 5+
 
 Model: `assets/ships/maw.glb` (pack file "sci-fi battleship 3d model.glb").
 
+### CNS Vigilant — Valiant-class cruiser (Concord Navy)
+Speed 14u · Turn 50° · Hull 8 · Shields F2 P1 S1 A1 · Armour 4+
+
+| Weapon | Arc | Dice | Range | Notes |
+|---|---|---|---|---|
+| Port broadside | Port | 4 | 24u | |
+| Starboard broadside | Stbd | 4 | 24u | |
+| Prow lance | Fore | 1 | 24u | Lance |
+| Dorsal turrets | All | 2 | 18u | |
+
+Model: `assets/ships/vigilant.glb` (pack file "space battleship 3d model.glb").
+
+### Carrion Wing — Harrow-class raider (Reaver Clans)
+Speed 18u · Turn 60° · Hull 10 · Shields F3 P1 S1 A0 · Armour 5+
+
+| Weapon | Arc | Dice | Range | Notes |
+|---|---|---|---|---|
+| Port broadside | Port | 5 | 24u | |
+| Starboard broadside | Stbd | 5 | 24u | |
+| Talon lances | Fore | 3 | 18u | Lance |
+| Spinal turrets | All | 2 | 18u | |
+
+Model: `assets/ships/carrion.glb` (pack file "spacecraft battleship 3d model.glb").
+
 ## Designer's notes (online build)
 
 - **Server-authoritative turns**: clients submit `{destination, specialOrder}` per ship; the server validates against the manoeuvre zone and waits for both players (or a timer). In gunnery it prompts each player for their own rolls and generates each die on the player's click, so rolls stay tamper-proof, then streams results to both clients.
-- **Balance snapshot**: `node tools/balance-sim.js` runs 1,500 AI-vs-AI duels. Current profiles (facing shields): Resolute ≈51%, Maw ≈32%, mutual destruction ≈17%, ~6.5 turns per duel. The AI is a simple one-turn look-ahead, so treat this as a starting point.
-- **Open questions**: target priority for fleets; wreck hazards; firing in mid-move tick slices vs. end of move; altitude bands.
+- **Balance snapshot**: `node tools/balance-sim.js` runs 1,500 AI-vs-AI duels. Current 2v2 squadrons: Concord ≈44%, Reaver ≈44%, mutual destruction ≈12%, ~7 turns per battle. The AI is a simple one-turn look-ahead, so treat this as a starting point.
+- **Open questions**: manual target priority per battery; wreck hazards; firing in mid-move tick slices vs. end of move; altitude bands.

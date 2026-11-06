@@ -27,6 +27,7 @@ th{font-size:12px;letter-spacing:0.06em;color:#93a3bf;font-weight:600}
     <p style="margin: 0; max-width: 720px; font-size: 18px; color: #c5d1e6">A game of capital ships slugging it out in open space. Both admirals write orders in secret, every ship moves at the same moment, and then every gun fires at the same moment. Fistfuls of d6 decide who is still flying.</p>
     <div style="display: flex; flex-wrap: wrap; gap: 10px; margin-top: 6px">
       <span style="font-size: 13px; padding: 4px 12px; border: 1px solid #26324a; border-radius: 999px; color: #c5d1e6">2 players or vs AI</span>
+      <span style="font-size: 13px; padding: 4px 12px; border: 1px solid #26324a; border-radius: 999px; color: #c5d1e6">Squadrons of 2+ ships</span>
       <span style="font-size: 13px; padding: 4px 12px; border: 1px solid #26324a; border-radius: 999px; color: #c5d1e6">d6 only</span>
       <span style="font-size: 13px; padding: 4px 12px; border: 1px solid #26324a; border-radius: 999px; color: #c5d1e6">Free movement, no squares</span>
       <span style="font-size: 13px; padding: 4px 12px; border: 1px solid #26324a; border-radius: 999px; color: #c5d1e6">20–40 min per duel</span>
@@ -40,7 +41,7 @@ th{font-size:12px;letter-spacing:0.06em;color:#93a3bf;font-weight:600}
       <div style="flex: 1 1 220px; display: flex; flex-direction: column; gap: 6px; padding: 18px; background: #0d1220; border: 1px solid #1c2638; border-radius: 10px">
         <span style="font-family: 'JetBrains Mono', monospace; font-size: 13px; color: #5aa9ff">PHASE 1</span>
         <h3 style="margin: 0; font-family: 'Chakra Petch', sans-serif; font-size: 20px; color: #eef3fb">Orders</h3>
-        <p style="margin: 0; font-size: 14px; color: #c5d1e6">In secret, each player places a destination marker for every ship and may give it one special order. Orders are sealed once committed.</p>
+        <p style="margin: 0; font-size: 14px; color: #c5d1e6">In secret, each player places a destination marker for every ship in their squadron and may give each one special order. A squadron's orders are sealed together once committed.</p>
       </div>
       <div style="flex: 1 1 220px; display: flex; flex-direction: column; gap: 6px; padding: 18px; background: #0d1220; border: 1px solid #1c2638; border-radius: 10px">
         <span style="font-family: 'JetBrains Mono', monospace; font-size: 13px; color: #5aa9ff">PHASE 2</span>
@@ -131,6 +132,7 @@ th{font-size:12px;letter-spacing:0.06em;color:#93a3bf;font-weight:600}
       </figure>
       <div style="flex: 1 1 440px; min-width: 0; display: flex; flex-direction: column; gap: 12px; color: #c5d1e6">
         <p style="margin: 0"><strong style="color: #eef3fb">Players roll their own dice:</strong> the firer rolls to hit and on the critical table, and the defender rolls armour saves. In the end phase each player rolls damage control for their own ship.</p>
+        <p style="margin: 0"><strong style="color: #eef3fb">Targeting:</strong> each weapon fires at the <strong style="color: #eef3fb">closest enemy ship</strong> that sits in its arc and within its range. One ship's batteries can therefore engage different targets.</p>
         <p style="margin: 0">Find which of the firer's arcs the target's centre sits in, and measure the range between centres. Every weapon covering that arc and in range rolls its <strong style="color: #eef3fb">dice</strong>. Each die that meets the to-hit number scores a hit.</p>
         <div style="overflow-x: auto; background: #0d1220; border: 1px solid #1c2638; border-radius: 10px">
           <table>
@@ -156,7 +158,7 @@ th{font-size:12px;letter-spacing:0.06em;color:#93a3bf;font-weight:600}
     <div style="display: flex; flex-wrap: wrap; gap: 12px">
       <div style="flex: 1 1 240px; display: flex; flex-direction: column; gap: 6px; padding: 18px; background: #0d1220; border: 1px solid #1c2638; border-radius: 10px; color: #c5d1e6">
         <h3 style="margin: 0; font-family: 'Chakra Petch', sans-serif; font-size: 18px; color: #eef3fb">Shields by facing</h3>
-        <p style="margin: 0; font-size: 14px">Each ship has four shield values: fore, port, starboard and aft. Use the facing the shots come in on, which is whichever of the target's arcs the firer sits in. That shield cancels that many hits outright. The defender removes ordinary hits first and 6s last, so lucky shots tend to punch through. Swing your strong side toward the enemy.</p>
+        <p style="margin: 0; font-size: 14px">Each ship has four shield values: fore, port, starboard and aft. Use the facing the shots come in on, which is whichever of the target's arcs the firer sits in. That shield cancels that many hits outright, and it is shared by every attack on that facing this turn, so focused fire overloads it. The defender removes ordinary hits first and 6s last, so lucky shots tend to punch through. Swing your strong side toward the enemy.</p>
       </div>
       <div style="flex: 1 1 240px; display: flex; flex-direction: column; gap: 6px; padding: 18px; background: #0d1220; border: 1px solid #1c2638; border-radius: 10px; color: #c5d1e6">
         <h3 style="margin: 0; font-family: 'Chakra Petch', sans-serif; font-size: 18px; color: #eef3fb">Armour saves</h3>
@@ -197,7 +199,7 @@ th{font-size:12px;letter-spacing:0.06em;color:#93a3bf;font-weight:600}
     <div style="display: flex; flex-wrap: wrap; gap: 12px">
       <div style="flex: 1 1 300px; display: flex; flex-direction: column; gap: 6px; padding: 18px; background: #0d1220; border: 1px solid #1c2638; border-radius: 10px; color: #c5d1e6">
         <h3 style="margin: 0; font-family: 'Chakra Petch', sans-serif; font-size: 18px; color: #eef3fb">Collision</h3>
-        <p style="margin: 0; font-size: 14px">If two ships finish movement with their centres within 4u, each takes D3 damage with no saves, and they are pushed apart. A ship with a <strong style="color: #eef3fb">Ram Prow</strong> that has the enemy in its fore arc deals D6 instead.</p>
+        <p style="margin: 0; font-size: 14px">If any two ships, friend or foe, finish movement with their centres within 4u, each takes D3 damage with no saves, and they are pushed apart. A ship with a <strong style="color: #eef3fb">Ram Prow</strong> that has the enemy in its fore arc deals D6 instead.</p>
       </div>
       <div style="flex: 1 1 300px; display: flex; flex-direction: column; gap: 6px; padding: 18px; background: #0d1220; border: 1px solid #1c2638; border-radius: 10px; color: #c5d1e6">
         <h3 style="margin: 0; font-family: 'Chakra Petch', sans-serif; font-size: 18px; color: #eef3fb">Leaving the zone</h3>
@@ -205,13 +207,13 @@ th{font-size:12px;letter-spacing:0.06em;color:#93a3bf;font-weight:600}
       </div>
       <div style="flex: 1 1 300px; display: flex; flex-direction: column; gap: 6px; padding: 18px; background: #0d1220; border: 1px solid #1c2638; border-radius: 10px; color: #c5d1e6">
         <h3 style="margin: 0; font-family: 'Chakra Petch', sans-serif; font-size: 18px; color: #eef3fb">Victory</h3>
-        <p style="margin: 0; font-size: 14px">Destroy or drive off the enemy flagship. If both ships go down in the same turn, which simultaneous fire makes possible, the result is mutual destruction.</p>
+        <p style="margin: 0; font-size: 14px">Destroy or drive off every ship in the enemy squadron. If the last ships on both sides go down in the same turn, which simultaneous fire makes possible, the result is mutual destruction.</p>
       </div>
     </div>
   </section>
 
   <section style="display: flex; flex-direction: column; gap: 18px">
-    <h2 style="margin: 0; font-family: 'Chakra Petch', sans-serif; font-size: 28px; color: #eef3fb">7 · Ship profiles</h2>
+    <h2 style="margin: 0; font-family: 'Chakra Petch', sans-serif; font-size: 28px; color: #eef3fb">7 · Ship profiles · starter squadrons</h2>
     <div style="display: flex; flex-wrap: wrap; gap: 16px">
       <article style="flex: 1 1 440px; min-width: 0; display: flex; flex-direction: column; gap: 14px; padding: 20px; background: #0d1220; border: 1px solid #1c2638; border-top: 4px solid #5aa9ff; border-radius: 10px">
         <div style="display: flex; flex-direction: column; gap: 2px">
@@ -264,6 +266,34 @@ th{font-size:12px;letter-spacing:0.06em;color:#93a3bf;font-weight:600}
           </table>
         </div>
       </article>
+      <article style="flex: 1 1 440px; min-width: 0; display: flex; flex-direction: column; gap: 14px; padding: 20px; background: #0d1220; border: 1px solid #1c2638; border-top: 4px solid #5aa9ff; border-radius: 10px">
+        <div style="display: flex; flex-direction: column; gap: 2px">
+          <h3 style="margin: 0; font-family: 'Chakra Petch', sans-serif; font-size: 24px; color: #5aa9ff">CNS Vigilant</h3>
+          <span style="font-size: 13px; color: #93a3bf">Valiant-class cruiser · Concord Navy</span>
+        </div>
+        <p style="margin: 0; font-size: 14px; color: #c5d1e6">A screening cruiser. It guards the battleship’s flank and adds a second broadside where the enemy commits.</p>
+        <div style="display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 8px; text-align: center"><div style="display: flex; flex-direction: column; padding: 8px 4px; background: #080c16; border-radius: 6px"><span style="font-size: 11px; color: #93a3bf">SPEED</span><span style="font-family: 'JetBrains Mono', monospace; font-size: 18px; color: #eef3fb">14u</span></div><div style="display: flex; flex-direction: column; padding: 8px 4px; background: #080c16; border-radius: 6px"><span style="font-size: 11px; color: #93a3bf">TURN</span><span style="font-family: 'JetBrains Mono', monospace; font-size: 18px; color: #eef3fb">50°</span></div><div style="display: flex; flex-direction: column; padding: 8px 4px; background: #080c16; border-radius: 6px"><span style="font-size: 11px; color: #93a3bf">HULL</span><span style="font-family: 'JetBrains Mono', monospace; font-size: 18px; color: #eef3fb">8</span></div><div style="display: flex; flex-direction: column; padding: 8px 4px; background: #080c16; border-radius: 6px"><span style="font-size: 11px; color: #93a3bf">SHIELDS</span><span style="font-family: 'JetBrains Mono', monospace; font-size: 13px; color: #eef3fb">F2 P1 S1 A1</span></div><div style="display: flex; flex-direction: column; padding: 8px 4px; background: #080c16; border-radius: 6px"><span style="font-size: 11px; color: #93a3bf">ARMOUR</span><span style="font-family: 'JetBrains Mono', monospace; font-size: 18px; color: #eef3fb">4+</span></div></div>
+        <div style="overflow-x: auto">
+          <table>
+            <thead><tr><th>WEAPON</th><th>ARC</th><th>DICE</th><th>RANGE</th><th>NOTES</th></tr></thead>
+            <tbody><tr><td style="color: #eef3fb">Port broadside</td><td>Port</td><td>4</td><td>24u</td><td>—</td></tr><tr><td style="color: #eef3fb">Starboard broadside</td><td>Stbd</td><td>4</td><td>24u</td><td>—</td></tr><tr><td style="color: #eef3fb">Prow lance</td><td>Fore</td><td>1</td><td>24u</td><td>Lance</td></tr><tr><td style="color: #eef3fb">Dorsal turrets</td><td>All</td><td>2</td><td>18u</td><td>—</td></tr></tbody>
+          </table>
+        </div>
+      </article>
+      <article style="flex: 1 1 440px; min-width: 0; display: flex; flex-direction: column; gap: 14px; padding: 20px; background: #0d1220; border: 1px solid #1c2638; border-top: 4px solid #ff6a3d; border-radius: 10px">
+        <div style="display: flex; flex-direction: column; gap: 2px">
+          <h3 style="margin: 0; font-family: 'Chakra Petch', sans-serif; font-size: 24px; color: #ff6a3d">Carrion Wing</h3>
+          <span style="font-size: 13px; color: #93a3bf">Harrow-class raider · Reaver Clans</span>
+        </div>
+        <p style="margin: 0; font-size: 14px; color: #c5d1e6">A fast, wide-winged raider. It hunts isolated ships and goes for the bow-on kill with its talon lances.</p>
+        <div style="display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 8px; text-align: center"><div style="display: flex; flex-direction: column; padding: 8px 4px; background: #080c16; border-radius: 6px"><span style="font-size: 11px; color: #93a3bf">SPEED</span><span style="font-family: 'JetBrains Mono', monospace; font-size: 18px; color: #eef3fb">18u</span></div><div style="display: flex; flex-direction: column; padding: 8px 4px; background: #080c16; border-radius: 6px"><span style="font-size: 11px; color: #93a3bf">TURN</span><span style="font-family: 'JetBrains Mono', monospace; font-size: 18px; color: #eef3fb">60°</span></div><div style="display: flex; flex-direction: column; padding: 8px 4px; background: #080c16; border-radius: 6px"><span style="font-size: 11px; color: #93a3bf">HULL</span><span style="font-family: 'JetBrains Mono', monospace; font-size: 18px; color: #eef3fb">10</span></div><div style="display: flex; flex-direction: column; padding: 8px 4px; background: #080c16; border-radius: 6px"><span style="font-size: 11px; color: #93a3bf">SHIELDS</span><span style="font-family: 'JetBrains Mono', monospace; font-size: 13px; color: #eef3fb">F3 P1 S1 A0</span></div><div style="display: flex; flex-direction: column; padding: 8px 4px; background: #080c16; border-radius: 6px"><span style="font-size: 11px; color: #93a3bf">ARMOUR</span><span style="font-family: 'JetBrains Mono', monospace; font-size: 18px; color: #eef3fb">5+</span></div></div>
+        <div style="overflow-x: auto">
+          <table>
+            <thead><tr><th>WEAPON</th><th>ARC</th><th>DICE</th><th>RANGE</th><th>NOTES</th></tr></thead>
+            <tbody><tr><td style="color: #eef3fb">Port broadside</td><td>Port</td><td>5</td><td>24u</td><td>—</td></tr><tr><td style="color: #eef3fb">Starboard broadside</td><td>Stbd</td><td>5</td><td>24u</td><td>—</td></tr><tr><td style="color: #eef3fb">Talon lances</td><td>Fore</td><td>3</td><td>18u</td><td>Lance</td></tr><tr><td style="color: #eef3fb">Spinal turrets</td><td>All</td><td>2</td><td>18u</td><td>—</td></tr></tbody>
+          </table>
+        </div>
+      </article>
     </div>
   </section>
 
@@ -271,8 +301,8 @@ th{font-size:12px;letter-spacing:0.06em;color:#93a3bf;font-weight:600}
     <h2 style="margin: 0; font-family: 'Chakra Petch', sans-serif; font-size: 22px; color: #eef3fb">Designer's notes · for the online build</h2>
     <ul style="margin: 0; padding-left: 20px; display: flex; flex-direction: column; gap: 8px; color: #c5d1e6">
       <li><strong style="color: #eef3fb">Server-authoritative turns.</strong> Clients send only {destination, special order} per ship. The server checks each against the manoeuvre zone and waits for both players (or a turn timer). In gunnery it then asks each player in turn for their roll, which the server generates on the player's click so nobody can fake a die, and streams the results to both clients.</li>
-      <li><strong style="color: #eef3fb">Balance snapshot.</strong> In 1,500 AI-vs-AI duels using these profiles (with facing shields), Resolute won about 51%, Maw of Ruin 32%, and 17% ended in mutual destruction. A typical duel runs about 6–7 turns. Treat this as a starting point; the AI is a simple one-turn look-ahead.</li>
-      <li><strong style="color: #eef3fb">Open questions.</strong> Should players pick target priority once fleets grow beyond 1v1? Should destroyed ships leave wreck hazards? Should firing happen mid-move (in tick slices) rather than at end of move? Are there altitude bands for 3D depth?</li>
+      <li><strong style="color: #eef3fb">Balance snapshot.</strong> In 1,500 AI-vs-AI 2v2 battles (Resolute + Vigilant vs Maw of Ruin + Carrion Wing), each side won about 44%, and 12% ended in mutual destruction. A typical battle runs about 7 turns. Treat this as a starting point; the AI is a simple one-turn look-ahead.</li>
+      <li><strong style="color: #eef3fb">Open questions.</strong> Should players be able to override the closest-target rule and pick targets per battery? Should destroyed ships leave wreck hazards? Should firing happen mid-move (in tick slices) rather than at end of move? Are there altitude bands for 3D depth?</li>
     </ul>
   </section>
 

@@ -42,30 +42,24 @@ button:focus-visible{outline:2px solid #ffc94d;outline-offset:2px}
       <canvas ref="{{setCanvas}}" data-broadside-canvas="1" onPointerDown="{{onDown}}" onPointerMove="{{onMove}}" onPointerUp="{{onUp}}" onPointerLeave="{{onLeave}}" onWheel="{{onWheel}}" onDoubleClick="{{onDbl}}" onContextMenu="{{noMenu}}" style="position: absolute; inset: 0; width: 100%; height: 100%; display: block; touch-action: none; cursor: {{cursor}}" aria-label="3D tactical map. Click inside your manoeuvre zone to set a destination, double-click to set it and commit; click a ship to inspect it; drag to rotate the view; right-drag or shift-drag to pan; scroll to zoom toward the cursor." role="img"></canvas>
 
 
-      <div ref="{{setLabelR}}" style="position: absolute; left: 0; top: 0; transform: translate(-9999px, 0); pointer-events: none; display: flex; align-items: center; gap: 6px; padding: 2px 8px; border-radius: 4px; background: rgba(0,0,0,0.65); border: 1px solid #5aa9ff; color: #d6e9ff; font-size: 12px; font-weight: 600; white-space: nowrap"><div aria-hidden="true" style="position: absolute; bottom: calc(100% + 6px); left: 50%; transform: translateX(-50%); display: flex; flex-direction: column; align-items: center; gap: 2px; pointer-events: none"><sc-for list="{{floatR}}" as="f" hint-placeholder-count="0"><div data-so-float="1" style="{{f.style}}"><sc-if value="{{f.fire}}" hint-placeholder-val="{{ false }}"><svg width="16" height="16" viewBox="0 0 24 24" fill="#ff7a1a" aria-hidden="true"><path d="M12 2c1 3.5-1.5 5-1.5 7.5 0 1.4 1 2.5 2.3 2.5 1.8 0 2.7-1.6 2.2-3.7C17.5 10.5 19 13 19 15.5 19 19.6 15.9 22 12 22s-7-2.4-7-6.3C5 11 9.5 8.5 12 2z"></path></svg></sc-if><span>{{f.text}}</span></div></sc-for></div>CNS Resolute<sc-if value="{{tagShowR}}" hint-placeholder-val="{{ false }}"><span tabIndex="0" role="button" aria-label="Show the dice rolled against this ship last turn" onMouseEnter="{{tipR}}" onMouseLeave="{{tipOff}}" onFocus="{{tipR}}" onBlur="{{tipOff}}" style="pointer-events: auto; cursor: help; padding: 0 5px; border-radius: 3px; background: {{tagBgR}}; color: {{tagFgR}}; font-family: 'JetBrains Mono', monospace">{{dmgR}}</span></sc-if>
-        <sc-if value="{{tipShowR}}" hint-placeholder-val="{{ false }}">
-          <div style="position: absolute; {{tipPosR}} left: 50%; transform: translateX(-50%); width: 320px; max-height: 340px; overflow: hidden; display: flex; flex-direction: column; gap: 8px; padding: 10px 12px; background: rgba(4,6,12,0.96); border: 1px solid #33425f; border-radius: 8px; color: #d8e1f0; font-weight: 400; white-space: normal; z-index: 5">
-            <span style="font-size: 11px; font-weight: 700; letter-spacing: 0.08em; color: #93a3bf">{{tipHead}}</span>
-            <sc-for list="{{tipRows}}" as="t" hint-placeholder-count="3">
-              <div style="display: flex; flex-direction: column; gap: 4px; padding-left: 8px; box-shadow: inset 2px 0 0 {{t.color}}">
-                <div style="display: flex; justify-content: space-between; gap: 8px; font-size: 12px"><span>{{t.label}}</span><span style="color: #ffc94d; font-weight: 600; text-align: right">{{t.result}}</span></div>
-                <sc-if value="{{t.hasDice}}" hint-placeholder-val="{{ true }}"><div style="display: flex; flex-wrap: wrap; gap: 3px"><sc-for list="{{t.dice}}" as="d" hint-placeholder-count="4"><span style="{{d.style}}">{{d.v}}</span></sc-for></div></sc-if>
-              </div>
-            </sc-for>
-          </div>
-        </sc-if></div>
-      <div ref="{{setLabelM}}" style="position: absolute; left: 0; top: 0; transform: translate(-9999px, 0); pointer-events: none; display: flex; align-items: center; gap: 6px; padding: 2px 8px; border-radius: 4px; background: rgba(0,0,0,0.65); border: 1px solid #ff6a3d; color: #ffd9cc; font-size: 12px; font-weight: 600; white-space: nowrap"><div aria-hidden="true" style="position: absolute; bottom: calc(100% + 6px); left: 50%; transform: translateX(-50%); display: flex; flex-direction: column; align-items: center; gap: 2px; pointer-events: none"><sc-for list="{{floatM}}" as="f" hint-placeholder-count="0"><div data-so-float="1" style="{{f.style}}"><sc-if value="{{f.fire}}" hint-placeholder-val="{{ false }}"><svg width="16" height="16" viewBox="0 0 24 24" fill="#ff7a1a" aria-hidden="true"><path d="M12 2c1 3.5-1.5 5-1.5 7.5 0 1.4 1 2.5 2.3 2.5 1.8 0 2.7-1.6 2.2-3.7C17.5 10.5 19 13 19 15.5 19 19.6 15.9 22 12 22s-7-2.4-7-6.3C5 11 9.5 8.5 12 2z"></path></svg></sc-if><span>{{f.text}}</span></div></sc-for></div>Maw of Ruin<sc-if value="{{tagShowM}}" hint-placeholder-val="{{ false }}"><span tabIndex="0" role="button" aria-label="Show the dice rolled against this ship last turn" onMouseEnter="{{tipM}}" onMouseLeave="{{tipOff}}" onFocus="{{tipM}}" onBlur="{{tipOff}}" style="pointer-events: auto; cursor: help; padding: 0 5px; border-radius: 3px; background: {{tagBgM}}; color: {{tagFgM}}; font-family: 'JetBrains Mono', monospace">{{dmgM}}</span></sc-if>
-        <sc-if value="{{tipShowM}}" hint-placeholder-val="{{ false }}">
-          <div style="position: absolute; {{tipPosM}} left: 50%; transform: translateX(-50%); width: 320px; max-height: 340px; overflow: hidden; display: flex; flex-direction: column; gap: 8px; padding: 10px 12px; background: rgba(4,6,12,0.96); border: 1px solid #33425f; border-radius: 8px; color: #d8e1f0; font-weight: 400; white-space: normal; z-index: 5">
-            <span style="font-size: 11px; font-weight: 700; letter-spacing: 0.08em; color: #93a3bf">{{tipHead}}</span>
-            <sc-for list="{{tipRows}}" as="t" hint-placeholder-count="3">
-              <div style="display: flex; flex-direction: column; gap: 4px; padding-left: 8px; box-shadow: inset 2px 0 0 {{t.color}}">
-                <div style="display: flex; justify-content: space-between; gap: 8px; font-size: 12px"><span>{{t.label}}</span><span style="color: #ffc94d; font-weight: 600; text-align: right">{{t.result}}</span></div>
-                <sc-if value="{{t.hasDice}}" hint-placeholder-val="{{ true }}"><div style="display: flex; flex-wrap: wrap; gap: 3px"><sc-for list="{{t.dice}}" as="d" hint-placeholder-count="4"><span style="{{d.style}}">{{d.v}}</span></sc-for></div></sc-if>
-              </div>
-            </sc-for>
-          </div>
-        </sc-if></div>
+      <sc-for list="{{labels}}" as="l" hint-placeholder-count="0">
+        <div ref="{{l.ref}}" style="position: absolute; left: 0; top: 0; transform: translate(-9999px, 0); pointer-events: none; display: flex; align-items: center; gap: 6px; padding: 2px 8px; border-radius: 4px; background: rgba(0,0,0,0.65); border: 1px solid {{l.border}}; color: {{l.fg}}; font-size: 12px; font-weight: 600; white-space: nowrap">
+          <div aria-hidden="true" style="position: absolute; bottom: calc(100% + 6px); left: 50%; transform: translateX(-50%); display: flex; flex-direction: column; align-items: center; gap: 2px; pointer-events: none"><sc-for list="{{l.floats}}" as="f" hint-placeholder-count="0"><div data-so-float="1" style="{{f.style}}"><sc-if value="{{f.fire}}" hint-placeholder-val="{{ false }}"><svg width="16" height="16" viewBox="0 0 24 24" fill="#ff7a1a" aria-hidden="true"><path d="M12 2c1 3.5-1.5 5-1.5 7.5 0 1.4 1 2.5 2.3 2.5 1.8 0 2.7-1.6 2.2-3.7C17.5 10.5 19 13 19 15.5 19 19.6 15.9 22 12 22s-7-2.4-7-6.3C5 11 9.5 8.5 12 2z"></path></svg></sc-if><span>{{f.text}}</span></div></sc-for></div>
+          <span>{{l.name}}</span>
+          <sc-if value="{{l.tagShow}}" hint-placeholder-val="{{ false }}"><span tabIndex="0" role="button" aria-label="Show the dice rolled against this ship last turn" onMouseEnter="{{l.tipOn}}" onMouseLeave="{{tipOff}}" onFocus="{{l.tipOn}}" onBlur="{{tipOff}}" style="pointer-events: auto; cursor: help; padding: 0 5px; border-radius: 3px; background: {{l.tagBg}}; color: {{l.tagFg}}; font-family: 'JetBrains Mono', monospace">{{l.dmg}}</span></sc-if>
+          <sc-if value="{{l.tipShow}}" hint-placeholder-val="{{ false }}">
+            <div style="position: absolute; {{l.tipPos}} left: 50%; transform: translateX(-50%); width: 320px; max-height: 340px; overflow: hidden; display: flex; flex-direction: column; gap: 8px; padding: 10px 12px; background: rgba(4,6,12,0.96); border: 1px solid #33425f; border-radius: 8px; color: #d8e1f0; font-weight: 400; white-space: normal; z-index: 5">
+              <span style="font-size: 11px; font-weight: 700; letter-spacing: 0.08em; color: #93a3bf">{{l.tipHead}}</span>
+              <sc-for list="{{l.tipRows}}" as="t" hint-placeholder-count="3">
+                <div style="display: flex; flex-direction: column; gap: 4px; padding-left: 8px; box-shadow: inset 2px 0 0 {{t.color}}">
+                  <div style="display: flex; justify-content: space-between; gap: 8px; font-size: 12px"><span>{{t.label}}</span><span style="color: #ffc94d; font-weight: 600; text-align: right">{{t.result}}</span></div>
+                  <sc-if value="{{t.hasDice}}" hint-placeholder-val="{{ true }}"><div style="display: flex; flex-wrap: wrap; gap: 3px"><sc-for list="{{t.dice}}" as="d" hint-placeholder-count="4"><span style="{{d.style}}">{{d.v}}</span></sc-for></div></sc-if>
+                </div>
+              </sc-for>
+            </div>
+          </sc-if>
+        </div>
+      </sc-for>
 
       <sc-if value="{{tray.show}}" hint-placeholder-val="{{ false }}">
         <div role="region" aria-label="Dice tray" aria-live="polite" style="position: absolute; left: 50%; bottom: 14px; transform: translateX(-50%); width: min(820px, calc(100% - 28px)); box-sizing: border-box; display: flex; flex-direction: column; gap: 10px; padding: 12px 14px; background: rgba(0,0,0,0.9); border: 1px solid #26324a; border-radius: 10px">
@@ -104,8 +98,8 @@ button:focus-visible{outline:2px solid #ffc94d;outline-offset:2px}
         <div style="position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; background: rgba(4,6,11,0.94)">
           <div style="display: flex; flex-direction: column; align-items: center; gap: 16px; padding: 32px; max-width: 420px; text-align: center">
             <h2 style="margin: 0; font-family: 'Chakra Petch', sans-serif; font-size: 26px; color: #ff6a3d">Reaver commander</h2>
-            <p style="margin: 0; color: #c5d1e6; line-height: 1.5">Resolute's orders are sealed. Pass the device to the Reaver player, then plot Maw of Ruin's course.</p>
-            <button onClick="{{takeOver}}" style="min-height: 44px; padding: 0 22px; background: #ff6a3d; color: #1a0a04; border: 0; border-radius: 6px; cursor: pointer; font-weight: 700; font-size: 14px">I'm the Reaver — show my ship</button>
+            <p style="margin: 0; color: #c5d1e6; line-height: 1.5">The Concord's orders are sealed. Pass the device to the Reaver player, then plot a course for each Reaver ship.</p>
+            <button onClick="{{takeOver}}" style="min-height: 44px; padding: 0 22px; background: #ff6a3d; color: #1a0a04; border: 0; border-radius: 6px; cursor: pointer; font-weight: 700; font-size: 14px">I'm the Reaver — show my ships</button>
           </div>
         </div>
       </sc-if>
@@ -121,17 +115,17 @@ button:focus-visible{outline:2px solid #ffc94d;outline-offset:2px}
       </sc-if>
     </section>
 
-    <aside data-bs-side="1" aria-label="Ship inspector and orders" style="flex: 1 1 360px; min-width: 0; height: 100%; box-sizing: border-box; overflow-y: auto; display: flex; flex-direction: column; gap: 10px; padding: 12px 14px; background: #0a0f1a; border-left: 1px solid #1c2638">
+    <aside data-bs-side="1" aria-label="Ship inspector and orders" style="flex: 1 1 360px; min-width: 0; height: 100%; box-sizing: border-box; overflow-y: auto; display: flex; flex-direction: column; gap: 8px; padding: 10px 14px; background: #0a0f1a; border-left: 1px solid #1c2638">
 
-      <section aria-label="Ship inspector" style="display: flex; flex-direction: column; gap: 10px; padding: 12px 14px; background: #0d1220; border: 1px solid #1c2638; border-radius: 8px">
+      <section aria-label="Ship inspector" style="display: flex; flex-direction: column; gap: 8px; padding: 10px 14px; background: #0d1220; border: 1px solid #1c2638; border-radius: 8px">
         <div style="display: flex; justify-content: space-between; align-items: center; gap: 8px">
           <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap; min-width: 0">
             <h2 title="{{insp.cls}}" style="margin: 0; font-family: 'Chakra Petch', sans-serif; font-size: 17px; font-weight: 700; color: #eef3fb">{{insp.name}}</h2>
             <span style="font-size: 11px; font-weight: 700; letter-spacing: 0.06em; padding: 3px 8px; border-radius: 4px; background: {{insp.statusBg}}; color: {{insp.statusFg}}">{{insp.status}}</span>
           </div>
-          <button onClick="{{nextShip}}" aria-label="Inspect the next ship" style="min-height: 44px; padding: 0 12px; background: transparent; color: #c5d1e6; border: 1px solid #33425f; border-radius: 6px; cursor: pointer; font-size: 12px; font-weight: 600">Next ship</button>
+          <button onClick="{{nextShip}}" aria-label="Inspect the next ship" style="min-height: 44px; padding: 0 12px; white-space: nowrap; flex: none; background: transparent; color: #c5d1e6; border: 1px solid #33425f; border-radius: 6px; cursor: pointer; font-size: 12px; font-weight: 600">Next ship</button>
         </div>
-        <div style="position: relative; width: 100%; max-width: 270px; aspect-ratio: 1 / 1; align-self: center; background: #000000; border: 1px solid #1c2638; border-radius: 6px; overflow: hidden">
+        <div style="position: relative; width: 100%; max-width: 215px; aspect-ratio: 1 / 1; align-self: center; background: #000000; border: 1px solid #1c2638; border-radius: 6px; overflow: hidden">
           <canvas ref="{{setInspect}}" data-bs-inspect="1" aria-hidden="true" style="position: absolute; inset: 0; width: 100%; height: 100%; display: block"></canvas>
           <svg viewBox="0 0 300 300" role="img" aria-label="{{insp.aria}}" style="position: absolute; inset: 0; width: 100%; height: 100%">
             <sc-for list="{{insp.weapons}}" as="w" hint-placeholder-count="4">
@@ -181,9 +175,14 @@ button:focus-visible{outline:2px solid #ffc94d;outline-offset:2px}
         </sc-if>
       </section>
 
-      <section aria-label="Orders" style="display: flex; flex-direction: column; gap: 10px; padding: 12px 14px; background: #0d1220; border: 1px solid #1c2638; border-radius: 8px">
+      <section aria-label="Orders" style="display: flex; flex-direction: column; gap: 8px; padding: 10px 14px; background: #0d1220; border: 1px solid #1c2638; border-radius: 8px">
         <h2 style="margin: 0; font-family: 'Chakra Petch', sans-serif; font-size: 15px; letter-spacing: 0.06em; color: #eef3fb">ORDERS · <span style="color: {{plotColor}}">{{plotName}}</span></h2>
         <sc-if value="{{canOrder}}" hint-placeholder-val="{{ true }}">
+          <div role="group" aria-label="Choose which ship to plot" style="display: flex; flex-wrap: wrap; gap: 6px">
+            <sc-for list="{{fleet}}" as="c" hint-placeholder-count="2">
+              <button onClick="{{c.pick}}" aria-pressed="{{c.pressed}}" style="{{c.style}}"><span style="font-size: 12px; font-weight: 700">{{c.name}}</span><span style="{{c.markStyle}}">{{c.mark}}</span></button>
+            </sc-for>
+          </div>
           <div style="display: flex; flex-wrap: wrap; gap: 6px">
             <sc-for list="{{orderOpts}}" as="o" hint-placeholder-count="5">
               <button onClick="{{o.pick}}" disabled="{{o.disabled}}" aria-pressed="{{o.pressed}}" title="{{o.desc}}" style="{{o.style}}">
@@ -219,22 +218,26 @@ class Component extends DCLogic {
     this.anim = null;
     this.setCanvas = (el) => { if (el) this.canvas = el; };
     this.setInspect = (el) => { if (el) this.inspCanvas = el; };
-    this.labelEls = {}; this.labelY = { resolute: 0.5, maw: 0.5 };
-    this.setLabelR = (el) => { if (el) this.labelEls.resolute = el; };
-    this.setLabelM = (el) => { if (el) this.labelEls.maw = el; };
+    this.labelEls = {}; this.labelY = {}; this.labelRefs = {}; this.tipOn = {}; this.pickOn = {};
+    this.D.IDS.forEach((id) => {
+      this.labelRefs[id] = (el) => { if (el) this.labelEls[id] = el; };
+      this.tipOn[id] = () => { this.ui.tip = id; this.bump(); };
+      this.pickOn[id] = () => this.selectShip(id);
+    });
     this.ui.sel = 'resolute';
-    this.nextShip = () => { const ids = ['resolute', 'maw']; this.selectShip(ids[(ids.indexOf(this.ui.sel) + 1) % ids.length]); };
-    this.pickShipR = () => this.selectShip('resolute');
+    this.nextShip = () => {
+      const ids = this.ids().filter((id) => !this.g.ships[id].dead);
+      this.selectShip(ids[(ids.indexOf(this.ui.sel) + 1) % ids.length]);
+    };
     this.rollClick = () => this.rollPending();
-    this.tipR = () => { this.ui.tip = 'resolute'; this.bump(); };
-    this.tipM = () => { this.ui.tip = 'maw'; this.bump(); };
     this.tipOff = () => { this.ui.tip = null; this.bump(); };
-    this.pickShipM = () => this.selectShip('maw');
+    // Double-click: plot this ship here, then move on to the next unplotted ship; on the last one, commit the fleet.
     this.onDbl = (e) => {
       if (!this.g || this.g.phase !== 'orders') return;
       const p = this.pickMap(e); if (!p || this.shipAt(p)) return;
       this.setDest(p.x, p.y);
-      this.commitOrders();
+      const next = this.nextUndrafted();
+      if (next) this.switchPlot(next); else this.commitOrders();
     };
     this.onDown = (e) => this.pointerDown(e);
     this.onMove = (e) => this.pointerMove(e);
@@ -244,7 +247,7 @@ class Component extends DCLogic {
     this.noMenu = (e) => e.preventDefault();
     this.restart = () => this.newGame();
     this.commit = () => this.commitOrders();
-    this.takeOver = () => { this.g.phase = 'orders'; this.g.plotting = 'maw'; this.ui.order = 'steady'; this.refreshOverlays(); this.bump(); };
+    this.takeOver = () => { this.g.phase = 'orders'; this.startPlotting('reaver'); this.refreshOverlays(); this.bump(); };
     this.toggleEnemyArcs = () => { this.ui.enemyArcs = !this.ui.enemyArcs; this.refreshOverlays(); this.bump(); };
     this.zoomIn = () => { this.cam.dist = Math.max(22, this.cam.dist * 0.8); };
     this.zoomOut = () => { this.cam.dist = Math.min(230, this.cam.dist * 1.25); };
@@ -256,6 +259,11 @@ class Component extends DCLogic {
   defs() {
     return {
       W: 120, H: 80,
+      IDS: ['resolute', 'vigilant', 'maw', 'carrion'],
+      SIDES: {
+        concord: { name: 'Concord Navy', short: 'Concord', color: '#5aa9ff', hex: 0x5aa9ff, glow: 0x6fb6ff, bolt: 0x7cc0ff, lanceBolt: 0xbfe4ff, fill: 'rgba(90,169,255,0.2)', tagFg: '#d6e9ff' },
+        reaver: { name: 'Reaver Clans', short: 'Reaver', color: '#ff6a3d', hex: 0xff6a3d, glow: 0xff5030, bolt: 0xff7a3d, lanceBolt: 0xff3cc8, fill: 'rgba(255,106,61,0.2)', tagFg: '#ffd9cc' }
+      },
       CRIT: ['', 'Hull Breach', 'Fire!', 'Engines Hit', 'Steering Jammed', 'Gun Deck Hit', 'Bridge Hit'],
       CRITKEY: ['', 'breach', 'fire', 'engines', 'steering', 'gundeck', 'bridge'],
       ORDERS: [
@@ -267,7 +275,7 @@ class Component extends DCLogic {
       ],
       SHIPS: {
         resolute: {
-          id: 'resolute', name: 'CNS Resolute', cls: 'Dominion-class battleship · Concord Navy', color: '#5aa9ff', hex: 0x5aa9ff,
+          id: 'resolute', side: 'concord', len: 8, beam: 1.5, name: 'CNS Resolute', cls: 'Dominion-class battleship · Concord Navy', color: '#5aa9ff', hex: 0x5aa9ff,
           speed: 12, turn: 45, hull: 14, shields: { fore: 2, port: 2, stbd: 2, aft: 1 }, armour: 4, ram: false,
           start: { x: -44, y: -14, h: 0 },
           weapons: [
@@ -279,7 +287,7 @@ class Component extends DCLogic {
           assets: { mesh: '/_blob/1fca825c5afff9c46079621b608990d1', base: '/_blob/f3ccc5c71b8e6ac2ef74b6f4d0ed9ca5', normal: '/_blob/753f29aba03865a232ca1701e429a756', rm: '/_blob/64f67c2fe01d74c018b3a4def2eec0b5' }
         },
         maw: {
-          id: 'maw', name: 'Maw of Ruin', cls: 'Ravager-class battleship · Reaver Clans', color: '#ff6a3d', hex: 0xff6a3d,
+          id: 'maw', side: 'reaver', len: 8, beam: 1.5, name: 'Maw of Ruin', cls: 'Ravager-class battleship · Reaver Clans', color: '#ff6a3d', hex: 0xff6a3d,
           speed: 16, turn: 60, hull: 13, shields: { fore: 3, port: 2, stbd: 2, aft: 1 }, armour: 5, ram: true,
           start: { x: 44, y: 14, h: Math.PI },
           weapons: [
@@ -289,6 +297,30 @@ class Component extends DCLogic {
             { id: 'turret', name: 'Spinal turrets', dice: 2, range: 18, arcs: ['fore', 'port', 'stbd', 'aft'] }
           ],
           assets: { mesh: '/_blob/c644ca5c0c860be99b90b776783c832d', base: '/_blob/a3fec9d6b439e84422b2180316fbad33', normal: '/_blob/1631962b096ed9a4432e4b3c0abb9c29', rm: '/_blob/7dfc69f5529eb78e929aebbda296f429' }
+        },
+        vigilant: {
+          id: 'vigilant', side: 'concord', len: 6.5, beam: 1.5, name: 'CNS Vigilant', cls: 'Valiant-class cruiser · Concord Navy', color: '#5aa9ff', hex: 0x5aa9ff,
+          speed: 14, turn: 50, hull: 8, shields: { fore: 2, port: 1, stbd: 1, aft: 1 }, armour: 4, ram: false,
+          start: { x: -48, y: 8, h: 0 },
+          weapons: [
+            { id: 'port', name: 'Port broadside', dice: 4, range: 24, arcs: ['port'], broadside: true, side: 'port' },
+            { id: 'stbd', name: 'Starboard broadside', dice: 4, range: 24, arcs: ['stbd'], broadside: true, side: 'stbd' },
+            { id: 'lance', name: 'Prow lance', dice: 1, range: 24, arcs: ['fore'], lance: true },
+            { id: 'turret', name: 'Dorsal turrets', dice: 2, range: 18, arcs: ['fore', 'port', 'stbd', 'aft'] }
+          ],
+          assets: { mesh: '/_blob/d4c9666d5b83c6c508d29f5c0c02e3ec', base: '/_blob/5c74e1d416531236a0cc3609c03fca6d', normal: '/_blob/a117c03feb593c44dc82b2ff023a0c1f', rm: '/_blob/ad70c2ec8e00d2f335da847ebef1a3fc' }
+        },
+        carrion: {
+          id: 'carrion', side: 'reaver', len: 6.5, beam: 1, name: 'Carrion Wing', cls: 'Harrow-class raider · Reaver Clans', color: '#ff6a3d', hex: 0xff6a3d,
+          speed: 18, turn: 60, hull: 10, shields: { fore: 3, port: 1, stbd: 1, aft: 0 }, armour: 5, ram: false,
+          start: { x: 48, y: -8, h: Math.PI },
+          weapons: [
+            { id: 'port', name: 'Port broadside', dice: 5, range: 24, arcs: ['port'], broadside: true, side: 'port' },
+            { id: 'stbd', name: 'Starboard broadside', dice: 5, range: 24, arcs: ['stbd'], broadside: true, side: 'stbd' },
+            { id: 'talons', name: 'Talon lances', dice: 3, range: 18, arcs: ['fore'], lance: true },
+            { id: 'turret', name: 'Spinal turrets', dice: 2, range: 18, arcs: ['fore', 'port', 'stbd', 'aft'] }
+          ],
+          assets: { mesh: '/_blob/08d8e56b994af5349f1a7e5a0b1eac58', base: '/_blob/b638cc5f369cb5d16c19d54534bc5104', normal: '/_blob/8da63acb2cebf790c7f9a82c6a3193d7', rm: '/_blob/efbe2e8fcaf666606aeb8ccd26999727' }
         }
       }
     };
@@ -300,7 +332,17 @@ class Component extends DCLogic {
   deg(r) { return Math.round(r * 180 / Math.PI); }
   count(s, k) { return s.crits.filter((c) => c.k === k).length; }
   crippled(s) { return s.hull <= s.def.hull / 2; }
-  other(id) { return id === 'resolute' ? 'maw' : 'resolute'; }
+  ids() { return this.D.IDS; }
+  sideOf(id) { return this.D.SHIPS[id].side; }
+  active(s) { return !!s && !s.dead && !s.fled; }
+  enemySide(side) { return side === 'concord' ? 'reaver' : 'concord'; }
+  sideShips(side) { return this.ids().filter((id) => this.sideOf(id) === side && this.active(this.g.ships[id])); }
+  perShip(f) { const o = {}; this.ids().forEach((id) => { o[id] = f(id); }); return o; }
+  nearestEnemy(s) {
+    let best = null, bd = 1e9;
+    this.sideShips(this.enemySide(s.def.side)).forEach((id) => { const t = this.g.ships[id], d = Math.hypot(t.x - s.x, t.y - s.y); if (d < bd) { bd = d; best = t; } });
+    return best;
+  }
 
   mkShip(def) { return { def: def, id: def.id, x: def.start.x, y: def.start.y, h: def.start.h, hull: def.hull, crits: [], dead: false, fled: false }; }
 
@@ -401,6 +443,7 @@ class Component extends DCLogic {
           let score = fp * 1.25 - efp;
           if (fp === 0) score -= r * 0.09;
           if (me.def.ram && r < 4 && this.arcOf({ x: end.x, y: end.y, h: end.h }, pf.x, pf.y) === 'fore') score += 2.5;
+          this.ids().forEach((fid) => { const f = this.g.ships[fid]; if (fid !== me.id && f.def.side === me.def.side && this.active(f) && Math.hypot(f.x - end.x, f.y - end.y) < 7) score -= 3; });
           if (Math.abs(end.x) > this.D.W / 2 - 6 || Math.abs(end.y) > this.D.H / 2 - 6) score -= 6;
           if (Math.abs(end.x) > this.D.W / 2 || Math.abs(end.y) > this.D.H / 2) score -= 100;
           score += Math.random() * 0.8;
@@ -413,30 +456,57 @@ class Component extends DCLogic {
 
   /* ───────────── GAME FLOW ───────────── */
   newGame(silent) {
-    const S = this.D.SHIPS;
-    this.g = {
-      turn: 1, phase: 'orders', plotting: 'resolute',
-      ships: { resolute: this.mkShip(S.resolute), maw: this.mkShip(S.maw) },
-      orders: {}, dest: null, log: [], winner: null, overText: ''
-    };
-    this.ui.order = 'steady';
+    const S = this.D.SHIPS, ships = {};
+    this.ids().forEach((id) => { ships[id] = this.mkShip(S[id]); });
+    this.g = { turn: 1, phase: 'orders', side: 'concord', plotting: 'resolute', ships: ships, orders: {}, drafts: {}, dest: null, log: [], winner: null, overText: '' };
     this.ui.hover = null;
     this.anim = null;
     this.fx.forEach((f) => f.kill && f.kill());
     this.fx = [];
-    this.g.summary = ''; this.g.taken = { resolute: 0, maw: 0 };
-    this.g.turnRolls = { resolute: [], maw: [] }; this.g.tray = []; this.g.pending = null; this.g.floaters = { resolute: [], maw: [] };
+    this.g.summary = ''; this.g.taken = this.perShip(() => 0);
+    this.g.turnRolls = this.perShip(() => []); this.g.tray = []; this.g.pending = null; this.g.floaters = this.perShip(() => []);
     this.seq = null; this.rolling = null; this.seqId = (this.seqId || 0) + 1; this.ui.tip = null;
-    this.pushLog('PRE-BATTLE', [{ side: 'sys', text: 'Contact! CNS Resolute and Maw of Ruin close at 90u. Plot your course: click inside the blue manoeuvre zone.' }]);
-    if (this.three) { this.placeShips(); this.three.objs.resolute.root.visible = true; this.three.objs.maw.root.visible = true; this.three.objs.resolute.model.visible = true; this.three.objs.maw.model.visible = true; this.frameShips(); this.refreshOverlays(); }
+    this.startPlotting('concord');
+    if (this.three) {
+      this.placeShips();
+      this.ids().forEach((id) => { const o = this.three.objs[id]; o.root.visible = true; o.model.visible = true; o.glow.visible = true; o.ring.visible = true; });
+      this.frameShips(); this.refreshOverlays();
+    }
     if (!silent) this.bump();
   }
 
-  selectShip(id) { this.ui.sel = id; this.inspDirty = true; this.bump(); }
+  // Selecting a ship inspects it; in the orders phase, selecting one of the plotting side's ships also switches plotting to it.
+  selectShip(id) {
+    const g = this.g;
+    this.ui.sel = id; this.inspDirty = true;
+    if (g.phase === 'orders' && this.sideOf(id) === g.side && this.active(g.ships[id]) && id !== g.plotting) { this.switchPlot(id); return; }
+    this.bump();
+  }
+
+  startPlotting(side) {
+    const g = this.g, list = this.sideShips(side);
+    g.side = side; g.drafts = {}; g.dest = null;
+    g.plotting = list[0] || g.plotting;
+    this.ui.order = 'steady';
+    this.ui.sel = g.plotting;
+    this.inspDirty = true;
+  }
+
+  switchPlot(id) {
+    const g = this.g, d = g.drafts[id];
+    g.plotting = id; g.dest = d ? d.dest : null;
+    this.ui.order = d ? d.order : 'steady';
+    this.ui.sel = id; this.inspDirty = true; this.ui.hover = null;
+    this.refreshOverlays();
+    this.bump();
+  }
+
+  allDrafted() { const g = this.g; return this.sideShips(g.side).every((id) => !!g.drafts[id]); }
+  nextUndrafted() { const g = this.g, list = this.sideShips(g.side), i = list.indexOf(g.plotting); for (let k = 1; k <= list.length; k++) { const id = list[(i + k) % list.length]; if (!g.drafts[id]) return id; } return null; }
 
   shipAt(p) {
-    const ids = ['resolute', 'maw'];
-    for (let i = 0; i < ids.length; i++) { const s = this.g.ships[ids[i]]; if (!s.dead && Math.hypot(s.x - p.x, s.y - p.y) < 4.5) return ids[i]; }
+    const ids = this.ids();
+    for (let i = 0; i < ids.length; i++) { const s = this.g.ships[ids[i]]; if (!s.dead && Math.hypot(s.x - p.x, s.y - p.y) < s.def.len * 0.56) return ids[i]; }
     return null;
   }
 
@@ -447,47 +517,58 @@ class Component extends DCLogic {
   modeHot() { return (this.props.mode || 'Versus AI') === 'Hot-seat'; }
 
   setDest(mx, my) {
-    if (this.g.phase !== 'orders') return;
-    const s = this.g.ships[this.g.plotting];
-    this.g.dest = this.clampDest(s, this.ui.order, mx, my);
+    const g = this.g;
+    if (g.phase !== 'orders') return;
+    const s = g.ships[g.plotting];
+    g.dest = this.clampDest(s, this.ui.order, mx, my);
+    g.drafts[g.plotting] = { dest: g.dest, order: this.ui.order };
     this.refreshOverlays();
     this.bump();
   }
 
   pickOrder(id) {
-    if (this.g.phase !== 'orders') return;
+    const g = this.g;
+    if (g.phase !== 'orders') return;
     this.ui.order = id;
-    if (this.g.dest) { const s = this.g.ships[this.g.plotting]; this.g.dest = this.clampDest(s, id, this.g.dest.x, this.g.dest.y); }
+    if (g.dest) { const s = g.ships[g.plotting]; g.dest = this.clampDest(s, id, g.dest.x, g.dest.y); g.drafts[g.plotting] = { dest: g.dest, order: id }; }
     this.refreshOverlays();
     this.bump();
   }
 
   commitOrders() {
     const g = this.g;
-    if (g.phase !== 'orders' || !g.dest) return;
-    g.orders[g.plotting] = { order: this.ui.order, dest: g.dest };
+    if (g.phase !== 'orders' || !this.allDrafted()) return;
+    this.sideShips(g.side).forEach((id) => { g.orders[id] = { order: g.drafts[id].order, dest: g.drafts[id].dest }; });
     g.dest = null; this.ui.hover = null; this.ui.order = 'steady';
-    g.taken = { resolute: 0, maw: 0 };
-    g.turnRolls = { resolute: [], maw: [] };
-    g.floaters = { resolute: [], maw: [] };
-    this.ui.tip = null;
-    if (g.plotting === 'resolute') {
-      if (this.modeHot()) { g.phase = 'handoff'; this.refreshOverlays(); this.bump(); return; }
-      const plan = this.aiPlan(g.ships.maw, g.ships.resolute);
-      g.orders.maw = { order: plan.order, dest: plan.dest };
+    if (g.side === 'concord') {
+      if (this.modeHot()) { g.phase = 'handoff'; g.drafts = {}; this.refreshOverlays(); this.bump(); return; }
+      this.aiOrders('reaver');
     }
     this.beginMovement();
+  }
+
+  aiOrders(side) {
+    const g = this.g;
+    this.sideShips(side).forEach((id) => {
+      const me = g.ships[id], foe = this.nearestEnemy(me);
+      if (!foe) { const e = this.env(me, 'steady'); g.orders[id] = { order: 'steady', dest: { x: me.x + Math.cos(me.h) * e.speed, y: me.y + Math.sin(me.h) * e.speed } }; return; }
+      const plan = this.aiPlan(me, foe);
+      g.orders[id] = { order: plan.order, dest: plan.dest };
+    });
   }
 
   beginMovement() {
     const g = this.g;
     g.phase = 'moving';
+    g.taken = this.perShip(() => 0); g.turnRolls = this.perShip(() => []); g.floaters = this.perShip(() => []);
+    this.ui.tip = null;
     const ent = [];
-    ['resolute', 'maw'].forEach((id) => {
+    this.ids().forEach((id) => {
       const s = g.ships[id], o = g.orders[id];
+      if (!o || !this.active(s)) { delete g.orders[id]; return; }
       o.path = this.path(s, o.dest);
       const ord = this.D.ORDERS.filter((x) => x.id === o.order)[0];
-      ent.push({ side: id, text: s.def.name + ': ' + ord.label + ' — moves ' + o.path.d.toFixed(1) + 'u, turns ' + Math.abs(this.deg(2 * o.path.b)) + '°' + (o.path.b > 0.001 ? ' to port.' : o.path.b < -0.001 ? ' to starboard.' : ' (straight).') });
+      ent.push({ side: id, text: s.def.name + ': ' + ord.label + ' — moves ' + o.path.d.toFixed(1) + 'u.' });
     });
     this.pushLog('TURN ' + g.turn, ent);
     this.anim = { kind: 'move', t0: performance.now(), dur: 2600 / this.speedMul() };
@@ -499,26 +580,27 @@ class Component extends DCLogic {
   speedMul() { const v = Number(this.props.animSpeed); return v > 0 ? v : 1; }
 
   afterMove() {
-    const g = this.g, R = g.ships.resolute, M = g.ships.maw;
+    const g = this.g, moved = this.ids().filter((id) => g.orders[id] && g.orders[id].path);
     g.collided = false;
-    ['resolute', 'maw'].forEach((id) => { const s = g.ships[id], e = g.orders[id].path.at(1); s.x = e.x; s.y = e.y; s.h = this.norm(e.h); });
+    moved.forEach((id) => { const s = g.ships[id], e = g.orders[id].path.at(1); s.x = e.x; s.y = e.y; s.h = this.norm(e.h); });
     // Disengagement: ending outside the arena means the ship has fled.
-    ['resolute', 'maw'].forEach((id) => { const s = g.ships[id]; if (Math.abs(s.x) > this.D.W / 2 || Math.abs(s.y) > this.D.H / 2) s.fled = true; });
-    // Collision
-    const dist = Math.hypot(R.x - M.x, R.y - M.y);
-    if (dist < 4 && !R.fled && !M.fled) {
-      const ramR = R.def.ram && this.arcOf(R, M.x, M.y) === 'fore';
-      const ramM = M.def.ram && this.arcOf(M, R.x, R.y) === 'fore';
-      const toM = ramR ? this.d6() : 1 + Math.floor(Math.random() * 3);
-      const toR = ramM ? this.d6() : 1 + Math.floor(Math.random() * 3);
-      R.hull = Math.max(0, R.hull - toR); M.hull = Math.max(0, M.hull - toM);
-      g.taken.resolute += toR; g.taken.maw += toM; g.collided = true;
-      this.floater('resolute', 'hull', '−' + toR); this.floater('maw', 'hull', '−' + toM);
-      const ux = (M.x - R.x) / (dist || 1), uy = (M.y - R.y) / (dist || 1), push = (4 - dist) / 2;
-      R.x -= ux * push; R.y -= uy * push; M.x += ux * push; M.y += uy * push;
-      this.spark(R.x, R.y, 0xffffff, 6); this.spark(M.x, M.y, 0xffffff, 6);
-      g.turnRolls.resolute.push({ label: 'Collision', result: (ramM ? 'Rammed by the Maw’s prow: ' : '') + toR + ' damage', dice: [] });
-      g.turnRolls.maw.push({ label: 'Collision', result: (ramR ? 'Rammed: ' : '') + toM + ' damage', dice: [] });
+    moved.forEach((id) => { const s = g.ships[id]; if (Math.abs(s.x) > this.D.W / 2 || Math.abs(s.y) > this.D.H / 2) s.fled = true; });
+    // Collisions between every pair of ships still in the fight.
+    const live = this.ids().filter((id) => this.active(g.ships[id]));
+    for (let i = 0; i < live.length; i++) for (let j = i + 1; j < live.length; j++) {
+      const A = g.ships[live[i]], B = g.ships[live[j]], dist = Math.hypot(A.x - B.x, A.y - B.y);
+      if (dist >= 4) continue;
+      const foes = A.def.side !== B.def.side;
+      const ramA = foes && A.def.ram && this.arcOf(A, B.x, B.y) === 'fore', ramB = foes && B.def.ram && this.arcOf(B, A.x, A.y) === 'fore';
+      const toB = ramA ? this.d6() : 1 + Math.floor(Math.random() * 3), toA = ramB ? this.d6() : 1 + Math.floor(Math.random() * 3);
+      A.hull = Math.max(0, A.hull - toA); B.hull = Math.max(0, B.hull - toB);
+      g.taken[A.id] += toA; g.taken[B.id] += toB; g.collided = true;
+      this.floater(A.id, 'hull', '−' + toA); this.floater(B.id, 'hull', '−' + toB);
+      g.turnRolls[A.id].push({ owner: B.id, label: 'Collision with ' + B.def.name, result: (ramB ? 'Rammed: ' : '') + toA + ' damage', dice: [] });
+      g.turnRolls[B.id].push({ owner: A.id, label: 'Collision with ' + A.def.name, result: (ramA ? 'Rammed: ' : '') + toB + ' damage', dice: [] });
+      const ux = (B.x - A.x) / (dist || 1), uy = (B.y - A.y) / (dist || 1), push = (4 - dist) / 2;
+      A.x -= ux * push; A.y -= uy * push; B.x += ux * push; B.y += uy * push;
+      this.spark(A.x, A.y, 0xffffff, 6); this.spark(B.x, B.y, 0xffffff, 6);
     }
     this.placeShips();
     this.startGunnery();
@@ -528,7 +610,7 @@ class Component extends DCLogic {
      resolutionSeq() is a generator that yields every roll it needs ({type:'roll', owner, n, ...})
      and every animation beat ({type:'fx'}). The driver (advance/handle) waits for a click when the
      roll belongs to a human player and rolls automatically for the AI. */
-  isHuman(id) { return this.modeHot() || id === 'resolute'; }
+  isHuman(id) { return this.modeHot() || this.sideOf(id) === 'concord'; }
   rollN(n) { const a = []; for (let i = 0; i < n; i++) a.push(this.d6()); return a; }
 
   startGunnery() {
@@ -605,7 +687,7 @@ class Component extends DCLogic {
   floater(id, kind, text, idx) {
     if (this.autoAll) return;
     const g = this.g;
-    if (!g.floaters) g.floaters = { resolute: [], maw: [] };
+    if (!g.floaters) g.floaters = this.perShip(() => []);
     g.floaters[id].push({ kind: kind, text: text, delay: (idx || 0) * 0.35 });
     this.bump();
   }
@@ -622,27 +704,29 @@ class Component extends DCLogic {
   }
 
   *resolutionSeq() {
-    const g = this.g, R = g.ships.resolute, M = g.ships.maw;
-    const out = { resolute: { dmg: 0, crits: [], fired: false }, maw: { dmg: 0, crits: [], fired: false } };
-    if (!R.fled && !M.fled) {
-      yield* this.attackSeq(R, M, g.orders.resolute.order, g.orders.maw.order, out.resolute);
-      yield* this.attackSeq(M, R, g.orders.maw.order, g.orders.resolute.order, out.maw);
+    const g = this.g;
+    const pend = this.perShip(() => ({ dmg: 0, crits: [], shield: { fore: 0, port: 0, stbd: 0, aft: 0 } }));
+    for (const id of this.ids()) {
+      const A = g.ships[id];
+      if (!this.active(A)) continue;
+      yield* this.attackSeq(A, g.orders[id] ? g.orders[id].order : 'steady', pend);
     }
-    // Simultaneous fire: damage lands only after both ships have fired.
-    ['resolute', 'maw'].forEach((id) => {
-      const B = g.ships[this.other(id)], o = out[id];
+    // Simultaneous fire: damage lands only after every ship has fired.
+    this.ids().forEach((id) => {
+      const B = g.ships[id], o = pend[id];
+      if (B.dead) return;
       B.hull = Math.max(0, B.hull - o.dmg);
-      g.taken[B.id] += o.dmg;
+      g.taken[id] += o.dmg;
       o.crits.forEach((c) => { if (c.k !== 'breach') B.crits.push(c); });
       let k = 0;
-      if (o.dmg > 0) this.floater(B.id, 'hull', '−' + o.dmg, k++);
-      o.crits.forEach((c) => { if (c.k === 'fire') this.floater(B.id, 'fire', '', k++); else this.floater(B.id, 'word', this.critWord(c), k++); });
+      if (o.dmg > 0) this.floater(id, 'hull', '−' + o.dmg, k++);
+      o.crits.forEach((c) => { if (c.k === 'fire') this.floater(id, 'fire', '', k++); else this.floater(id, 'word', this.critWord(c), k++); });
     });
     this.inspDirty = true;
-    // End phase: fires burn, then each side rolls damage control for its own ship.
-    for (const id of ['resolute', 'maw']) {
+    // End phase: fires burn, then each side rolls damage control for its own ships.
+    for (const id of this.ids()) {
       const s = g.ships[id];
-      if (s.hull <= 0 || s.fled) continue;
+      if (s.dead || s.fled || s.hull <= 0) continue;
       const fires = this.count(s, 'fire');
       if (fires > 0) {
         s.hull = Math.max(0, s.hull - fires); g.taken[id] += fires;
@@ -654,93 +738,100 @@ class Component extends DCLogic {
         const dice = yield { type: 'roll', owner: id, n: s.crits.length, label: s.def.name + ' · damage control', sub: s.crits.map((c, i) => this.critName(c) + ' ' + tns[i] + '+').join(' · ') };
         const keep = [];
         s.crits.forEach((c, i) => { if (dice[i] < tns[i]) keep.push(c); });
-        const fixed = s.crits.length - keep.length;
-        this.record({ owner: id, label: s.def.name + ' · damage control', dice: dice.map((v, i) => ({ v: v, kind: v >= tns[i] ? 'save' : 'fail' })), result: fixed + ' of ' + s.crits.length + ' repaired' }, id);
+        this.record({ owner: id, label: s.def.name + ' · damage control', dice: dice.map((v, i) => ({ v: v, kind: v >= tns[i] ? 'save' : 'fail' })), result: (s.crits.length - keep.length) + ' of ' + s.crits.length + ' repaired' }, id);
         s.crits = keep;
         this.inspDirty = true;
       }
     }
-    for (const id of ['resolute', 'maw']) {
+    for (const id of this.ids()) {
       const s = g.ships[id];
       if (s.hull <= 0 && !s.dead) { s.dead = true; s.deadAt = performance.now(); this.record({ owner: id, label: s.def.name + ' is destroyed!', result: '', dice: [] }, id); yield { type: 'fx', kind: 'explode', ship: s }; }
     }
-    const part = (id) => {
-      const o = out[id], nm = id === 'resolute' ? 'Resolute' : 'Maw of Ruin';
-      if (!o.fired) return nm + ': no weapons bore';
-      return nm + ' dealt ' + o.dmg + (o.crits.length ? ' (' + o.crits.map((c) => this.D.CRIT[c.roll]).join(', ') + ')' : '');
-    };
-    const parts = (R.fled || M.fled) ? [] : [part('resolute'), part('maw')];
-    g.summary = 'Turn ' + g.turn + ': ' + (g.collided ? 'Collision! ' : '') + (parts.length ? parts.join(' · ') : 'no shots fired') + ' — hover a damage tag for the rolls';
   }
 
-  // One ship's gunnery against the other: to-hit (attacker rolls), facing shields, armour saves (defender rolls), criticals (attacker rolls).
-  *attackSeq(A, B, oA, oB, out) {
-    const r = Math.hypot(B.x - A.x, B.y - A.y);
-    const arc = this.arcOf(A, B.x, B.y);
-    const facing = this.arcOf(B, A.x, A.y);
-    const narrow = facing === 'fore' || facing === 'aft';
-    const FN = { fore: 'fore', port: 'port', stbd: 'starboard', aft: 'aft' };
-    const bearing = A.def.weapons.filter((w) => w.arcs.indexOf(arc) >= 0 && r <= w.range && this.weaponDice(A, w, oA) > 0);
-    if (!bearing.length) {
-      this.record({ owner: A.id, label: A.def.name + ' · no weapons bear', result: B.def.name + ' is ' + Math.round(r) + 'u away in the ' + FN[arc] + ' arc', dice: [] }, B.id);
+  // One ship's gunnery. Each weapon fires at the closest enemy it can bear on (arc and range). Per target:
+  // to-hit (firer rolls), that facing's shields (shared by all attackers this turn), armour saves (defender rolls), criticals (firer rolls).
+  *attackSeq(A, oA, pend) {
+    const g = this.g, FN = { fore: 'fore', port: 'port', stbd: 'starboard', aft: 'aft' };
+    const enemies = this.sideShips(this.enemySide(A.def.side)).map((id) => g.ships[id]);
+    if (!enemies.length) return;
+    const groups = [], byId = {};
+    A.def.weapons.forEach((w) => {
+      if (this.weaponDice(A, w, oA) <= 0) return;
+      let best = null, bd = 1e9;
+      enemies.forEach((T) => {
+        const r = Math.hypot(T.x - A.x, T.y - A.y);
+        if (r > w.range || w.arcs.indexOf(this.arcOf(A, T.x, T.y)) < 0) return;
+        if (r < bd) { bd = r; best = T; }
+      });
+      if (!best) return;
+      if (!byId[best.id]) { byId[best.id] = { T: best, ws: [], r: bd }; groups.push(byId[best.id]); }
+      byId[best.id].ws.push(w);
+    });
+    if (!groups.length) {
+      const T = this.nearestEnemy(A);
+      this.record({ owner: A.id, label: A.def.name + ' · no weapons bear', result: T ? 'nearest enemy ' + Math.round(Math.hypot(T.x - A.x, T.y - A.y)) + 'u away' : '', dice: [] }, null);
       return;
     }
-    out.fired = true;
-    const hits = [];
-    for (const w of bearing) {
-      const n = this.weaponDice(A, w, oA), tn = this.toHitTN(r, narrow, oA, A);
-      const hit = (v) => v !== 1 && (v === 6 || v >= tn);
-      const dice = yield { type: 'roll', owner: A.id, n: n, label: A.def.name + ' · ' + w.name + (w.lance ? ' (lance)' : ''), sub: n + 'd6 to hit, need ' + tn + '+' + (narrow ? ' (narrow profile)' : '') + ' · range ' + Math.round(r) + 'u' };
-      const nh = dice.filter(hit).length;
-      this.record({ owner: A.id, label: A.def.name + ' · ' + w.name, dice: dice.map((v) => ({ v: v, kind: hit(v) ? (v === 6 ? 'crit' : 'hit') : 'miss' })), result: nh + ' hit' + (nh === 1 ? '' : 's') + ' (need ' + tn + '+)' }, B.id);
-      dice.forEach((v) => { if (hit(v)) hits.push({ v: v, lance: !!w.lance }); });
-      yield { type: 'fx', kind: 'bolts', A: A, B: B, shots: dice.map((v) => ({ w: w, hit: hit(v) })) };
-    }
-    if (!hits.length) return;
-    // Shields on the facing toward the firer absorb ordinary hits, weakest first (6s last). Lances ignore shields.
-    const shield = B.def.shields[facing] || 0;
-    const normal = hits.filter((h) => !h.lance).sort((a, b) => a.v - b.v);
-    const sh = Math.min(shield, normal.length);
-    const through = normal.slice(sh).concat(hits.filter((h) => h.lance));
-    this.record({ owner: B.id, label: B.def.name + ' · ' + FN[facing] + ' shields (' + shield + ')', result: sh > 0 ? 'absorb ' + sh + ' hit' + (sh === 1 ? '' : 's') : (shield ? 'only lance hits' : 'no shields on this facing'), dice: [] }, B.id);
-    if (sh > 0) { this.floater(B.id, 'shield', '−' + sh); yield { type: 'fx', kind: 'shield', id: B.id }; }
-    if (!through.length) return;
-    const saveTN = Math.max(2, Math.min(6, B.def.armour - (oB === 'brace' ? 1 : 0)));
-    const crits6 = through.filter((h) => h.v === 6).length;
-    const saves = yield { type: 'roll', owner: B.id, n: through.length, label: B.def.name + ' · armour saves', sub: through.length + 'd6, need ' + saveTN + '+' + (oB === 'brace' ? ' (braced)' : '') + (crits6 ? ' · ' + crits6 + ' critical hit' + (crits6 === 1 ? '' : 's') + ' at risk' : '') };
-    let dmg = 0;
-    const critHits = [];
-    through.forEach((h, i) => {
-      const sv = saves[i];
-      if (sv === 1 || sv < saveTN) { dmg += h.lance ? 2 : 1; if (h.v === 6) critHits.push(h); }
-    });
-    this.record({ owner: B.id, label: B.def.name + ' · armour saves', dice: saves.map((v) => ({ v: v, kind: v !== 1 && v >= saveTN ? 'save' : 'fail' })), result: dmg + ' damage' }, B.id);
-    for (let i = 0; i < critHits.length; i++) {
-      const c = (yield { type: 'roll', owner: A.id, n: 1, label: A.def.name + ' · critical hit on ' + B.def.name, sub: '1d6 on the critical table' })[0];
-      const crit = { k: this.D.CRITKEY[c], roll: c };
-      let extra = '';
-      if (crit.k === 'gundeck') {
-        const sd = (yield { type: 'roll', owner: A.id, n: 1, label: A.def.name + ' · which gun deck?', sub: '1–3 port, 4–6 starboard' })[0];
-        crit.side = sd <= 3 ? 'port' : 'stbd'; extra = ' (' + (sd <= 3 ? 'port' : 'starboard') + ', rolled ' + sd + ')';
+    groups.sort((a, b) => a.r - b.r);
+    for (const grp of groups) {
+      const B = grp.T, r = grp.r, oB = g.orders[B.id] ? g.orders[B.id].order : 'steady';
+      const facing = this.arcOf(B, A.x, A.y), narrow = facing === 'fore' || facing === 'aft';
+      const hits = [];
+      for (const w of grp.ws) {
+        const n = this.weaponDice(A, w, oA), tn = this.toHitTN(r, narrow, oA, A);
+        const hit = (v) => v !== 1 && (v === 6 || v >= tn);
+        const dice = yield { type: 'roll', owner: A.id, n: n, label: A.def.name + ' · ' + w.name + (w.lance ? ' (lance)' : '') + ' → ' + B.def.name, sub: n + 'd6 to hit, need ' + tn + '+' + (narrow ? ' (narrow profile)' : '') + ' · range ' + Math.round(r) + 'u' };
+        const nh = dice.filter(hit).length;
+        this.record({ owner: A.id, label: A.def.name + ' · ' + w.name, dice: dice.map((v) => ({ v: v, kind: hit(v) ? (v === 6 ? 'crit' : 'hit') : 'miss' })), result: nh + ' hit' + (nh === 1 ? '' : 's') + ' (need ' + tn + '+)' }, B.id);
+        dice.forEach((v) => { if (hit(v)) hits.push({ v: v, lance: !!w.lance }); });
+        yield { type: 'fx', kind: 'bolts', A: A, B: B, shots: dice.map((v) => ({ w: w, hit: hit(v) })) };
       }
-      if (crit.k === 'breach') dmg += 1;
-      out.crits.push(crit);
-      this.record({ owner: A.id, label: 'Critical on ' + B.def.name, dice: [{ v: c, kind: 'crit' }], result: this.D.CRIT[c] + extra }, B.id);
+      if (!hits.length) continue;
+      const P = pend[B.id], shield = Math.max(0, (B.def.shields[facing] || 0) - P.shield[facing]);
+      const normal = hits.filter((h) => !h.lance).sort((a, b) => a.v - b.v);
+      const sh = Math.min(shield, normal.length);
+      P.shield[facing] += sh;
+      const through = normal.slice(sh).concat(hits.filter((h) => h.lance));
+      this.record({ owner: B.id, label: B.def.name + ' · ' + FN[facing] + ' shields (' + shield + ' left)', result: sh > 0 ? 'absorb ' + sh + ' hit' + (sh === 1 ? '' : 's') : (shield ? 'only lance hits' : 'shields on this facing are spent'), dice: [] }, B.id);
+      if (sh > 0) { this.floater(B.id, 'shield', '−' + sh); yield { type: 'fx', kind: 'shield', id: B.id }; }
+      if (!through.length) continue;
+      const saveTN = Math.max(2, Math.min(6, B.def.armour - (oB === 'brace' ? 1 : 0)));
+      const crits6 = through.filter((h) => h.v === 6).length;
+      const saves = yield { type: 'roll', owner: B.id, n: through.length, label: B.def.name + ' · armour saves', sub: through.length + 'd6, need ' + saveTN + '+' + (oB === 'brace' ? ' (braced)' : '') + (crits6 ? ' · ' + crits6 + ' critical hit' + (crits6 === 1 ? '' : 's') + ' at risk' : '') };
+      let dmg = 0;
+      const critHits = [];
+      through.forEach((h, i) => { const sv = saves[i]; if (sv === 1 || sv < saveTN) { dmg += h.lance ? 2 : 1; if (h.v === 6) critHits.push(h); } });
+      this.record({ owner: B.id, label: B.def.name + ' · armour saves', dice: saves.map((v) => ({ v: v, kind: v !== 1 && v >= saveTN ? 'save' : 'fail' })), result: dmg + ' damage' }, B.id);
+      for (let i = 0; i < critHits.length; i++) {
+        const c = (yield { type: 'roll', owner: A.id, n: 1, label: A.def.name + ' · critical hit on ' + B.def.name, sub: '1d6 on the critical table' })[0];
+        const crit = { k: this.D.CRITKEY[c], roll: c };
+        let extra = '';
+        if (crit.k === 'gundeck') {
+          const sd = (yield { type: 'roll', owner: A.id, n: 1, label: A.def.name + ' · which gun deck?', sub: '1–3 port, 4–6 starboard' })[0];
+          crit.side = sd <= 3 ? 'port' : 'stbd'; extra = ' (' + (sd <= 3 ? 'port' : 'starboard') + ', rolled ' + sd + ')';
+        }
+        if (crit.k === 'breach') dmg += 1;
+        P.crits.push(crit);
+        this.record({ owner: A.id, label: 'Critical on ' + B.def.name, dice: [{ v: c, kind: 'crit' }], result: this.D.CRIT[c] + extra }, B.id);
+      }
+      P.dmg += dmg;
     }
-    out.dmg += dmg;
   }
 
   finishTurn() {
-    const g = this.g, R = g.ships.resolute, M = g.ships.maw;
+    const g = this.g;
     g.pending = null;
-    const rOut = R.dead || R.fled, mOut = M.dead || M.fled;
-    if (rOut || mOut) {
+    const cOut = this.sideShips('concord').length === 0, rOut = this.sideShips('reaver').length === 0;
+    const fate = (side) => (this.ids().filter((id) => this.sideOf(id) === side).every((id) => g.ships[id].dead) ? 'destroyed' : 'broken');
+    if (cOut || rOut) {
       g.phase = 'over';
-      if (rOut && mOut) { g.winner = 'draw'; g.overText = 'Both ships are out of the fight. Mutual destruction — nobody holds the field.'; }
-      else if (mOut) { g.winner = 'resolute'; g.overText = M.dead ? 'Maw of Ruin breaks apart under Concord broadsides after ' + g.turn + ' turns.' : 'Maw of Ruin flees the battle zone. The Concord holds the field.'; }
-      else { g.winner = 'maw'; g.overText = R.dead ? 'CNS Resolute is torn open by the Reaver after ' + g.turn + ' turns.' : 'CNS Resolute disengages. The Reavers claim the field.'; }
+      if (cOut && rOut) { g.winner = 'draw'; g.overText = 'Both squadrons are out of the fight. Mutual destruction — nobody holds the field.'; }
+      else if (rOut) { g.winner = 'concord'; g.overText = 'The Reaver squadron is ' + (fate('reaver') === 'destroyed' ? 'destroyed' : 'broken and fleeing') + ' after ' + g.turn + ' turns. The Concord holds the field.'; }
+      else { g.winner = 'reaver'; g.overText = 'The Concord squadron is ' + (fate('concord') === 'destroyed' ? 'destroyed' : 'broken and withdrawing') + ' after ' + g.turn + ' turns. The Reavers claim the field.'; }
     } else {
-      g.turn += 1; g.phase = 'orders'; g.plotting = 'resolute'; g.orders = {};
+      g.turn += 1; g.phase = 'orders'; g.orders = {};
+      this.startPlotting('concord');
     }
     this.anim = null;
     this.inspDirty = true;
@@ -790,7 +881,7 @@ class Component extends DCLogic {
     scene.add(this.three.overlay); scene.add(this.three.hover); scene.add(this.three.fxg);
     this.three.glowTex = this.radialTex();
     this.buildBackdrop();
-    ['resolute', 'maw'].forEach((id) => { this.three.objs[id] = this.buildShipObj(this.D.SHIPS[id]); });
+    this.ids().forEach((id) => { this.three.objs[id] = this.buildShipObj(this.D.SHIPS[id]); });
     this.placeShips();
     this.frameShips(true);
     this.refreshOverlays();
@@ -807,7 +898,7 @@ class Component extends DCLogic {
     this.initInspector();
     this.ui.loadNote = 'Loading ship models…';
     this.bump();
-    Promise.all(['resolute', 'maw'].map((id) => this.loadModel(id).catch(() => null))).then((r) => {
+    Promise.all(this.ids().map((id) => this.loadModel(id).catch(() => null))).then((r) => {
       this.ui.loading = false;
       if (r.indexOf(null) >= 0) this.pushLog('SYSTEM', [{ side: 'sys', text: 'A ship model could not load; showing a stand-in hull.' }]);
       this.refreshOverlays();
@@ -857,10 +948,12 @@ class Component extends DCLogic {
     model.add(stand);
     const ring = new T.Mesh(new T.RingGeometry(4.8, 5.2, 48), new T.MeshBasicMaterial({ toneMapped: false, color: def.hex, transparent: true, opacity: 0.55, side: T.DoubleSide, depthWrite: false }));
     ring.rotation.x = -Math.PI / 2; ring.position.y = 0.03; root.add(ring);
-    const glow = new T.Sprite(new T.SpriteMaterial({ toneMapped: false, map: this.three.glowTex, color: def.id === 'resolute' ? 0x6fb6ff : 0xff5030, transparent: true, opacity: 0.9, blending: T.AdditiveBlending, depthWrite: false }));
-    glow.position.set(0, 1.3, -4.3); glow.scale.set(2.6, 2.6, 1); root.add(glow);
+    const glow = new T.Sprite(new T.SpriteMaterial({ toneMapped: false, map: this.three.glowTex, color: this.D.SIDES[def.side].glow, transparent: true, opacity: 0.9, blending: T.AdditiveBlending, depthWrite: false }));
+    const k8 = def.len / 8;
+    ring.scale.setScalar(k8);
+    glow.position.set(0, 1.3, -4.3 * k8); glow.scale.set(2.6, 2.6, 1); root.add(glow);
     const shield = new T.Mesh(new T.SphereGeometry(1, 28, 18), new T.MeshBasicMaterial({ toneMapped: false, color: def.hex, transparent: true, opacity: 0, blending: T.AdditiveBlending, depthWrite: false }));
-    shield.scale.set(3.0, 2.1, 5.4); shield.position.y = 1.2; root.add(shield);
+    shield.scale.set(3.0 * Math.max(k8, def.beam > 1.2 ? k8 : 1.3), 2.1, 5.4 * k8); shield.position.y = 1.2; root.add(shield);
     this.three.scene.add(root);
     return { root: root, model: model, stand: stand, ring: ring, glow: glow, shield: shield, flash: 0, ghostSrc: null };
   }
@@ -882,7 +975,8 @@ class Component extends DCLogic {
       m.traverse((o) => { if (o.isMesh) o.material = mat; });
       const box = new T.Box3().setFromObject(m), size = box.getSize(new T.Vector3()), c = box.getCenter(new T.Vector3());
       // Length normalised to 8u; beam ×1.5 and height ×1.3 so the hulls read broader and more solid from above.
-      const k = 8 / Math.max(size.x, size.z), kx = k * 1.5, ky = k * 1.3;
+      const k = def.len / size.z, kx = k * def.beam, ky = k * 1.3;
+      def.halfBeamU = size.x * kx / 2;
       m.scale.set(kx, ky, k);
       m.position.set(-c.x * kx, -box.min.y * ky + 0.3, -c.z * k);
       obj.model.remove(obj.stand);
@@ -931,14 +1025,22 @@ class Component extends DCLogic {
 
   // Name tags that float above each ship in screen space.
   placeLabels() {
-    const t3 = this.three, w = this.canvas.clientWidth, h = this.canvas.clientHeight;
-    ['resolute', 'maw'].forEach((id) => {
+    const t3 = this.three, w = this.canvas.clientWidth, h = this.canvas.clientHeight, placed = [];
+    this.ids().forEach((id) => {
       const el = this.labelEls[id]; if (!el) return;
       const s = this.g.ships[id], o = t3.objs[id];
       if (s.fled || (s.dead && performance.now() - (s.deadAt || 0) > 3200)) { el.style.transform = 'translate(-9999px, 0)'; return; }
       const v = o.root.position.clone(); v.y = 4.2; v.project(t3.camera);
       if (v.z > 1) { el.style.transform = 'translate(-9999px, 0)'; return; }
-      const x = (v.x + 1) / 2 * w, y = (1 - v.y) / 2 * h;
+      const x = (v.x + 1) / 2 * w, lw = el.offsetWidth || 100, lh = (el.offsetHeight || 20) + 3;
+      let y = (1 - v.y) / 2 * h;
+      // Nudge upward while this tag would overlap one already placed this frame.
+      for (let guard = 0; guard < 6; guard++) {
+        const hit = placed.find((q) => Math.abs(q.x - x) < (q.w + lw) / 2 && Math.abs(q.y - y) < lh);
+        if (!hit) break;
+        y = hit.y - lh;
+      }
+      placed.push({ x: x, y: y, w: lw });
       this.labelY[id] = y / h;
       el.style.zIndex = this.ui.tip === id ? '20' : '1';
       el.style.transform = 'translate(' + x.toFixed(1) + 'px, ' + y.toFixed(1) + 'px) translate(-50%, -100%)';
@@ -949,7 +1051,7 @@ class Component extends DCLogic {
 
   placeShips() {
     if (!this.three) return;
-    ['resolute', 'maw'].forEach((id) => {
+    this.ids().forEach((id) => {
       const s = this.g.ships[id], o = this.three.objs[id];
       o.root.position.set(s.x, 0, -s.y);
       o.root.rotation.y = s.h + Math.PI / 2;
@@ -957,10 +1059,14 @@ class Component extends DCLogic {
   }
 
   frameShips(instant) {
-    const R = this.g.ships.resolute, M = this.g.ships.maw;
-    this.cam.tx = (R.x + M.x) / 2; this.cam.tz = -(R.y + M.y) / 2;
-    const span = Math.max(Math.hypot(R.x - M.x, R.y - M.y) + 34, 60);
-    this.cam.dist = Math.min(200, span * 1.15);
+    const live = this.ids().map((id) => this.g.ships[id]).filter((s) => !s.dead);
+    if (!live.length) return;
+    let cx = 0, cy = 0, span = 0;
+    live.forEach((s) => { cx += s.x; cy += s.y; });
+    cx /= live.length; cy /= live.length;
+    live.forEach((a) => live.forEach((b) => { span = Math.max(span, Math.hypot(a.x - b.x, a.y - b.y)); }));
+    this.cam.tx = cx; this.cam.tz = -cy;
+    this.cam.dist = Math.min(200, Math.max(span + 34, 60) * 1.15);
   }
 
   disposeGroup(g) {
@@ -1033,11 +1139,18 @@ class Component extends DCLogic {
     if (!this.three) return;
     const ov = this.three.overlay, g = this.g;
     this.disposeGroup(ov);
-    if (g.phase !== 'orders') { this.refreshHover(); return; }
-    const me = g.ships[g.plotting], foe = g.ships[this.other(g.plotting)];
+    if (g.phase !== 'orders' || !g.ships[g.plotting]) { this.refreshHover(); return; }
+    const me = g.ships[g.plotting];
     const e = this.env(me, this.ui.order), D = Math.PI / 180;
     ov.add(this.sector(me.x, me.y, e.minMove, e.maxMove, me.h - e.turn * D, me.h + e.turn * D, me.def.hex, 0.24, 1));
-    if (this.ui.enemyArcs) this.arcsFor(ov, foe.def, foe.x, foe.y, foe.h, 0.05);
+    // Courses already plotted for the rest of this side's ships
+    this.sideShips(g.side).forEach((id) => {
+      const d = g.drafts[id]; if (id === g.plotting || !d) return;
+      const s = g.ships[id], end = this.path(s, d.dest).at(1);
+      ov.add(this.pathLine(s, d.dest, s.def.hex, 0.55));
+      ov.add(this.ghost(s.def, end.x, end.y, end.h, 0.22));
+    });
+    if (this.ui.enemyArcs) this.sideShips(this.enemySide(g.side)).forEach((id) => { const f = g.ships[id]; this.arcsFor(ov, f.def, f.x, f.y, f.h, 0.05); });
     if (g.dest) {
       const end = this.path(me, g.dest).at(1);
       ov.add(this.pathLine(me, g.dest, me.def.hex, 0.95));
@@ -1067,7 +1180,7 @@ class Component extends DCLogic {
   bolt(A, B, shot, delay, i) {
     if (!this.three) return;
     const T = this.three.T, w = shot.w;
-    const lance = !!w.lance, col = A.id === 'resolute' ? (lance ? 0xbfe4ff : 0x7cc0ff) : (lance ? 0xff3cc8 : 0xff7a3d);
+    const SD = this.D.SIDES[A.def.side], lance = !!w.lance, col = lance ? SD.lanceBolt : SD.bolt;
     const side = w.side === 'port' ? 1 : w.side === 'stbd' ? -1 : 0;
     const along = ((i % 5) - 2) * 0.9;
     const ox = A.x + Math.cos(A.h) * (lance ? 3.6 : along) + Math.cos(A.h + Math.PI / 2) * side * 1.1;
@@ -1137,11 +1250,10 @@ class Component extends DCLogic {
     const cam = t3.camera;
     if (this.anim && this.anim.kind === 'move') {
       const k = Math.min(1, (now - this.anim.t0) / this.anim.dur), e = k < 0.5 ? 2 * k * k : 1 - Math.pow(-2 * k + 2, 2) / 2;
-      ['resolute', 'maw'].forEach((id) => { const p = g.orders[id].path.at(e), o = t3.objs[id]; o.root.position.set(p.x, 0, -p.y); o.root.rotation.y = p.h + Math.PI / 2; o.glow.scale.setScalar(2.6 + 2.2 * Math.sin(Math.PI * k)); });
+      this.ids().forEach((id) => { if (!g.orders[id] || !g.orders[id].path) return; const p = g.orders[id].path.at(e), o = t3.objs[id]; o.root.position.set(p.x, 0, -p.y); o.root.rotation.y = p.h + Math.PI / 2; o.glow.scale.setScalar(2.6 + 2.2 * Math.sin(Math.PI * k)); });
       if (k >= 1) { this.anim = null; this.afterMove(); }
     }
-    ['resolute', 'maw'].forEach((id, i) => { const o = t3.objs[id]; o.model.position.y = Math.sin(now / 900 + i * 2) * 0.12; });
-    ['resolute', 'maw'].forEach((id) => { t3.objs[id].ring.material.opacity = id === this.ui.sel ? 0.95 : 0.4; });
+    this.ids().forEach((id, i) => { const o = t3.objs[id]; o.model.position.y = Math.sin(now / 900 + i * 2) * 0.12; o.ring.material.opacity = id === this.ui.sel ? 0.95 : (g.phase === 'orders' && id === g.plotting ? 0.8 : 0.4); });
     this.fx = this.fx.filter((f) => f.update(dt));
     t3.renderer.render(t3.scene, cam);
     this.placeLabels();
@@ -1158,8 +1270,12 @@ class Component extends DCLogic {
 
   // During movement/gunnery, glide the camera to the ships' midpoint and pull back if they would leave the view.
   followShips(dt) {
-    const o = this.three.objs, a = o.resolute.root.position, b = o.maw.root.position;
-    const mx = (a.x + b.x) / 2, mz = (a.z + b.z) / 2, sep = Math.hypot(a.x - b.x, a.z - b.z);
+    const o = this.three.objs, pts = this.ids().filter((id) => !this.g.ships[id].dead).map((id) => o[id].root.position);
+    if (!pts.length) return;
+    let mx = 0, mz = 0, sep = 0;
+    pts.forEach((p) => { mx += p.x; mz += p.z; });
+    mx /= pts.length; mz /= pts.length;
+    pts.forEach((a) => pts.forEach((b) => { sep = Math.max(sep, Math.hypot(a.x - b.x, a.z - b.z)); }));
     const k = Math.min(1, dt * 2.5);
     this.cam.tx += (mx - this.cam.tx) * k;
     this.cam.tz += (mz - this.cam.tz) * k;
@@ -1167,7 +1283,6 @@ class Component extends DCLogic {
     if (this.cam.dist < need) this.cam.dist += (need - this.cam.dist) * k;
   }
 
-  // Zoom toward the point under the cursor: the map point under the pointer stays put.
   wheelZoom(e) {
     if (!this.three) return;
     if (this.anim || this.g.phase === 'firing') this.userCam = true;
@@ -1230,7 +1345,7 @@ class Component extends DCLogic {
   /* ───────────── VIEW MODEL ───────────── */
   // Top-down inspector overlay. SVG space: 300×300 = 15u, ship centred at (150,150), bow up, 20 px per u.
   inspectVals(s) {
-    const def = s.def, hw = def.id === 'resolute' ? 37 : 27, bow = 70;
+    const def = s.def, hw = Math.min(110, Math.max(14, (def.halfBeamU || 1.25) * 20)), bow = 150 - def.len * 10;
     const e = this.env(s, 'steady');
     const pt = (cx, cy, r, deg) => (cx + r * Math.cos(deg * Math.PI / 180)).toFixed(1) + ',' + (cy - r * Math.sin(deg * Math.PI / 180)).toFixed(1);
     const wedge = (cx, cy, r, a0, a1) => 'M' + cx + ',' + cy + ' L' + pt(cx, cy, r, a1) + ' A' + r + ',' + r + ' 0 0 1 ' + pt(cx, cy, r, a0) + ' Z';
@@ -1248,9 +1363,9 @@ class Component extends DCLogic {
       return {
         wedge: L.wedge, hx: L.hx, hy: L.hy,
         labelStyle: 'position: absolute; top: ' + (L.ly / 3).toFixed(2) + '%; ' + (L.anchor === 'start' ? 'left: ' + (L.lx / 3).toFixed(2) + '%; text-align: left;' : L.anchor === 'end' ? 'right: ' + ((300 - L.lx) / 3).toFixed(2) + '%; text-align: right;' : 'left: 50%; transform: translateX(-50%); text-align: center; white-space: nowrap;') + ' max-width: ' + (L.anchor === 'middle' ? '96%' : '46%') + '; line-height: 1.3; pointer-events: none; text-shadow: 0 0 3px #000, 0 0 6px #000;',
-        fill: w.arcs.length > 1 ? 'none' : (w.lance ? 'rgba(255,201,77,0.18)' : (def.id === 'resolute' ? 'rgba(90,169,255,0.2)' : 'rgba(255,106,61,0.2)')),
+        fill: w.arcs.length > 1 ? 'none' : (w.lance ? 'rgba(255,201,77,0.18)' : this.D.SIDES[def.side].fill),
         stroke: deck ? '#ff4d4d' : col, dash: deck || w.arcs.length > 1 ? '4 3' : 'none',
-        name: w.name.replace('Starboard', 'Stbd').toUpperCase() + (w.lance ? ' · LANCE' : ''),
+        name: (w.broadside ? (w.side === 'port' ? 'PORT' : 'STARBOARD') : w.name.toUpperCase()) + (w.lance ? ' · LANCE' : ''),
         stats: dice + 'd6 · ' + w.range + 'u' + (w.arcs.length > 1 ? ' · all arcs' : '') + (reduced ? ' (was ' + w.dice + ')' : '') + (w.id === 'maw' && def.ram ? ' · ram prow' : ''),
         statColor: reduced ? '#ffc94d' : '#b9c6dc'
       };
@@ -1299,7 +1414,7 @@ class Component extends DCLogic {
       return {
         label: o.label, short: o.short, desc: o.desc, pressed: sel ? 'true' : 'false', disabled: dis,
         pick: () => this.pickOrder(o.id),
-        style: 'min-height: 44px; text-align: left; padding: 8px 10px; border-radius: 6px; cursor: ' + (dis ? 'not-allowed' : 'pointer') + '; ' +
+        style: 'min-height: 44px; text-align: left; padding: 5px 10px; border-radius: 6px; cursor: ' + (dis ? 'not-allowed' : 'pointer') + '; ' +
           (sel ? 'background: ' + plot.def.color + '; color: #070a12; border: 1px solid ' + plot.def.color + ';' : 'background: #111a2c; color: #d8e1f0; border: 1px solid #26324a;') + (dis && !sel ? ' opacity: 0.45;' : '') + (o.id === 'brace' ? ' flex: 1 1 100%;' : ' flex: 1 1 130px;')
       };
     });
@@ -1312,8 +1427,19 @@ class Component extends DCLogic {
       const td = this.deg(2 * p.b);
       destTurn = td === 0 ? 'unchanged' : Math.abs(td) + '° ' + (td > 0 ? 'to port' : 'to stbd');
     }
-    const commitDisabled = !(canOrder && g.dest);
-    const commitLabel = !canOrder ? (g.phase === 'over' ? 'Battle over' : 'Resolving…') : g.dest ? 'Commit orders' : 'Click the map to plot · double-click to commit';
+    const own = canOrder ? this.sideShips(g.side) : [];
+    const drafted = own.filter((id) => g.drafts[id]).length;
+    const fleet = own.map((id) => {
+      const s = g.ships[id], on = id === g.plotting, done = !!g.drafts[id];
+      return {
+        name: s.def.name.replace('CNS ', ''), mark: done ? 'plotted' : 'to plot', pick: this.pickOn[id], pressed: on ? 'true' : 'false',
+        style: 'min-height: 44px; flex: 1 1 120px; display: flex; align-items: center; justify-content: space-between; gap: 6px; padding: 0 10px; border-radius: 6px; cursor: pointer; text-align: left; ' +
+          (on ? 'background: #16243d; color: #eef3fb; border: 1px solid ' + s.def.color + ';' : 'background: #0a1222; color: #c5d1e6; border: 1px solid #26324a;'),
+        markStyle: 'font-size: 11px; font-weight: 600; color: ' + (done ? '#7be3a4' : '#93a3bf') + ';'
+      };
+    });
+    const commitDisabled = !(canOrder && own.length && drafted === own.length);
+    const commitLabel = !canOrder ? (g.phase === 'over' ? 'Battle over' : 'Resolving…') : (drafted === own.length ? 'Commit fleet orders' : 'Plot ' + (own.length - drafted) + ' more ship' + (own.length - drafted === 1 ? '' : 's') + ' · double-click plots and moves on');
     const commitStyle = 'min-height: 44px; padding: 0 16px; border-radius: 6px; font-weight: 700; font-size: 14px; border: 0; cursor: ' + (commitDisabled ? 'not-allowed' : 'pointer') + '; ' +
       (commitDisabled ? 'background: #1a2335; color: #93a3bf;' : 'background: ' + plot.def.color + '; color: #070a12;');
     let banner = '', bannerBorder = '#26324a';
@@ -1328,7 +1454,7 @@ class Component extends DCLogic {
     const dieStyle = (kind, owner, size) => {
       const px = size || 22;
       const base = 'display: inline-flex; align-items: center; justify-content: center; width: ' + px + 'px; height: ' + px + 'px; border-radius: 4px; font-family: JetBrains Mono, monospace; font-size: ' + (px > 22 ? 14 : 12) + 'px; font-weight: 700;';
-      const col = owner === 'maw' ? '#ff6a3d' : '#5aa9ff';
+      const col = (this.D.SHIPS[owner] || {}).color || '#93a3bf';
       if (kind === 'crit') return base + ' background: #ffc94d; color: #1a1204;';
       if (kind === 'hit') return base + ' background: ' + col + '; color: #070a12;';
       if (kind === 'save') return base + ' background: #e6edf8; color: #070a12;';
@@ -1337,7 +1463,7 @@ class Component extends DCLogic {
       return base + ' background: transparent; color: #6f7f9c; box-shadow: inset 0 0 0 1px #33425f;';
     };
     const recRow = (rec, op) => ({
-      label: rec.label, result: rec.result || '', color: rec.owner === 'maw' ? '#ff6a3d' : '#5aa9ff', op: op,
+      label: rec.label, result: rec.result || '', color: (this.D.SHIPS[rec.owner] || {}).color || '#93a3bf', op: op,
       hasDice: !!(rec.dice && rec.dice.length), dice: (rec.dice || []).map((d) => ({ v: d.v, style: dieStyle(d.kind, rec.owner) }))
     });
     const tag = (id) => {
@@ -1355,46 +1481,48 @@ class Component extends DCLogic {
     });
     const tipTurn = g.phase === 'orders' ? g.turn - 1 : g.turn;
     const tipRows = this.ui.tip ? g.turnRolls[this.ui.tip].slice(-8).map((r) => recRow(r, 1)) : [];
+    const labels = this.ids().map((id) => {
+      const s = g.ships[id], t = tag(id), SD = this.D.SIDES[s.def.side], on = this.ui.tip === id && t.show;
+      return {
+        name: s.def.name, ref: this.labelRefs[id], border: s.def.color, fg: SD.tagFg,
+        floats: floats(id), tagShow: t.show, dmg: t.text, tagBg: t.bg, tagFg: t.fg, tipOn: this.tipOn[id],
+        tipShow: on, tipPos: (this.labelY[id] || 0.5) > 0.45 ? 'bottom: calc(100% + 6px);' : 'top: calc(100% + 6px);',
+        tipHead: 'TURN ' + tipTurn + ' · ROLLS AGAINST ' + s.def.name.toUpperCase(), tipRows: on ? tipRows : []
+      };
+    });
     const hist = (g.tray || []).slice(-3);
     const q = g.pending, rl = this.rolling, cur = rl ? rl.q : q;
     const tray = {
       show: g.phase === 'firing',
       history: hist.map((r, i) => recRow(r, [0.55, 0.75, 1][i + 3 - hist.length])),
       active: !!cur,
-      color: cur ? (cur.owner === 'maw' ? '#ff6a3d' : '#5aa9ff') : '#93a3bf',
+      color: cur ? this.D.SHIPS[cur.owner].color : '#93a3bf',
       label: cur ? cur.label : '', sub: cur ? cur.sub : '',
       hasFaces: !!rl, faces: rl ? rl.faces.map((v) => ({ v: v, style: dieStyle('roll', rl.q.owner, 28) })) : [],
       canRoll: !!q && !rl,
       btn: q ? 'Roll ' + q.n + (q.n === 1 ? ' die' : ' dice') : '',
-      btnStyle: 'min-height: 44px; border: 0; border-radius: 6px; cursor: pointer; font-weight: 700; font-size: 14px; background: ' + (q && q.owner === 'maw' ? '#ff6a3d' : '#5aa9ff') + '; color: #070a12;',
-      waiting: !!rl && !q, waitText: rl && !this.isHuman(rl.q.owner) ? (rl.q.owner === 'maw' ? 'Reaver' : 'Concord') + ' gunners rolling…' : ''
+      btnStyle: 'min-height: 44px; border: 0; border-radius: 6px; cursor: pointer; font-weight: 700; font-size: 14px; background: ' + (q ? this.D.SHIPS[q.owner].color : '#5aa9ff') + '; color: #070a12;',
+      waiting: !!rl && !q, waitText: rl && !this.isHuman(rl.q.owner) ? this.D.SIDES[this.sideOf(rl.q.owner)].short + ' gunners rolling…' : ''
     };
     const win = g.winner;
     return {
       turn: g.turn, phaseLabel: phaseLabel,
-      modeLabel: this.modeHot() ? 'Hot-seat · 2 players' : 'Versus AI · you command Resolute',
-      insp: insp, nextShip: this.nextShip, orderOpts: orderOpts, canOrder: canOrder,
+      modeLabel: this.modeHot() ? 'Hot-seat · 2 players' : 'Versus AI · you command the Concord',
+      insp: insp, nextShip: this.nextShip, orderOpts: orderOpts, fleet: fleet, canOrder: canOrder,
       plotName: canOrder ? plot.def.name : '—', plotColor: canOrder ? plot.def.color : '#93a3bf',
       destDist: destDist, destBearing: destBearing, destTurn: destTurn,
       commit: this.commit, commitDisabled: commitDisabled, commitLabel: commitLabel, commitStyle: commitStyle,
       banner: banner, bannerBorder: bannerBorder,
       hasSummary: g.phase === 'orders' && !!g.summary, summary: g.summary,
-      dmgR: tag('resolute').text, dmgM: tag('maw').text, tagShowR: tag('resolute').show, tagShowM: tag('maw').show,
-      tagBgR: tag('resolute').bg, tagBgM: tag('maw').bg, tagFgR: tag('resolute').fg, tagFgM: tag('maw').fg,
-      tipR: this.tipR, tipM: this.tipM, tipOff: this.tipOff,
-      floatR: floats('resolute'), floatM: floats('maw'),
-      tipPosR: this.labelY.resolute > 0.45 ? 'bottom: calc(100% + 6px);' : 'top: calc(100% + 6px);',
-      tipPosM: this.labelY.maw > 0.45 ? 'bottom: calc(100% + 6px);' : 'top: calc(100% + 6px);',
-      tipShowR: this.ui.tip === 'resolute' && tag('resolute').show, tipShowM: this.ui.tip === 'maw' && tag('maw').show,
-      tipHead: this.ui.tip ? 'TURN ' + tipTurn + ' · ROLLS AGAINST ' + g.ships[this.ui.tip].def.name.toUpperCase() : '',
-      tipRows: tipRows, tray: tray, rollClick: this.rollClick,
-      setLabelR: this.setLabelR, setLabelM: this.setLabelM, setInspect: this.setInspect, onDbl: this.onDbl,
+      labels: labels,
+      tray: tray, rollClick: this.rollClick,
+      setInspect: this.setInspect, onDbl: this.onDbl,
       loading: this.ui.loading, loadNote: this.ui.loadNote,
       showHandoff: g.phase === 'handoff', takeOver: this.takeOver,
       showOver: g.phase === 'over',
-      overTitle: win === 'draw' ? 'Mutual destruction' : win === 'resolute' ? 'Concord victory' : 'Reaver victory',
-      overColor: win === 'draw' ? '#ffc94d' : win === 'resolute' ? '#5aa9ff' : '#ff6a3d',
-      overBorder: win === 'draw' ? '#6b4310' : win === 'resolute' ? '#2a5a8f' : '#8f3a22',
+      overTitle: win === 'draw' ? 'Mutual destruction' : win === 'concord' ? 'Concord victory' : 'Reaver victory',
+      overColor: win === 'draw' ? '#ffc94d' : win === 'concord' ? '#5aa9ff' : '#ff6a3d',
+      overBorder: win === 'draw' ? '#6b4310' : win === 'concord' ? '#2a5a8f' : '#8f3a22',
       overText: g.overText,
       restart: this.restart, toggleEnemyArcs: this.toggleEnemyArcs,
       enemyArcsPressed: this.ui.enemyArcs ? 'true' : 'false', enemyArcsBg: this.ui.enemyArcs ? '#26324a' : 'rgba(8,12,22,0.86)',
