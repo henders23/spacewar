@@ -41,7 +41,7 @@ th{font-size:12px;letter-spacing:0.06em;color:#93a3bf;font-weight:600}
       <div style="flex: 1 1 220px; display: flex; flex-direction: column; gap: 6px; padding: 18px; background: #0d1220; border: 1px solid #1c2638; border-radius: 10px">
         <span style="font-family: 'JetBrains Mono', monospace; font-size: 13px; color: #5aa9ff">PHASE 1</span>
         <h3 style="margin: 0; font-family: 'Chakra Petch', sans-serif; font-size: 20px; color: #eef3fb">Orders</h3>
-        <p style="margin: 0; font-size: 14px; color: #c5d1e6">In secret, each player places a destination marker for every ship in their squadron and may give each one special order. A squadron's orders are sealed together once committed.</p>
+        <p style="margin: 0; font-size: 14px; color: #c5d1e6">In secret, each player places a destination marker for every ship in their squadron, may give each one special order, and may nominate a priority target for each. A squadron's orders are sealed together once committed.</p>
       </div>
       <div style="flex: 1 1 220px; display: flex; flex-direction: column; gap: 6px; padding: 18px; background: #0d1220; border: 1px solid #1c2638; border-radius: 10px">
         <span style="font-family: 'JetBrains Mono', monospace; font-size: 13px; color: #5aa9ff">PHASE 2</span>
@@ -132,7 +132,7 @@ th{font-size:12px;letter-spacing:0.06em;color:#93a3bf;font-weight:600}
       </figure>
       <div style="flex: 1 1 440px; min-width: 0; display: flex; flex-direction: column; gap: 12px; color: #c5d1e6">
         <p style="margin: 0"><strong style="color: #eef3fb">Players roll their own dice:</strong> the firer rolls to hit and on the critical table, and the defender rolls armour saves. In the end phase each player rolls damage control for their own ship.</p>
-        <p style="margin: 0"><strong style="color: #eef3fb">Targeting:</strong> each weapon fires at the <strong style="color: #eef3fb">closest enemy ship</strong> that sits in its arc and within its range. One ship's batteries can therefore engage different targets.</p>
+        <p style="margin: 0"><strong style="color: #eef3fb">Targeting:</strong> a ship may nominate a <strong style="color: #eef3fb">priority target</strong> in its orders. Every weapon that can bear on that target (in arc and in range) fires at it. Any weapon that can't fires at the <strong style="color: #eef3fb">closest enemy ship</strong> it can bear on, so no battery is wasted. With no priority target, every weapon takes the closest enemy it can reach.</p>
         <p style="margin: 0">Find which of the firer's arcs the target's centre sits in, and measure the range between centres. Every weapon covering that arc and in range rolls its <strong style="color: #eef3fb">dice</strong>. Each die that meets the to-hit number scores a hit.</p>
         <div style="overflow-x: auto; background: #0d1220; border: 1px solid #1c2638; border-radius: 10px">
           <table>
@@ -302,7 +302,7 @@ th{font-size:12px;letter-spacing:0.06em;color:#93a3bf;font-weight:600}
     <ul style="margin: 0; padding-left: 20px; display: flex; flex-direction: column; gap: 8px; color: #c5d1e6">
       <li><strong style="color: #eef3fb">Server-authoritative turns.</strong> Clients send only {destination, special order} per ship. The server checks each against the manoeuvre zone and waits for both players (or a turn timer). In gunnery it then asks each player in turn for their roll, which the server generates on the player's click so nobody can fake a die, and streams the results to both clients.</li>
       <li><strong style="color: #eef3fb">Balance snapshot.</strong> In 1,500 AI-vs-AI 2v2 battles (Resolute + Vigilant vs Maw of Ruin + Carrion Wing), each side won about 44%, and 12% ended in mutual destruction. A typical battle runs about 7 turns. Treat this as a starting point; the AI is a simple one-turn look-ahead.</li>
-      <li><strong style="color: #eef3fb">Open questions.</strong> Should players be able to override the closest-target rule and pick targets per battery? Should destroyed ships leave wreck hazards? Should firing happen mid-move (in tick slices) rather than at end of move? Are there altitude bands for 3D depth?</li>
+      <li><strong style="color: #eef3fb">Open questions.</strong> Should a priority target cost something, for example −1 to hit when it isn't the closest enemy? Should destroyed ships leave wreck hazards? Should firing happen mid-move (in tick slices) rather than at end of move? Are there altitude bands for 3D depth?</li>
     </ul>
   </section>
 

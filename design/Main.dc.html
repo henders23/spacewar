@@ -42,6 +42,9 @@ button:focus-visible{outline:2px solid #ffc94d;outline-offset:2px}
       <canvas ref="{{setCanvas}}" data-broadside-canvas="1" onPointerDown="{{onDown}}" onPointerMove="{{onMove}}" onPointerUp="{{onUp}}" onPointerLeave="{{onLeave}}" onWheel="{{onWheel}}" onDoubleClick="{{onDbl}}" onContextMenu="{{noMenu}}" style="position: absolute; inset: 0; width: 100%; height: 100%; display: block; touch-action: none; cursor: {{cursor}}" aria-label="3D tactical map. Click inside your manoeuvre zone to set a destination, double-click to set it and commit; click a ship to inspect it; drag to rotate the view; right-drag or shift-drag to pan; scroll to zoom toward the cursor." role="img"></canvas>
 
 
+      <sc-for list="{{badges}}" as="b" hint-placeholder-count="0">
+        <div ref="{{b.ref}}" aria-hidden="true" style="position: absolute; left: 0; top: 0; transform: translate(-9999px, 0); pointer-events: none; display: flex; gap: 4px; padding: 1px 5px; border-radius: 4px; background: rgba(0,0,0,0.7); font-family: 'JetBrains Mono', monospace; font-size: 11px; font-weight: 700; line-height: 1.35"><span style="color: #5aa9ff">{{b.sh}}</span><span style="color: #ff5c5c">{{b.dice}}</span></div>
+      </sc-for>
       <sc-for list="{{labels}}" as="l" hint-placeholder-count="0">
         <div ref="{{l.ref}}" style="position: absolute; left: 0; top: 0; transform: translate(-9999px, 0); pointer-events: none; display: flex; align-items: center; gap: 6px; padding: 2px 8px; border-radius: 4px; background: rgba(0,0,0,0.65); border: 1px solid {{l.border}}; color: {{l.fg}}; font-size: 12px; font-weight: 600; white-space: nowrap">
           <div aria-hidden="true" style="position: absolute; bottom: calc(100% + 6px); left: 50%; transform: translateX(-50%); display: flex; flex-direction: column; align-items: center; gap: 2px; pointer-events: none"><sc-for list="{{l.floats}}" as="f" hint-placeholder-count="0"><div data-so-float="1" style="{{f.style}}"><sc-if value="{{f.fire}}" hint-placeholder-val="{{ false }}"><svg width="16" height="16" viewBox="0 0 24 24" fill="#ff7a1a" aria-hidden="true"><path d="M12 2c1 3.5-1.5 5-1.5 7.5 0 1.4 1 2.5 2.3 2.5 1.8 0 2.7-1.6 2.2-3.7C17.5 10.5 19 13 19 15.5 19 19.6 15.9 22 12 22s-7-2.4-7-6.3C5 11 9.5 8.5 12 2z"></path></svg></sc-if><span>{{f.text}}</span></div></sc-for></div>
@@ -62,7 +65,7 @@ button:focus-visible{outline:2px solid #ffc94d;outline-offset:2px}
       </sc-for>
 
       <sc-if value="{{tray.show}}" hint-placeholder-val="{{ false }}">
-        <div role="region" aria-label="Dice tray" aria-live="polite" style="position: absolute; left: 50%; bottom: 14px; transform: translateX(-50%); width: min(820px, calc(100% - 28px)); box-sizing: border-box; display: flex; flex-direction: column; gap: 10px; padding: 12px 14px; background: rgba(0,0,0,0.9); border: 1px solid #26324a; border-radius: 10px">
+        <div role="region" aria-label="Dice tray" aria-live="polite" style="position: absolute; z-index: 40; left: 50%; bottom: 14px; transform: translateX(-50%); width: min(820px, calc(100% - 28px)); box-sizing: border-box; display: flex; flex-direction: column; gap: 10px; padding: 12px 14px; background: rgba(0,0,0,0.9); border: 1px solid #26324a; border-radius: 10px">
           <span style="font-size: 11px; font-weight: 700; letter-spacing: 0.1em; color: #93a3bf">DICE TRAY · TURN {{turn}} GUNNERY</span>
           <sc-for list="{{tray.history}}" as="h" hint-placeholder-count="2">
             <div style="display: flex; flex-direction: column; gap: 5px; padding-left: 10px; box-shadow: inset 2px 0 0 {{h.color}}; opacity: {{h.op}}">
@@ -83,7 +86,9 @@ button:focus-visible{outline:2px solid #ffc94d;outline-offset:2px}
       </sc-if>
 
 
-      <div style="position: absolute; right: 14px; top: 14px; display: flex; flex-direction: column; align-items: flex-end; gap: 8px">
+      <div style="position: absolute; z-index: 40; right: 14px; top: 14px; display: flex; flex-direction: column; align-items: flex-end; gap: 8px">
+        <button onClick="{{toggleSound}}" aria-pressed="{{soundPressed}}" aria-label="{{soundLabel}}" title="{{soundLabel}}" style="width: 44px; height: 44px; background: rgba(8,12,22,0.86); color: #e6edf8; border: 1px solid #33425f; border-radius: 6px; cursor: pointer; display: flex; align-items: center; justify-content: center"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M11 5 6 9H3v6h3l5 4V5z"></path><sc-if value="{{soundOn}}" hint-placeholder-val="{{ true }}"><path d="M15.5 8.5a5 5 0 0 1 0 7M18.5 5.5a9 9 0 0 1 0 13"></path></sc-if><sc-if value="{{soundOff}}" hint-placeholder-val="{{ false }}"><path d="m16 9 5 6M21 9l-5 6"></path></sc-if></svg></button>
+        <button onClick="{{toggleBadges}}" aria-pressed="{{badgesPressed}}" style="min-height: 44px; padding: 0 14px; background: {{badgesBg}}; color: #e6edf8; border: 1px solid #33425f; border-radius: 6px; cursor: pointer; font-size: 12px; font-weight: 600">Arc values</button>
         <button onClick="{{toggleEnemyArcs}}" aria-pressed="{{enemyArcsPressed}}" style="min-height: 44px; padding: 0 14px; background: {{enemyArcsBg}}; color: #e6edf8; border: 1px solid #33425f; border-radius: 6px; cursor: pointer; font-size: 12px; font-weight: 600">Enemy arcs</button>
         <button onClick="{{zoomIn}}" aria-label="Zoom in" style="width: 44px; height: 44px; background: rgba(8,12,22,0.86); color: #e6edf8; border: 1px solid #33425f; border-radius: 6px; cursor: pointer; display: flex; align-items: center; justify-content: center"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14"></path></svg></button>
         <button onClick="{{zoomOut}}" aria-label="Zoom out" style="width: 44px; height: 44px; background: rgba(8,12,22,0.86); color: #e6edf8; border: 1px solid #33425f; border-radius: 6px; cursor: pointer; display: flex; align-items: center; justify-content: center"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M5 12h14"></path></svg></button>
@@ -91,11 +96,11 @@ button:focus-visible{outline:2px solid #ffc94d;outline-offset:2px}
       </div>
 
       <sc-if value="{{loading}}" hint-placeholder-val="{{ false }}">
-        <div style="position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; background: rgba(4,6,11,0.7); color: #c5d1e6; font-size: 14px">{{loadNote}}</div>
+        <div style="position: absolute; inset: 0; z-index: 60; display: flex; align-items: center; justify-content: center; background: rgba(4,6,11,0.7); color: #c5d1e6; font-size: 14px">{{loadNote}}</div>
       </sc-if>
 
       <sc-if value="{{showHandoff}}" hint-placeholder-val="{{ false }}">
-        <div style="position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; background: rgba(4,6,11,0.94)">
+        <div style="position: absolute; inset: 0; z-index: 60; display: flex; align-items: center; justify-content: center; background: rgba(4,6,11,0.94)">
           <div style="display: flex; flex-direction: column; align-items: center; gap: 16px; padding: 32px; max-width: 420px; text-align: center">
             <h2 style="margin: 0; font-family: 'Chakra Petch', sans-serif; font-size: 26px; color: #ff6a3d">Reaver commander</h2>
             <p style="margin: 0; color: #c5d1e6; line-height: 1.5">The Concord's orders are sealed. Pass the device to the Reaver player, then plot a course for each Reaver ship.</p>
@@ -105,7 +110,7 @@ button:focus-visible{outline:2px solid #ffc94d;outline-offset:2px}
       </sc-if>
 
       <sc-if value="{{showOver}}" hint-placeholder-val="{{ false }}">
-        <div style="position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; background: rgba(4,6,11,0.72)">
+        <div style="position: absolute; inset: 0; z-index: 60; display: flex; align-items: center; justify-content: center; background: rgba(4,6,11,0.72)">
           <div style="display: flex; flex-direction: column; align-items: center; gap: 14px; padding: 32px 40px; background: #0d1220; border: 1px solid {{overBorder}}; border-radius: 10px; max-width: 460px; text-align: center">
             <h2 style="margin: 0; font-family: 'Chakra Petch', sans-serif; font-size: 30px; color: {{overColor}}">{{overTitle}}</h2>
             <p style="margin: 0; color: #c5d1e6; line-height: 1.5">{{overText}}</p>
@@ -141,6 +146,7 @@ button:focus-visible{outline:2px solid #ffc94d;outline-offset:2px}
               <circle cx="{{w.hx}}" cy="{{w.hy}}" r="3.5" fill="{{w.stroke}}"></circle>
             </sc-for>
           </svg>
+          <sc-for list="{{insp.arcBadges}}" as="b" hint-placeholder-count="4"><div style="{{b.style}}"><span style="color: #5aa9ff">{{b.sh}}</span><span style="color: #ff5c5c">{{b.dice}}</span></div></sc-for>
           <sc-for list="{{insp.weapons}}" as="w" hint-placeholder-count="4">
             <div style="{{w.labelStyle}}">
               <div style="font-size: 10px; font-weight: 700; letter-spacing: 0.06em; color: #eef3fb">{{w.name}}</div>
@@ -155,12 +161,7 @@ button:focus-visible{outline:2px solid #ffc94d;outline-offset:2px}
           </div>
           <span style="font-family: 'JetBrains Mono', monospace; font-size: 12px; color: #d8e1f0">{{insp.hullText}}</span>
         </div>
-        <div style="display: flex; align-items: center; gap: 10px">
-          <span style="font-size: 11px; color: #93a3bf; width: 54px">SHIELDS</span>
-          <div style="display: flex; gap: 6px; flex: 1; flex-wrap: wrap">
-            <sc-for list="{{insp.shieldFacings}}" as="f" hint-placeholder-count="4"><span style="{{f.style}}">{{f.lab}}<span style="font-family: 'JetBrains Mono', monospace; font-weight: 700">{{f.v}}</span></span></sc-for>
-          </div>
-        </div>
+        <div style="font-size: 11px; color: #93a3bf; white-space: nowrap; overflow: hidden; text-overflow: ellipsis" title="On each side of the ship: blue = shields left on that facing this turn; red = dice that can fire in that direction"><span style="color: #5aa9ff; font-weight: 700">Blue</span> shields · <span style="color: #ff5c5c; font-weight: 700">red</span> dice, per side</div>
         <div style="display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 6px; font-size: 11px; color: #93a3bf">
           <div style="display: flex; flex-direction: column; gap: 2px"><span>SPEED</span><span style="font-family: 'JetBrains Mono', monospace; font-size: 13px; color: #e6edf8">{{insp.speed}}</span></div>
           <div style="display: flex; flex-direction: column; gap: 2px"><span>TURN</span><span style="font-family: 'JetBrains Mono', monospace; font-size: 13px; color: #e6edf8">{{insp.turnTxt}}</span></div>
@@ -181,6 +182,12 @@ button:focus-visible{outline:2px solid #ffc94d;outline-offset:2px}
           <div role="group" aria-label="Choose which ship to plot" style="display: flex; flex-wrap: wrap; gap: 6px">
             <sc-for list="{{fleet}}" as="c" hint-placeholder-count="2">
               <button onClick="{{c.pick}}" aria-pressed="{{c.pressed}}" style="{{c.style}}"><span style="font-size: 12px; font-weight: 700">{{c.name}}</span><span style="{{c.markStyle}}">{{c.mark}}</span></button>
+            </sc-for>
+          </div>
+          <div role="group" aria-label="Priority target" style="display: flex; align-items: center; gap: 6px">
+            <span style="font-size: 11px; font-weight: 700; letter-spacing: 0.06em; color: #93a3bf">TARGET</span>
+            <sc-for list="{{targets}}" as="t" hint-placeholder-count="3">
+              <button onClick="{{t.pick}}" aria-pressed="{{t.pressed}}" style="{{t.style}}">{{t.name}}</button>
             </sc-for>
           </div>
           <div style="display: flex; flex-wrap: wrap; gap: 6px">
@@ -225,6 +232,16 @@ class Component extends DCLogic {
       this.pickOn[id] = () => this.selectShip(id);
     });
     this.ui.sel = 'resolute';
+    this.ui.target = 'auto'; this.ui.arcBadges = true; this.ui.muted = false;
+    this.shake = 0; this.slowUntil = 0;
+    this.badgeEls = {}; this.badgeRefs = {}; this.targetOn = {};
+    this.D.IDS.forEach((id) => {
+      this.D.FACINGS.forEach((f) => { const k = id + ':' + f; this.badgeRefs[k] = (el) => { if (el) this.badgeEls[k] = el; }; });
+      this.targetOn[id] = () => this.setTarget(id);
+    });
+    this.targetAuto = () => this.setTarget('auto');
+    this.toggleSound = () => { this.unlockAudio(); this.ui.muted = !this.ui.muted; if (this.audio) this.audio.master.gain.value = this.ui.muted ? 0 : 0.8; this.bump(); };
+    this.toggleBadges = () => { this.ui.arcBadges = !this.ui.arcBadges; this.bump(); };
     this.nextShip = () => {
       const ids = this.ids().filter((id) => !this.g.ships[id].dead);
       this.selectShip(ids[(ids.indexOf(this.ui.sel) + 1) % ids.length]);
@@ -260,6 +277,17 @@ class Component extends DCLogic {
     return {
       W: 120, H: 80,
       IDS: ['resolute', 'vigilant', 'maw', 'carrion'],
+      FACINGS: ['fore', 'port', 'stbd', 'aft'],
+      SFX: {
+        cannon_heavy: '/_blob/e5c3a8b827ea958ba638bc5e22722f6d', cannon_boom: '/_blob/16c5ec15006567069beea64c4179d022',
+        laser_cannon: '/_blob/e78f9ec3eaf751da8a32675dae687819', laser_beam: '/_blob/316165810d97127243f5e71e03335ebb',
+        grav_lance: '/_blob/c109ffca6dccef2900828c30e4e523c6', blaster_c: '/_blob/2219e8336481c7ff49d9c0d50f1ffaee',
+        blaster_r: '/_blob/a312b1f4d57b8045fdb5cf38e4d35222', shield_zap: '/_blob/f1d7b43342da644ea6d8053f10f2e3a5',
+        hit_small: '/_blob/46543e7230a2b6ce45992dcc511c31f3', hit_big: '/_blob/5efa14eef798feeeaa6810d3afabc8c9',
+        explode_big: '/_blob/7e98b0566a0fafeb3ba22d4a7089c9f1', explode_med: '/_blob/16e49da1a0c68560f249805f2d1cf030',
+        collision: '/_blob/6989f040f64c21ea04984b61f7147831', engine: '/_blob/31e9b0f9bd0ed0f53a36311d765f6a44',
+        vo_sighted: '/_blob/48e58fc53c259a7f8d36c75fae7a9fe9'
+      },
       SIDES: {
         concord: { name: 'Concord Navy', short: 'Concord', color: '#5aa9ff', hex: 0x5aa9ff, glow: 0x6fb6ff, bolt: 0x7cc0ff, lanceBolt: 0xbfe4ff, fill: 'rgba(90,169,255,0.2)', tagFg: '#d6e9ff' },
         reaver: { name: 'Reaver Clans', short: 'Reaver', color: '#ff6a3d', hex: 0xff6a3d, glow: 0xff5030, bolt: 0xff7a3d, lanceBolt: 0xff3cc8, fill: 'rgba(255,106,61,0.2)', tagFg: '#ffd9cc' }
@@ -488,6 +516,7 @@ class Component extends DCLogic {
     g.side = side; g.drafts = {}; g.dest = null;
     g.plotting = list[0] || g.plotting;
     this.ui.order = 'steady';
+    this.ui.target = this.defaultTarget(g.plotting);
     this.ui.sel = g.plotting;
     this.inspDirty = true;
   }
@@ -496,7 +525,21 @@ class Component extends DCLogic {
     const g = this.g, d = g.drafts[id];
     g.plotting = id; g.dest = d ? d.dest : null;
     this.ui.order = d ? d.order : 'steady';
+    this.ui.target = d && d.target ? d.target : this.defaultTarget(id);
     this.ui.sel = id; this.inspDirty = true; this.ui.hover = null;
+    this.refreshOverlays();
+    this.bump();
+  }
+
+  defaultTarget(id) { const t = (this.g.lastTarget || {})[id]; return t && t !== 'auto' && this.active(this.g.ships[t]) ? t : 'auto'; }
+
+  setTarget(id) {
+    const g = this.g;
+    if (g.phase !== 'orders') return;
+    this.unlockAudio();
+    this.ui.target = id;
+    if (g.drafts[g.plotting]) g.drafts[g.plotting].target = id;
+    g.lastTarget = g.lastTarget || {}; g.lastTarget[g.plotting] = id;
     this.refreshOverlays();
     this.bump();
   }
@@ -521,24 +564,26 @@ class Component extends DCLogic {
     if (g.phase !== 'orders') return;
     const s = g.ships[g.plotting];
     g.dest = this.clampDest(s, this.ui.order, mx, my);
-    g.drafts[g.plotting] = { dest: g.dest, order: this.ui.order };
+    g.drafts[g.plotting] = { dest: g.dest, order: this.ui.order, target: this.ui.target };
     this.refreshOverlays();
     this.bump();
   }
 
   pickOrder(id) {
     const g = this.g;
+    this.unlockAudio();
     if (g.phase !== 'orders') return;
     this.ui.order = id;
-    if (g.dest) { const s = g.ships[g.plotting]; g.dest = this.clampDest(s, id, g.dest.x, g.dest.y); g.drafts[g.plotting] = { dest: g.dest, order: id }; }
+    if (g.dest) { const s = g.ships[g.plotting]; g.dest = this.clampDest(s, id, g.dest.x, g.dest.y); g.drafts[g.plotting] = { dest: g.dest, order: id, target: this.ui.target }; }
     this.refreshOverlays();
     this.bump();
   }
 
   commitOrders() {
     const g = this.g;
+    this.unlockAudio();
     if (g.phase !== 'orders' || !this.allDrafted()) return;
-    this.sideShips(g.side).forEach((id) => { g.orders[id] = { order: g.drafts[id].order, dest: g.drafts[id].dest }; });
+    this.sideShips(g.side).forEach((id) => { g.orders[id] = { order: g.drafts[id].order, dest: g.drafts[id].dest, target: g.drafts[id].target || 'auto' }; });
     g.dest = null; this.ui.hover = null; this.ui.order = 'steady';
     if (g.side === 'concord') {
       if (this.modeHot()) { g.phase = 'handoff'; g.drafts = {}; this.refreshOverlays(); this.bump(); return; }
@@ -553,7 +598,9 @@ class Component extends DCLogic {
       const me = g.ships[id], foe = this.nearestEnemy(me);
       if (!foe) { const e = this.env(me, 'steady'); g.orders[id] = { order: 'steady', dest: { x: me.x + Math.cos(me.h) * e.speed, y: me.y + Math.sin(me.h) * e.speed } }; return; }
       const plan = this.aiPlan(me, foe);
-      g.orders[id] = { order: plan.order, dest: plan.dest };
+      // AI focus fire: the most damaged enemy within reach, otherwise closest-target.
+      const near = this.sideShips(this.enemySide(me.def.side)).map((k) => g.ships[k]).filter((t) => Math.hypot(t.x - me.x, t.y - me.y) < 38).sort((a, b) => a.hull / a.def.hull - b.hull / b.def.hull);
+      g.orders[id] = { order: plan.order, dest: plan.dest, target: near.length ? near[0].id : 'auto' };
     });
   }
 
@@ -573,6 +620,9 @@ class Component extends DCLogic {
     this.pushLog('TURN ' + g.turn, ent);
     this.anim = { kind: 'move', t0: performance.now(), dur: 2600 / this.speedMul() };
     this.userCam = false;
+    g.shieldUsed = {};
+    this.engineHum(true);
+    if (g.turn === 1) this.sfx('vo_sighted', 0.9, 0.3, 1);
     this.refreshOverlays();
     this.bump();
   }
@@ -580,6 +630,7 @@ class Component extends DCLogic {
   speedMul() { const v = Number(this.props.animSpeed); return v > 0 ? v : 1; }
 
   afterMove() {
+    this.engineHum(false);
     const g = this.g, moved = this.ids().filter((id) => g.orders[id] && g.orders[id].path);
     g.collided = false;
     moved.forEach((id) => { const s = g.ships[id], e = g.orders[id].path.at(1); s.x = e.x; s.y = e.y; s.h = this.norm(e.h); });
@@ -601,9 +652,74 @@ class Component extends DCLogic {
       const ux = (B.x - A.x) / (dist || 1), uy = (B.y - A.y) / (dist || 1), push = (4 - dist) / 2;
       A.x -= ux * push; A.y -= uy * push; B.x += ux * push; B.y += uy * push;
       this.spark(A.x, A.y, 0xffffff, 6); this.spark(B.x, B.y, 0xffffff, 6);
+      this.sfx('collision', 1); this.addShake(1.1); this.kick(A.id, 0.25); this.kick(B.id, -0.25);
     }
     this.placeShips();
     this.startGunnery();
+  }
+
+  /* ───────────── AUDIO ─────────────
+     Web Audio, unlocked on the first click/tap (browsers block sound until then). */
+  unlockAudio() {
+    if (this.autoAll || typeof window === 'undefined') return;
+    if (this.audio) { if (this.audio.ctx.state === 'suspended') this.audio.ctx.resume(); return; }
+    const AC = window.AudioContext || window.webkitAudioContext; if (!AC) return;
+    const ctx = new AC(), master = ctx.createGain(), comp = ctx.createDynamicsCompressor();
+    master.gain.value = this.ui.muted ? 0 : 0.8; master.connect(ctx.destination);
+    comp.threshold.value = -18; comp.ratio.value = 4; comp.connect(master);
+    this.audio = { ctx: ctx, master: master, bus: comp, buf: {}, last: {} };
+    Object.keys(this.D.SFX).forEach((k) => {
+      fetch(this.D.SFX[k]).then((r) => r.arrayBuffer()).then((b) => new Promise((ok, bad) => ctx.decodeAudioData(b, ok, bad))).then((buf) => { this.audio.buf[k] = buf; }).catch(() => {});
+    });
+  }
+
+  sfx(name, vol, delay, rate) {
+    const A = this.audio; if (!A || this.ui.muted || this.autoAll) return;
+    const buf = A.buf[name]; if (!buf) return;
+    const at = A.ctx.currentTime + (delay || 0);
+    if (A.last[name] && Math.abs(A.last[name] - at) < 0.035) return;
+    A.last[name] = at;
+    const src = A.ctx.createBufferSource(), g = A.ctx.createGain();
+    src.buffer = buf; src.playbackRate.value = rate || (0.93 + Math.random() * 0.14);
+    g.gain.value = vol == null ? 1 : vol;
+    src.connect(g); g.connect(A.bus); src.start(at);
+  }
+
+  weaponSfx(A, w) {
+    const c = A.def.side === 'concord';
+    if (w.lance) return c ? 'laser_beam' : 'grav_lance';
+    if (w.broadside) return c ? (A.def.len >= 8 ? 'cannon_boom' : 'cannon_heavy') : 'laser_cannon';
+    return c ? 'blaster_c' : 'blaster_r';
+  }
+
+  engineHum(on) {
+    const A = this.audio; if (!A || !A.buf.engine) return;
+    const t = A.ctx.currentTime;
+    if (on) {
+      if (A.engine) return;
+      const src = A.ctx.createBufferSource(), g = A.ctx.createGain();
+      src.buffer = A.buf.engine; src.loop = true;
+      g.gain.setValueAtTime(0, t); g.gain.linearRampToValueAtTime(0.32, t + 0.6);
+      src.connect(g); g.connect(A.bus); src.start(); A.engine = { src: src, g: g };
+    } else if (A.engine) {
+      const e = A.engine; A.engine = null;
+      e.g.gain.cancelScheduledValues(t); e.g.gain.setValueAtTime(e.g.gain.value, t); e.g.gain.linearRampToValueAtTime(0, t + 0.8); e.src.stop(t + 0.9);
+    }
+  }
+
+  // Dice clatter, synthesised from filtered noise bursts (the pack has no dice sound).
+  diceRattle(n) {
+    const A = this.audio; if (!A || this.ui.muted || this.autoAll) return;
+    const ctx = A.ctx;
+    if (!A.noise) { const len = Math.floor(ctx.sampleRate * 0.03), b = ctx.createBuffer(1, len, ctx.sampleRate), d = b.getChannelData(0); for (let i = 0; i < len; i++) d[i] = (Math.random() * 2 - 1) * (1 - i / len); A.noise = b; }
+    const clicks = Math.min(11, 3 + n);
+    for (let i = 0; i < clicks; i++) {
+      const t = ctx.currentTime + i * 0.04 + Math.random() * 0.03, src = ctx.createBufferSource(), f = ctx.createBiquadFilter(), g = ctx.createGain();
+      src.buffer = A.noise; src.playbackRate.value = 0.6 + Math.random() * 0.8;
+      f.type = 'bandpass'; f.frequency.value = 1600 + Math.random() * 2400; f.Q.value = 3;
+      g.gain.value = 0.55 * (1 - i / clicks) + 0.12;
+      src.connect(f); f.connect(g); g.connect(A.bus); src.start(t);
+    }
   }
 
   /* ───────────── DICE-DRIVEN GUNNERY ─────────────
@@ -650,6 +766,7 @@ class Component extends DCLogic {
 
   // Player clicked "Roll".
   rollPending() {
+    this.unlockAudio();
     const q = this.g.pending;
     if (!q || this.rolling) return;
     const dice = this.rollN(q.n), id = this.seqId;
@@ -659,6 +776,7 @@ class Component extends DCLogic {
   // Brief tumbling-dice animation before the real faces are revealed.
   tumble(q, dice, done) {
     let k = 0;
+    this.diceRattle(q.n);
     this.rolling = { q: q, faces: dice.map(() => this.d6()) };
     this.bump();
     const step = () => {
@@ -678,7 +796,7 @@ class Component extends DCLogic {
       q.shots.forEach((sh, i) => { const t = i * 0.08 / this.speedMul(); maxT = Math.max(maxT, t); this.bolt(q.A, q.B, sh, t, i); });
       return (maxT + 0.55 / this.speedMul()) * 1000;
     }
-    if (q.kind === 'shield') { this.shieldFlash(q.id, 0); return 300; }
+    if (q.kind === 'shield') { this.shieldFlash(q.id, 0); this.sfx('shield_zap', 0.8); return 320; }
     if (q.kind === 'explode') { this.explode(q.ship); return 900; }
     return 0;
   }
@@ -706,6 +824,7 @@ class Component extends DCLogic {
   *resolutionSeq() {
     const g = this.g;
     const pend = this.perShip(() => ({ dmg: 0, crits: [], shield: { fore: 0, port: 0, stbd: 0, aft: 0 } }));
+    g.shieldUsed = {}; this.ids().forEach((id) => { g.shieldUsed[id] = pend[id].shield; });
     for (const id of this.ids()) {
       const A = g.ships[id];
       if (!this.active(A)) continue;
@@ -719,6 +838,7 @@ class Component extends DCLogic {
       g.taken[id] += o.dmg;
       o.crits.forEach((c) => { if (c.k !== 'breach') B.crits.push(c); });
       let k = 0;
+      if (o.dmg > 0 || o.crits.length) this.impact(id, o.dmg, o.crits.length);
       if (o.dmg > 0) this.floater(id, 'hull', '−' + o.dmg, k++);
       o.crits.forEach((c) => { if (c.k === 'fire') this.floater(id, 'fire', '', k++); else this.floater(id, 'word', this.critWord(c), k++); });
     });
@@ -756,10 +876,13 @@ class Component extends DCLogic {
     const enemies = this.sideShips(this.enemySide(A.def.side)).map((id) => g.ships[id]);
     if (!enemies.length) return;
     const groups = [], byId = {};
+    const pid = g.orders[A.id] && g.orders[A.id].target, pref = pid && pid !== 'auto' && this.active(g.ships[pid]) ? g.ships[pid] : null;
     A.def.weapons.forEach((w) => {
       if (this.weaponDice(A, w, oA) <= 0) return;
       let best = null, bd = 1e9;
-      enemies.forEach((T) => {
+      // Priority target first, if this weapon can bear on it; otherwise the closest enemy it can bear on.
+      if (pref) { const r = Math.hypot(pref.x - A.x, pref.y - A.y); if (r <= w.range && w.arcs.indexOf(this.arcOf(A, pref.x, pref.y)) >= 0) { best = pref; bd = r; } }
+      if (!best) enemies.forEach((T) => {
         const r = Math.hypot(T.x - A.x, T.y - A.y);
         if (r > w.range || w.arcs.indexOf(this.arcOf(A, T.x, T.y)) < 0) return;
         if (r < bd) { bd = r; best = T; }
@@ -781,7 +904,7 @@ class Component extends DCLogic {
       for (const w of grp.ws) {
         const n = this.weaponDice(A, w, oA), tn = this.toHitTN(r, narrow, oA, A);
         const hit = (v) => v !== 1 && (v === 6 || v >= tn);
-        const dice = yield { type: 'roll', owner: A.id, n: n, label: A.def.name + ' · ' + w.name + (w.lance ? ' (lance)' : '') + ' → ' + B.def.name, sub: n + 'd6 to hit, need ' + tn + '+' + (narrow ? ' (narrow profile)' : '') + ' · range ' + Math.round(r) + 'u' };
+        const dice = yield { type: 'roll', owner: A.id, n: n, label: A.def.name + ' · ' + w.name + (w.lance ? ' (lance)' : '') + ' → ' + B.def.name + (pref && pref.id === B.id ? ' (target)' : ''), sub: n + 'd6 to hit, need ' + tn + '+' + (narrow ? ' (narrow profile)' : '') + ' · range ' + Math.round(r) + 'u' };
         const nh = dice.filter(hit).length;
         this.record({ owner: A.id, label: A.def.name + ' · ' + w.name, dice: dice.map((v) => ({ v: v, kind: hit(v) ? (v === 6 ? 'crit' : 'hit') : 'miss' })), result: nh + ' hit' + (nh === 1 ? '' : 's') + ' (need ' + tn + '+)' }, B.id);
         dice.forEach((v) => { if (hit(v)) hits.push({ v: v, lance: !!w.lance }); });
@@ -1023,6 +1146,24 @@ class Component extends DCLogic {
     this.inspDirty = false;
   }
 
+  arcDice(s, f) { let n = 0; s.def.weapons.forEach((w) => { if (w.arcs.indexOf(f) >= 0) n += this.weaponDice(s, w, 'steady'); }); return n; }
+  shieldLeft(s, f) { const used = ((this.g.shieldUsed || {})[s.id] || {})[f] || 0; return Math.max(0, (s.def.shields[f] || 0) - used); }
+
+  // Blue shield / red dice badges on each side of every ship, in screen space.
+  placeBadges() {
+    const t3 = this.three, w = this.canvas.clientWidth, h = this.canvas.clientHeight, ang = { fore: 0, port: Math.PI / 2, stbd: -Math.PI / 2, aft: Math.PI };
+    this.ids().forEach((id) => {
+      const s = this.g.ships[id], o = t3.objs[id], gone = s.dead || s.fled, hd = o.root.rotation.y - Math.PI / 2, rr = 5 * s.def.len / 8 + 1.3;
+      this.D.FACINGS.forEach((f) => {
+        const el = this.badgeEls[id + ':' + f]; if (!el) return;
+        if (gone || !this.ui.arcBadges) { el.style.transform = 'translate(-9999px, 0)'; return; }
+        const a = hd + ang[f], v = new t3.T.Vector3(o.root.position.x + Math.cos(a) * rr, 0.6, o.root.position.z - Math.sin(a) * rr).project(t3.camera);
+        if (v.z > 1) { el.style.transform = 'translate(-9999px, 0)'; return; }
+        el.style.transform = 'translate(' + ((v.x + 1) / 2 * w).toFixed(1) + 'px, ' + ((1 - v.y) / 2 * h).toFixed(1) + 'px) translate(-50%, -50%)';
+      });
+    });
+  }
+
   // Name tags that float above each ship in screen space.
   placeLabels() {
     const t3 = this.three, w = this.canvas.clientWidth, h = this.canvas.clientHeight, placed = [];
@@ -1113,6 +1254,25 @@ class Component extends DCLogic {
     grp.add(this.circle(x, y, 24, 0xffffff, 0.12));
   }
 
+  targetLine(x0, y0, x1, y1, op) {
+    const T = this.three.T;
+    const l = new T.Line(new T.BufferGeometry().setFromPoints([this.m2v(x0, y0, 0.6), this.m2v(x1, y1, 0.6)]), new T.LineDashedMaterial({ toneMapped: false, color: 0xff4d4d, transparent: true, opacity: op, dashSize: 1.4, gapSize: 0.9 }));
+    l.computeLineDistances();
+    return l;
+  }
+
+  reticle(t, op) {
+    const T = this.three.T, r = t.def.len * 0.75, grp = new T.Group();
+    const ring = new T.Mesh(new T.RingGeometry(r, r + 0.35, 48), new T.MeshBasicMaterial({ toneMapped: false, color: 0xff4d4d, transparent: true, opacity: op, side: T.DoubleSide, depthWrite: false }));
+    ring.rotation.x = -Math.PI / 2; grp.add(ring);
+    for (let i = 0; i < 4; i++) {
+      const a = i * Math.PI / 2, tick = new T.Mesh(new T.PlaneGeometry(0.3, 1.4), new T.MeshBasicMaterial({ toneMapped: false, color: 0xff4d4d, transparent: true, opacity: op, side: T.DoubleSide, depthWrite: false }));
+      tick.rotation.x = -Math.PI / 2; tick.rotation.z = a; tick.position.set(Math.sin(a) * (r + 1.1), 0, Math.cos(a) * (r + 1.1)); grp.add(tick);
+    }
+    grp.position.set(t.x, 0.12, -t.y);
+    return grp;
+  }
+
   pathLine(s, dest, color, op) {
     const T = this.three.T, p = this.path(s, dest), pts = [];
     for (let i = 0; i <= 32; i++) { const q = p.at(i / 32); pts.push(this.m2v(q.x, q.y, 0.25)); }
@@ -1150,6 +1310,14 @@ class Component extends DCLogic {
       ov.add(this.pathLine(s, d.dest, s.def.hex, 0.55));
       ov.add(this.ghost(s.def, end.x, end.y, end.h, 0.22));
     });
+    // Priority-target lines: bright for the ship being plotted, dim for the rest of the squadron.
+    this.sideShips(g.side).forEach((id) => {
+      const d = g.drafts[id], tid = id === g.plotting ? this.ui.target : (d && d.target);
+      if (!tid || tid === 'auto' || !this.active(g.ships[tid])) return;
+      const s = g.ships[id], t = g.ships[tid], from = d ? this.path(s, d.dest).at(1) : s, bright = id === g.plotting;
+      ov.add(this.targetLine(from.x, from.y, t.x, t.y, bright ? 0.9 : 0.4));
+      ov.add(this.reticle(t, bright ? 0.9 : 0.45));
+    });
     if (this.ui.enemyArcs) this.sideShips(this.enemySide(g.side)).forEach((id) => { const f = g.ships[id]; this.arcsFor(ov, f.def, f.x, f.y, f.h, 0.05); });
     if (g.dest) {
       const end = this.path(me, g.dest).at(1);
@@ -1182,20 +1350,28 @@ class Component extends DCLogic {
     const T = this.three.T, w = shot.w;
     const SD = this.D.SIDES[A.def.side], lance = !!w.lance, col = lance ? SD.lanceBolt : SD.bolt;
     const side = w.side === 'port' ? 1 : w.side === 'stbd' ? -1 : 0;
-    const along = ((i % 5) - 2) * 0.9;
-    const ox = A.x + Math.cos(A.h) * (lance ? 3.6 : along) + Math.cos(A.h + Math.PI / 2) * side * 1.1;
-    const oy = A.y + Math.sin(A.h) * (lance ? 3.6 : along) + Math.sin(A.h + Math.PI / 2) * side * 1.1;
+    // Broadsides ripple from stern to bow along the hull; lances fire from the prow.
+    const along = lance ? A.def.len * 0.48 : ((i % 6) / 5 - 0.5) * A.def.len * 0.75, beam = (A.def.halfBeamU || 1.2) + 0.2;
+    const ox = A.x + Math.cos(A.h) * along + Math.cos(A.h + Math.PI / 2) * side * beam;
+    const oy = A.y + Math.sin(A.h) * along + Math.sin(A.h + Math.PI / 2) * side * beam;
     let tx = B.x + (Math.random() - 0.5) * 2.4, ty = B.y + (Math.random() - 0.5) * 2.4;
     if (!shot.hit) { const a = Math.random() * Math.PI * 2; tx = B.x + Math.cos(a) * (5 + Math.random() * 4); ty = B.y + Math.sin(a) * (5 + Math.random() * 4); }
     const from = this.m2v(ox, oy, 1.4), to = this.m2v(tx, ty, 1.2);
     const mesh = new T.Mesh(new T.BoxGeometry(1, 1, 1), new T.MeshBasicMaterial({ toneMapped: false, color: col, transparent: true, opacity: 0, blending: T.AdditiveBlending, depthWrite: false }));
-    const thick = lance ? 0.45 : 0.18;
+    const thick = lance ? 0.5 : (w.broadside ? 0.3 : 0.16);
     this.three.fxg.add(mesh);
-    const len = from.distanceTo(to), fly = (lance ? 0.12 : 0.32) / this.speedMul();
-    const fx = { t: -delay, done: false, hitDone: false };
+    const len = from.distanceTo(to), fly = (lance ? 0.14 : (w.broadside ? 0.42 : 0.3)) / this.speedMul();
+    const fx = { t: -delay, done: false, hitDone: false, fired: false };
     fx.update = (dt) => {
       fx.t += dt;
       if (fx.t < 0) return true;
+      if (!fx.fired) {
+        fx.fired = true;
+        this.spark(ox, oy, col, lance ? 3.6 : (w.broadside ? 2.6 : 1.4));
+        this.sfx(this.weaponSfx(A, w), Math.max(0.35, (lance ? 1 : 0.85) - i * 0.07));
+        if (w.broadside && i % 3 === 0) this.kick(A.id, -side * 0.035);
+        if (lance) this.addShake(0.25);
+      }
       if (lance) {
         const k = fx.t / fly;
         mesh.material.opacity = k < 1 ? 1 : Math.max(0, 1 - (fx.t - fly) / 0.35);
@@ -1206,7 +1382,10 @@ class Component extends DCLogic {
         mesh.material.opacity = k < 1 ? 1 : 0;
         mesh.scale.set(thick, thick, Math.max(0.1, head.distanceTo(tail))); mesh.position.copy(head).lerp(tail, 0.5); mesh.lookAt(head);
       }
-      if (fx.t >= fly && !fx.hitDone) { fx.hitDone = true; if (shot.hit) this.spark(tx, ty, col, lance ? 4.5 : 2.6); }
+      if (fx.t >= fly && !fx.hitDone) {
+        fx.hitDone = true;
+        if (shot.hit) { this.spark(tx, ty, col, lance ? 4.8 : (w.broadside ? 3.2 : 2.2)); this.sfx('hit_small', lance ? 0.6 : 0.32); this.addShake(lance ? 0.35 : 0.12); }
+      }
       if (fx.t > fly + 0.4) { this.three.fxg.remove(mesh); mesh.geometry.dispose(); mesh.material.dispose(); return false; }
       return true;
     };
@@ -1235,10 +1414,62 @@ class Component extends DCLogic {
   explode(s) {
     if (!this.three) return;
     const o = this.three.objs[s.id];
+    this.sfx(s.def.len >= 8 ? 'explode_big' : 'explode_med', 1, 0, 1);
+    this.addShake(1.8); this.slowUntil = performance.now() + 350;
     for (let i = 0; i < 9; i++) { const fx = { t: -i * 0.12 }; const self = this; const jx = s.x + (Math.random() - 0.5) * 6, jy = s.y + (Math.random() - 0.5) * 6; fx.update = (dt) => { fx.t += dt; if (fx.t >= 0 && !fx.f) { fx.f = 1; self.spark(jx, jy, i % 2 ? 0xffc94d : 0xff6a3d, 9 + Math.random() * 6); } return !fx.f; }; this.fx.push(fx); }
     const fx = { t: 0 };
     fx.update = (dt) => { fx.t += dt; if (fx.t > 0.6) { o.model.visible = false; o.glow.visible = false; o.ring.visible = false; return false; } return true; };
     this.fx.push(fx);
+  }
+
+  addShake(a) { this.shake = Math.min(2.5, this.shake + a); }
+
+  // Roll the hull about its keel (recoil or a heavy hit); decays as a damped wobble.
+  kick(id, amp) { if (!this.three) return; const o = this.three.objs[id]; o.rollAmp = Math.max(-0.35, Math.min(0.35, (o.rollAmp || 0) * 0.4 + amp)); o.rollT = 0; }
+
+  // Damage landing on a ship: debris flashes, a hull-impact sound, camera shake, a jolt, and a slow-mo beat on criticals.
+  impact(id, dmg, crits) {
+    if (this.autoAll || !this.three) return;
+    const s = this.g.ships[id];
+    for (let i = 0; i < Math.min(7, 1 + dmg + crits); i++) {
+      const a = Math.random() * Math.PI * 2, r = Math.random() * s.def.len * 0.35;
+      this.spark(s.x + Math.cos(a) * r, s.y + Math.sin(a) * r, i % 2 ? 0xffc94d : 0xff7a3d, 3 + Math.random() * 3);
+    }
+    this.sfx(dmg >= 3 || crits ? 'hit_big' : 'hit_small', 0.95);
+    this.addShake(0.3 + 0.14 * dmg + 0.3 * crits);
+    this.kick(id, (Math.random() < 0.5 ? -1 : 1) * Math.min(0.3, 0.06 + 0.05 * dmg));
+    if (crits) this.slowUntil = performance.now() + 240;
+  }
+
+  // Persistent damage: embers rise from burning ships, smoke trails crippled ones.
+  damageFx(dt) {
+    const T = this.three.T;
+    this.ids().forEach((id) => {
+      const s = this.g.ships[id], o = this.three.objs[id];
+      if (s.dead || s.fled) return;
+      const fire = this.count(s, 'fire') > 0, crip = this.crippled(s);
+      if (!fire && !crip) return;
+      o.emitT = (o.emitT || 0) - dt;
+      if (o.emitT > 0) return;
+      o.emitT = fire ? 0.09 : 0.28;
+      const p = o.root.position, h = o.root.rotation.y - Math.PI / 2, along = (Math.random() - 0.5) * s.def.len * 0.7;
+      const x = p.x + Math.cos(h) * along, z = p.z - Math.sin(h) * along;
+      const sp = new T.Sprite(new T.SpriteMaterial(fire
+        ? { toneMapped: false, map: this.three.glowTex, color: Math.random() < 0.5 ? 0xff7a1a : 0xffc94d, transparent: true, blending: T.AdditiveBlending, depthWrite: false }
+        : { toneMapped: false, map: this.three.glowTex, color: 0x8a92a3, transparent: true, opacity: 0.3, depthWrite: false }));
+      sp.position.set(x, 1.6, z); this.three.fxg.add(sp);
+      const life = fire ? 0.9 : 2.2, fx = { t: 0 };
+      fx.update = (d) => {
+        fx.t += d; const k = fx.t / life;
+        sp.position.y += d * (fire ? 3 : 1.2); sp.position.x += d * (fire ? 0 : 0.6);
+        sp.scale.setScalar(fire ? 0.9 * (1 - k * 0.5) : 1.4 + k * 3.5);
+        sp.material.opacity = (fire ? 1 : 0.3) * (1 - k);
+        if (k >= 1) { this.three.fxg.remove(sp); sp.material.dispose(); return false; }
+        return true;
+      };
+      fx.kill = () => this.three.fxg.remove(sp);
+      this.fx.push(fx);
+    });
   }
 
   /* ───────────── LOOP & INPUT ───────────── */
@@ -1253,10 +1484,15 @@ class Component extends DCLogic {
       this.ids().forEach((id) => { if (!g.orders[id] || !g.orders[id].path) return; const p = g.orders[id].path.at(e), o = t3.objs[id]; o.root.position.set(p.x, 0, -p.y); o.root.rotation.y = p.h + Math.PI / 2; o.glow.scale.setScalar(2.6 + 2.2 * Math.sin(Math.PI * k)); });
       if (k >= 1) { this.anim = null; this.afterMove(); }
     }
+    const fxDt = now < this.slowUntil ? dt * 0.3 : dt;
+    this.shake *= Math.pow(0.03, dt);
+    this.ids().forEach((id) => { const o = t3.objs[id]; if (o.rollAmp) { o.rollT += fxDt; o.model.rotation.z = o.rollAmp * Math.exp(-o.rollT * 2.6) * Math.cos(o.rollT * 8); if (o.rollT > 2.5) { o.rollAmp = 0; o.model.rotation.z = 0; } } });
+    this.damageFx(fxDt);
     this.ids().forEach((id, i) => { const o = t3.objs[id]; o.model.position.y = Math.sin(now / 900 + i * 2) * 0.12; o.ring.material.opacity = id === this.ui.sel ? 0.95 : (g.phase === 'orders' && id === g.plotting ? 0.8 : 0.4); });
-    this.fx = this.fx.filter((f) => f.update(dt));
+    this.fx = this.fx.filter((f) => f.update(fxDt));
     t3.renderer.render(t3.scene, cam);
     this.placeLabels();
+    this.placeBadges();
     if (this.inspDirty) this.renderInspector();
   }
 
@@ -1265,6 +1501,7 @@ class Component extends DCLogic {
     const c = this.cam, cam = this.three.camera, st = Math.sin(c.tilt);
     cam.position.set(c.tx + c.dist * st * Math.sin(c.yaw), c.dist * Math.cos(c.tilt), c.tz + c.dist * st * Math.cos(c.yaw));
     cam.lookAt(c.tx, 0, c.tz);
+    if (this.shake > 0.01) { const k = this.shake * c.dist * 0.006; cam.position.x += (Math.random() - 0.5) * k; cam.position.y += (Math.random() - 0.5) * k; cam.position.z += (Math.random() - 0.5) * k; }
     cam.updateMatrixWorld();
   }
 
@@ -1304,6 +1541,7 @@ class Component extends DCLogic {
   }
 
   pointerDown(e) {
+    this.unlockAudio();
     this.drag = { x: e.clientX, y: e.clientY, moved: false, button: e.button, pan: e.button !== 0 || e.shiftKey, tx: this.cam.tx, tz: this.cam.tz, yaw: this.cam.yaw, tilt: this.cam.tilt };
     if (e.currentTarget && e.currentTarget.setPointerCapture) { try { e.currentTarget.setPointerCapture(e.pointerId); } catch (err) {} }
   }
@@ -1338,7 +1576,11 @@ class Component extends DCLogic {
     if (!d || d.moved || d.button !== 0) return;
     const p = this.pickMap(e); if (!p) return;
     const hit = this.shipAt(p);
-    if (hit) { this.selectShip(hit); return; }
+    if (hit) {
+      // In the orders phase, clicking an enemy ship makes it the plotting ship's priority target.
+      if (this.g.phase === 'orders' && this.sideOf(hit) !== this.g.side) { this.ui.sel = hit; this.inspDirty = true; this.setTarget(hit); return; }
+      this.selectShip(hit); return;
+    }
     this.setDest(p.x, p.y);
   }
 
@@ -1384,6 +1626,14 @@ class Component extends DCLogic {
     for (let i = 0; i < lost; i++) dmg.push({ x: (150 + (((i * 5) % 7) - 3) / 3 * (hw - 7)).toFixed(1), y: (bow + 14 + ((i * 7) % 13) / 12 * 132).toFixed(1) });
     const pips = [];
     for (let i = 0; i < def.hull; i++) pips.push('width: 10px; height: 14px; border-radius: 2px; ' + (i < s.hull ? 'background: ' + def.color : 'background: #1a2335; box-shadow: inset 0 0 0 1px #2a3650'));
+    const rx0 = hw + 30, bpos = { fore: [150, 150 - 96], port: [150 - rx0, 150], stbd: [150 + rx0, 150], aft: [150, 150 + 96] };
+    const arcBadges = this.D.FACINGS.map((f) => {
+      const base = def.shields[f] || 0, left = this.shieldLeft(s, f);
+      return {
+        sh: left < base ? left + '/' + base : String(base), dice: String(this.arcDice(s, f)),
+        style: 'position: absolute; left: ' + (bpos[f][0] / 3).toFixed(2) + '%; top: ' + (bpos[f][1] / 3).toFixed(2) + '%; transform: translate(-50%, -50%); display: flex; gap: 5px; padding: 2px 6px; border-radius: 5px; background: rgba(0,0,0,0.82); box-shadow: inset 0 0 0 1px #33425f; font-family: JetBrains Mono, monospace; font-size: 12px; font-weight: 700; line-height: 1.25; pointer-events: none;'
+      };
+    });
     const shieldFacings = [['fore', 'Fore'], ['port', 'Port'], ['stbd', 'Stbd'], ['aft', 'Aft']].map((f) => {
       const v = def.shields[f[0]] || 0;
       return { lab: f[1], v: v, style: 'display: flex; align-items: baseline; gap: 4px; padding: 3px 7px; border-radius: 4px; font-size: 11px; ' + (v ? 'color: #e6edf8; box-shadow: inset 0 0 0 1px ' + def.color + ';' : 'color: #6f7f9c; box-shadow: inset 0 0 0 1px #26324a;') };
@@ -1394,7 +1644,7 @@ class Component extends DCLogic {
     else if (this.crippled(s)) { status = 'CRIPPLED'; bg = '#3a2208'; fg = '#ffc94d'; }
     return {
       name: def.name, color: def.color, cls: def.cls, status: status, statusBg: bg, statusFg: fg,
-      weapons: weapons, rings: rings, dmg: dmg, pips: pips, shieldFacings: shieldFacings,
+      weapons: weapons, rings: rings, dmg: dmg, pips: pips, shieldFacings: shieldFacings, arcBadges: arcBadges,
       hullText: s.hull + '/' + def.hull,
       speed: e.speed + 'u', turnTxt: e.turn + '°', armour: def.armour + '+',
       crits: s.crits.map((c) => this.critName(c)), hasCrits: s.crits.length > 0,
@@ -1439,6 +1689,11 @@ class Component extends DCLogic {
       };
     });
     const commitDisabled = !(canOrder && own.length && drafted === own.length);
+    const tchip = (on) => 'min-height: 44px; flex: 1 1 0; min-width: 0; padding: 0 6px; border-radius: 6px; line-height: 1.15; cursor: pointer; font-size: 12px; font-weight: 700; ' + (on ? 'background: #3a0f12; color: #ffb3b3; border: 1px solid #ff4d4d;' : 'background: #0a1222; color: #c5d1e6; border: 1px solid #26324a;');
+    const targets = canOrder ? [{ name: 'Closest', pick: this.targetAuto, pressed: this.ui.target === 'auto' ? 'true' : 'false', style: tchip(this.ui.target === 'auto') }].concat(
+      this.sideShips(this.enemySide(g.side)).map((id) => ({ name: g.ships[id].def.name.replace('CNS ', ''), pick: this.targetOn[id], pressed: this.ui.target === id ? 'true' : 'false', style: tchip(this.ui.target === id) }))) : [];
+    const badges = [];
+    this.ids().forEach((id) => { const s = g.ships[id]; this.D.FACINGS.forEach((f) => { badges.push({ ref: this.badgeRefs[id + ':' + f], sh: String(this.shieldLeft(s, f)), dice: String(this.arcDice(s, f)) }); }); });
     const commitLabel = !canOrder ? (g.phase === 'over' ? 'Battle over' : 'Resolving…') : (drafted === own.length ? 'Commit fleet orders' : 'Plot ' + (own.length - drafted) + ' more ship' + (own.length - drafted === 1 ? '' : 's') + ' · double-click plots and moves on');
     const commitStyle = 'min-height: 44px; padding: 0 16px; border-radius: 6px; font-weight: 700; font-size: 14px; border: 0; cursor: ' + (commitDisabled ? 'not-allowed' : 'pointer') + '; ' +
       (commitDisabled ? 'background: #1a2335; color: #93a3bf;' : 'background: ' + plot.def.color + '; color: #070a12;');
@@ -1508,7 +1763,9 @@ class Component extends DCLogic {
     return {
       turn: g.turn, phaseLabel: phaseLabel,
       modeLabel: this.modeHot() ? 'Hot-seat · 2 players' : 'Versus AI · you command the Concord',
-      insp: insp, nextShip: this.nextShip, orderOpts: orderOpts, fleet: fleet, canOrder: canOrder,
+      insp: insp, nextShip: this.nextShip, orderOpts: orderOpts, fleet: fleet, targets: targets,
+      badges: badges, toggleBadges: this.toggleBadges, badgesPressed: this.ui.arcBadges ? 'true' : 'false', badgesBg: this.ui.arcBadges ? '#26324a' : 'rgba(8,12,22,0.86)',
+      toggleSound: this.toggleSound, soundPressed: this.ui.muted ? 'false' : 'true', soundOn: !this.ui.muted, soundOff: this.ui.muted, soundLabel: this.ui.muted ? 'Sound off — click to unmute' : 'Sound on — click to mute', canOrder: canOrder,
       plotName: canOrder ? plot.def.name : '—', plotColor: canOrder ? plot.def.color : '#93a3bf',
       destDist: destDist, destBearing: destBearing, destTurn: destTurn,
       commit: this.commit, commitDisabled: commitDisabled, commitLabel: commitLabel, commitStyle: commitStyle,

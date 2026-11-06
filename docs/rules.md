@@ -9,7 +9,7 @@ Movement is free (no squares or hexes).
 
 ## 1. The turn
 
-1. **Orders** — in secret, each player places a destination marker for every ship in their squadron and may give each one special order. A squadron's orders are sealed together once committed.
+1. **Orders** — in secret, each player places a destination marker for every ship in their squadron, may give each one special order, and may nominate a priority target for each. A squadron's orders are sealed together once committed.
 2. **Movement** — orders are revealed; all ships move simultaneously, each sweeping a smooth curve to its marker. Then resolve collisions and ships leaving the zone.
 3. **Gunnery** — every weapon that bears fires. Each player rolls their own dice (to-hit and criticals for their weapons, armour saves for their ship). Damage is applied only after *all* ships have fired, so a ship destroyed this phase still gets its last broadside off.
 4. **End phase** — fires burn, damage control repairs criticals, destroyed ships are removed, check victory.
@@ -38,7 +38,7 @@ It finishes pointing along the arc, so **its heading changes by twice the marker
 ## 3. Firing arcs & gunnery
 
 Arcs are four 90° quadrants measured from the ship's centre: **fore** (±45° of the bow), **port**, **starboard**, **aft**.
-**Targeting:** each weapon fires at the closest enemy ship in its arc and within its range, so one ship's batteries can engage different targets. Find which of the firer's arcs the target's centre is in; every weapon covering that arc and within range rolls its dice.
+**Targeting:** a ship may nominate a priority target. Every weapon that can bear on it (arc and range) fires at it; any weapon that can't fires at the closest enemy it can bear on. With no priority target, every weapon takes the closest enemy it can reach. Find which of the firer's arcs the target's centre is in; every weapon covering that arc and within range rolls its dice.
 
 | Range | To hit |
 |---|---|
@@ -132,4 +132,4 @@ Model: `assets/ships/carrion.glb` (pack file "spacecraft battleship 3d model.glb
 
 - **Server-authoritative turns**: clients submit `{destination, specialOrder}` per ship; the server validates against the manoeuvre zone and waits for both players (or a timer). In gunnery it prompts each player for their own rolls and generates each die on the player's click, so rolls stay tamper-proof, then streams results to both clients.
 - **Balance snapshot**: `node tools/balance-sim.js` runs 1,500 AI-vs-AI duels. Current 2v2 squadrons: Concord ≈44%, Reaver ≈44%, mutual destruction ≈12%, ~7 turns per battle. The AI is a simple one-turn look-ahead, so treat this as a starting point.
-- **Open questions**: manual target priority per battery; wreck hazards; firing in mid-move tick slices vs. end of move; altitude bands.
+- **Open questions**: should a priority target cost something (e.g. −1 to hit when it isn't the closest enemy)?; wreck hazards; firing in mid-move tick slices vs. end of move; altitude bands.
