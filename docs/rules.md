@@ -69,6 +69,8 @@ A to-hit roll of a **natural 6 that causes damage** (gets past shields and armou
 | 5 | Gun Deck Hit | d6: 1–3 port, 4–6 starboard — that broadside rolls half dice | 5+ |
 | 6 | Bridge Hit | No special orders; −1 to hit | 5+ |
 
+**Structural failure:** the first time a ship's hull falls to two-thirds of its starting value, and again at one-third (rounded down), it immediately suffers an extra critical, rolled by its own player (e.g. Resolute, Hull 14, fails at 9 and at 4).
+
 Criticals stack and take effect after gunnery. The firer rolls on the table. **End phase:** each Fire! deals 1 damage, then each player rolls a d6 per critical still active on their own ship to repair it.
 
 ## 6. Collisions, disengaging & victory
