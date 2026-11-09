@@ -1,10 +1,10 @@
-# Sealed Orders — Core Rules (draft v0.2, working title)
+# Gunline — Core Rules (draft v0.3)
 
 Capital ships slugging it out in open space. Both admirals write orders in secret,
 every ship moves at the same moment, and then every gun fires at the same moment.
 Fistfuls of d6 decide who is still flying.
 
-Distances are in units (u). The battle zone is 120u × 80u; a battleship is ~7u long.
+Distances are in units (u). The battle zone is 160u × 110u; a battleship is ~7u long.
 Movement is free (no squares or hexes).
 
 ## 1. The turn
@@ -33,6 +33,7 @@ It finishes pointing along the arc, so **its heading changes by twice the marker
 | All Ahead Full | Move full Speed to 1.5× Speed; Turn halved | This ship −1 to hit |
 | Come About | Turn +30°; max move ½ Speed; min move 2u | — |
 | Lock On | Turn halved | +1 to hit |
+| Ram | Move full Speed to 1.5× Speed; Turn halved | This ship −1 to hit; rams an enemy ending within reach in its fore arc |
 | Brace for Impact | Normal zone | Armour saves +1; every weapon rolls half dice (round up) |
 
 ## 3. Firing arcs & gunnery
@@ -76,13 +77,25 @@ Criticals stack and take effect after gunnery. The firer rolls on the table. **E
 ## 6. Collisions, disengaging & victory
 
 - **Collision** — any two ships (friend or foe) ending with centres within 4u each take D3 damage (no saves) and are pushed apart. A **Ram Prow** with the enemy in its fore arc deals D6 instead.
-- **Leaving the zone** — a ship ending outside the 120u × 80u zone has disengaged and counts as lost.
+- **Leaving the zone** — a ship ending outside the 160u × 110u zone has disengaged and counts as lost.
 - **Victory** — destroy or drive off every ship in the enemy squadron. Last ships on both sides lost in the same turn = mutual destruction.
 
-## 7. Ship profiles (starter squadrons: Resolute + Vigilant vs Maw of Ruin + Carrion Wing)
+## 7. Ramming & boarding
+
+- **Ram (special order)** — move as All Ahead Full, −1 to hit. If after movement an enemy is within reach (4u + half your length) in your fore arc (priority target first), you ram it: 1d6 + mass (battleship +2, cruiser +1, ram prow +2) damage, **ignoring shields and armour**. You take half a d6 (rounded up; −1 with a ram prow). Rams resolve before gunnery.
+- **Boarding** — after damage lands, a ship within 6u of an enemy that is **below half Hull** and whose **shield facing it is down** (spent this turn, or zero) may send a boarding party of any size, leaving at least 1 Crew aboard. Each ship boards, and can be boarded, once per turn.
+- **The boarding fight (Risk-style)** — boarders roll one die each (max 3), defenders one each (max 2). Pair highest with highest, second with second; the higher die kills one enemy, **ties go to the defender**. After each round the attacker presses on or withdraws (survivors return). Defenders at 0: the ship **strikes its colours** and leaves the battle as lost, with the surviving boarders aboard as prize crew.
+
+| Capture chance | vs 2 | vs 3 | vs 4 | vs 6 | vs 8 |
+|---|---|---|---|---|---|
+| 3 boarders | 66% | 47% | 31% | 13% | 5% |
+| 5 boarders | 89% | 77% | 64% | 40% | 22% |
+| 7 boarders | 97% | 91% | 83% | 64% | 45% |
+
+## 8. Ship profiles (starter squadrons: Resolute + Vigilant vs Maw of Ruin + Carrion Wing)
 
 ### CNS Resolute — Dominion-class battleship (Concord Navy)
-Speed 12u · Turn 45° · Hull 14 · Shields F2 P2 S2 A1 · Armour 4+
+Speed 12u · Turn 45° · Hull 14 · Shields F2 P2 S2 A1 · Armour 4+ · Crew 8
 
 | Weapon | Arc | Dice | Range | Notes |
 |---|---|---|---|---|
@@ -94,7 +107,7 @@ Speed 12u · Turn 45° · Hull 14 · Shields F2 P2 S2 A1 · Armour 4+
 Model: `assets/ships/resolute.glb` (pack file "futuristic space battleship 3d model.glb").
 
 ### Maw of Ruin — Ravager-class battleship (Reaver Clans)
-Speed 16u · Turn 60° · Hull 13 · Shields F3 P2 S2 A1 · Armour 5+
+Speed 16u · Turn 60° · Hull 13 · Shields F3 P2 S2 A1 · Armour 5+ · Crew 7
 
 | Weapon | Arc | Dice | Range | Notes |
 |---|---|---|---|---|
@@ -107,7 +120,7 @@ Speed 16u · Turn 60° · Hull 13 · Shields F3 P2 S2 A1 · Armour 5+
 Model: `assets/ships/maw.glb` (pack file "sci-fi battleship 3d model.glb").
 
 ### CNS Vigilant — Valiant-class cruiser (Concord Navy)
-Speed 14u · Turn 50° · Hull 8 · Shields F2 P1 S1 A1 · Armour 4+
+Speed 14u · Turn 50° · Hull 8 · Shields F2 P1 S1 A1 · Armour 4+ · Crew 6
 
 | Weapon | Arc | Dice | Range | Notes |
 |---|---|---|---|---|
@@ -119,7 +132,7 @@ Speed 14u · Turn 50° · Hull 8 · Shields F2 P1 S1 A1 · Armour 4+
 Model: `assets/ships/vigilant.glb` (pack file "space battleship 3d model.glb").
 
 ### Carrion Wing — Harrow-class raider (Reaver Clans)
-Speed 18u · Turn 60° · Hull 10 · Shields F3 P1 S1 A0 · Armour 5+
+Speed 18u · Turn 60° · Hull 10 · Shields F3 P1 S1 A0 · Armour 5+ · Crew 4
 
 | Weapon | Arc | Dice | Range | Notes |
 |---|---|---|---|---|
@@ -133,5 +146,5 @@ Model: `assets/ships/carrion.glb` (pack file "spacecraft battleship 3d model.glb
 ## Designer's notes (online build)
 
 - **Server-authoritative turns**: clients submit `{destination, specialOrder}` per ship; the server validates against the manoeuvre zone and waits for both players (or a timer). In gunnery it prompts each player for their own rolls and generates each die on the player's click, so rolls stay tamper-proof, then streams results to both clients.
-- **Balance snapshot**: `node tools/balance-sim.js` runs 1,500 AI-vs-AI duels. Current 2v2 squadrons: Concord ≈44%, Reaver ≈44%, mutual destruction ≈12%, ~7 turns per battle. The AI is a simple one-turn look-ahead, so treat this as a starting point.
+- **Balance snapshot**: `node tools/balance-sim.js` runs 1,500 AI-vs-AI duels. Current 2v2 squadrons with ramming and boarding: Concord ≈47%, Reaver ≈47%, mutual destruction ≈6%, ~7 turns per battle. The AI is a simple one-turn look-ahead, so treat this as a starting point.
 - **Open questions**: should a priority target cost something (e.g. −1 to hit when it isn't the closest enemy)?; wreck hazards; firing in mid-move tick slices vs. end of move; altitude bands.
