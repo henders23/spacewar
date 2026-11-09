@@ -29,11 +29,30 @@ th{font-size:11px;letter-spacing:0.06em;color:#93a3bf;font-weight:600}
     <p style="margin: 0; max-width: 780px; font-size: 16px; color: #c5d1e6">The Reaver Clans have broken through the Varn picket. Rear-Admiral, take the Resolute squadron forward, break up their raiding parties, find the lair their ships return to, and hold Station Aurel when the Maw of Ruin comes for it. Your ships, crews and captains carry every scar from one mission to the next.</p>
     <div style="display: flex; flex-wrap: wrap; gap: 10px">
       <div style="display: flex; flex-direction: column; padding: 10px 16px; background: #0d1220; border: 1px solid #1c2638; border-radius: 8px; min-width: 130px"><span style="font-size: 11px; letter-spacing: 0.06em; color: #93a3bf">CREDITS</span><span style="font-family: 'JetBrains Mono', monospace; font-size: 22px; font-weight: 700; color: #ffc94d">{{creditsLeft}}</span></div>
-      <div style="display: flex; flex-direction: column; padding: 10px 16px; background: #0d1220; border: 1px solid #1c2638; border-radius: 8px; min-width: 130px"><span style="font-size: 11px; letter-spacing: 0.06em; color: #93a3bf">RENOWN</span><span style="font-family: 'JetBrains Mono', monospace; font-size: 22px; font-weight: 700; color: #eef3fb">3</span></div>
-      <div style="display: flex; flex-direction: column; padding: 10px 16px; background: #0d1220; border: 1px solid #1c2638; border-radius: 8px; min-width: 130px"><span style="font-size: 11px; letter-spacing: 0.06em; color: #93a3bf">SUPPLIES</span><span style="font-family: 'JetBrains Mono', monospace; font-size: 22px; font-weight: 700; color: #eef3fb">4 jumps</span></div>
-      <div style="display: flex; flex-direction: column; padding: 10px 16px; background: #0d1220; border: 1px solid #1c2638; border-radius: 8px; min-width: 130px"><span style="font-size: 11px; letter-spacing: 0.06em; color: #93a3bf">MISSIONS</span><span style="font-family: 'JetBrains Mono', monospace; font-size: 22px; font-weight: 700; color: #eef3fb">1 / 5</span></div>
-      <div style="display: flex; flex-direction: column; padding: 10px 16px; background: #0d1220; border: 1px solid #1c2638; border-radius: 8px; min-width: 130px"><span style="font-size: 11px; letter-spacing: 0.06em; color: #93a3bf">FLEET</span><span style="font-family: 'JetBrains Mono', monospace; font-size: 22px; font-weight: 700; color: #eef3fb">3 hulls</span></div>
+      <div style="display: flex; flex-direction: column; padding: 10px 16px; background: #0d1220; border: 1px solid #1c2638; border-radius: 8px; min-width: 130px"><span style="font-size: 11px; letter-spacing: 0.06em; color: #93a3bf">RENOWN</span><span style="font-family: 'JetBrains Mono', monospace; font-size: 22px; font-weight: 700; color: #eef3fb">{{renown}}</span></div>
+      <div style="display: flex; flex-direction: column; padding: 10px 16px; background: #0d1220; border: 1px solid #1c2638; border-radius: 8px; min-width: 130px"><span style="font-size: 11px; letter-spacing: 0.06em; color: #93a3bf">STATUS</span><span style="font-family: 'JetBrains Mono', monospace; font-size: 22px; font-weight: 700; color: #eef3fb">{{where}}</span></div>
+      <div style="display: flex; flex-direction: column; padding: 10px 16px; background: #0d1220; border: 1px solid #1c2638; border-radius: 8px; min-width: 130px"><span style="font-size: 11px; letter-spacing: 0.06em; color: #93a3bf">MISSIONS</span><span style="font-family: 'JetBrains Mono', monospace; font-size: 22px; font-weight: 700; color: #eef3fb">{{missions}}</span></div>
+      <div style="display: flex; flex-direction: column; padding: 10px 16px; background: #0d1220; border: 1px solid #1c2638; border-radius: 8px; min-width: 130px"><span style="font-size: 11px; letter-spacing: 0.06em; color: #93a3bf">FLEET</span><span style="font-family: 'JetBrains Mono', monospace; font-size: 22px; font-weight: 700; color: #eef3fb">{{fleetN}}</span></div>
     </div>
+    <div style="display: flex; flex-wrap: wrap; gap: 12px; align-items: center">
+      <span style="font-size: 12px; color: #93a3bf">{{storage}}</span>
+      <button onClick="{{restart}}" style="{{restartStyle}}">{{restartLabel}}</button>
+    </div>
+    <sc-if value="{{showEnd}}" hint-placeholder-val="{{ false }}">
+      <div role="status" style="padding: 14px 18px; background: #0d1220; border: 1px solid #4a3a12; border-left: 3px solid #ffc94d; border-radius: 8px; font-size: 15px; color: #eef3fb">{{endText}}</div>
+    </sc-if>
+    <sc-if value="{{showDebrief}}" hint-placeholder-val="{{ false }}">
+      <div role="region" aria-label="Last mission debrief" style="display: flex; flex-direction: column; gap: 6px; padding: 16px 20px; background: #0d1220; border: 1px solid #1c2638; border-left: 3px solid {{db.col}}; border-radius: 8px">
+        <div style="display: flex; flex-wrap: wrap; justify-content: space-between; gap: 10px; align-items: baseline">
+          <span style="font-family: 'Chakra Petch', sans-serif; font-size: 19px; font-weight: 700; color: {{db.col}}">Debrief · {{db.title}}</span>
+          <button onClick="{{dismiss}}" style="min-height: 44px; padding: 0 14px; background: transparent; color: #e6edf8; border: 1px solid #33425f; border-radius: 6px; cursor: pointer; font-size: 13px; font-weight: 600">Dismiss</button>
+        </div>
+        <sc-for list="{{db.lines}}" as="l" hint-placeholder-count="2"><div style="display: flex; gap: 8px; font-size: 13px"><span style="color: {{l.col}}; font-weight: 700">{{l.mark}}</span><span>{{l.text}}</span></div></sc-for>
+        <span style="font-family: 'JetBrains Mono', monospace; color: #ffc94d">{{db.rewards}}</span>
+        <span style="font-size: 13px; color: #c5d1e6">{{db.lost}}</span>
+        <sc-if value="{{db.hasPrizes}}" hint-placeholder-val="{{ false }}"><span style="font-size: 13px; color: #d7b8ff">{{db.prizes}}</span></sc-if>
+      </div>
+    </sc-if>
   </header>
 
   <section aria-label="Operation map and briefing" style="display: flex; flex-direction: column; gap: 16px">
@@ -42,8 +61,14 @@ th{font-size:11px;letter-spacing:0.06em;color:#93a3bf;font-weight:600}
       <div style="flex: 3 1 560px; min-width: 0; display: flex; flex-direction: column; gap: 10px">
         <div style="position: relative; width: 100%; aspect-ratio: 16 / 9; background: #04060c; border: 1px solid #1c2638; border-radius: 10px; overflow: hidden">
           <svg viewBox="0 0 160 90" preserveAspectRatio="none" aria-hidden="true" style="position: absolute; inset: 0; width: 100%; height: 100%">
-            <path d="M14,45 L43,23 M14,45 L43,67" stroke="#7be3a4" stroke-width="0.5" fill="none"></path>
-            <path d="M43,23 L70,45 M43,67 L70,45 M70,45 L95,45 M95,45 L120,64 M120,64 L136,24 M136,24 L150,49" stroke="#33425f" stroke-width="0.5" stroke-dasharray="1.6 1.2" fill="none"></path>
+            <path d="M14,45 L43,23" stroke-width="0.5" fill="none" style="{{rs.l0}}"></path>
+            <path d="M14,45 L43,67" stroke-width="0.5" fill="none" style="{{rs.l1}}"></path>
+            <path d="M43,23 L70,45" stroke-width="0.5" fill="none" style="{{rs.l2}}"></path>
+            <path d="M43,67 L70,45" stroke-width="0.5" fill="none" style="{{rs.l3}}"></path>
+            <path d="M70,45 L95,45" stroke-width="0.5" fill="none" style="{{rs.l4}}"></path>
+            <path d="M95,45 L120,64" stroke-width="0.5" fill="none" style="{{rs.l5}}"></path>
+            <path d="M120,64 L136,24" stroke-width="0.5" fill="none" style="{{rs.l6}}"></path>
+            <path d="M136,24 L150,49" stroke-width="0.5" fill="none" style="{{rs.l7}}"></path>
             <circle cx="40" cy="12" r="0.35" fill="#5a6a86"></circle><circle cx="88" cy="78" r="0.35" fill="#5a6a86"></circle><circle cx="120" cy="10" r="0.35" fill="#5a6a86"></circle><circle cx="20" cy="80" r="0.35" fill="#5a6a86"></circle><circle cx="66" cy="16" r="0.35" fill="#5a6a86"></circle><circle cx="148" cy="80" r="0.35" fill="#5a6a86"></circle><circle cx="104" cy="22" r="0.35" fill="#5a6a86"></circle>
           </svg>
           <sc-for list="{{nodes}}" as="n" hint-placeholder-count="8">
@@ -57,6 +82,7 @@ th{font-size:11px;letter-spacing:0.06em;color:#93a3bf;font-weight:600}
         <div style="display: flex; flex-wrap: wrap; gap: 14px; font-size: 12px; color: #93a3bf">
           <span><span style="color: #7be3a4; font-weight: 700">●</span> completed</span>
           <span><span style="color: #ffc94d; font-weight: 700">●</span> available now</span>
+          <span><span style="color: #ff8a8a; font-weight: 700">●</span> failed</span>
           <span><span style="color: #5a6a86; font-weight: 700">●</span> locked</span>
           <span><span style="color: #5aa9ff; font-weight: 700">◆</span> drydock: repair and refit</span>
           <span>Missions 2A and 2B are a fork: you can only fly one of them.</span>
@@ -82,8 +108,20 @@ th{font-size:11px;letter-spacing:0.06em;color:#93a3bf;font-weight:600}
             </sc-for>
           </div>
         </sc-for>
-        <sc-if value="{{m.canLaunch}}" hint-placeholder-val="{{ true }}">
-          <a href="Main.dc.html" style="display: flex; align-items: center; justify-content: center; min-height: 46px; border-radius: 6px; background: #5aa9ff; color: #070a12; font-weight: 700; text-decoration: none">Launch {{m.code}} on the battle board</a>
+        <sc-if value="{{m.canReady}}" hint-placeholder-val="{{ true }}">
+          <button onClick="{{m.readyAct}}" style="min-height: 46px; border: 0; border-radius: 6px; background: #ffc94d; color: #1a1204; font-weight: 700; font-size: 14px; cursor: pointer">{{m.readyLabel}}</button>
+        </sc-if>
+        <sc-if value="{{m.isReady}}" hint-placeholder-val="{{ false }}">
+          <div style="display: flex; flex-direction: column; gap: 8px">
+            <a href="Main.dc.html" style="display: flex; align-items: center; justify-content: center; min-height: 46px; border-radius: 6px; background: #5aa9ff; color: #070a12; font-weight: 700; text-decoration: none">Launch {{m.code}} on the battle board</a>
+            <button onClick="{{m.standDown}}" style="min-height: 44px; background: transparent; color: #e6edf8; border: 1px solid #33425f; border-radius: 6px; cursor: pointer; font-size: 13px; font-weight: 600">Stand down</button>
+          </div>
+        </sc-if>
+        <sc-if value="{{m.canLeave}}" hint-placeholder-val="{{ false }}">
+          <button onClick="{{m.leaveAct}}" style="min-height: 46px; border: 0; border-radius: 6px; background: #5aa9ff; color: #070a12; font-weight: 700; font-size: 14px; cursor: pointer">{{m.leaveLabel}}</button>
+        </sc-if>
+        <sc-if value="{{m.showRecall}}" hint-placeholder-val="{{ false }}">
+          <button onClick="{{m.recall}}" style="min-height: 44px; background: transparent; color: #e6edf8; border: 1px solid #33425f; border-radius: 6px; cursor: pointer; font-size: 13px; font-weight: 600">Recall ships from dock early</button>
         </sc-if>
         <sc-if value="{{m.noLaunch}}" hint-placeholder-val="{{ false }}">
           <span style="display: flex; align-items: center; justify-content: center; min-height: 46px; border-radius: 6px; background: #1a2335; color: #93a3bf; font-weight: 600; text-align: center; padding: 0 12px">{{m.lockNote}}</span>
@@ -94,13 +132,14 @@ th{font-size:11px;letter-spacing:0.06em;color:#93a3bf;font-weight:600}
 
   <section aria-label="Drydock refit and repair" style="display: flex; flex-direction: column; gap: 16px">
     <div style="display: flex; flex-wrap: wrap; justify-content: space-between; align-items: baseline; gap: 10px">
-      <h2 style="margin: 0; font-family: 'Chakra Petch', sans-serif; font-size: 26px; color: #eef3fb">2 · Drydock Varn · refit &amp; repair</h2>
+      <h2 style="margin: 0; font-family: 'Chakra Petch', sans-serif; font-size: 26px; color: #eef3fb">{{dockTitle}}</h2>
       <div style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap">
-        <span style="font-size: 13px; color: #c5d1e6">Spent this visit <span style="font-family: 'JetBrains Mono', monospace; color: #ffc94d">{{spent}}</span> of 1,200 credits</span>
+        <span style="font-size: 13px; color: #c5d1e6">Work orders <span style="font-family: 'JetBrains Mono', monospace; color: #ffc94d">{{spent}}</span> of {{credits}} credits</span>
         <button onClick="{{reset}}" style="min-height: 44px; padding: 0 14px; background: transparent; color: #e6edf8; border: 1px solid #33425f; border-radius: 6px; cursor: pointer; font-size: 13px; font-weight: 600">Undo all</button>
+        <sc-if value="{{canConfirm}}" hint-placeholder-val="{{ false }}"><button onClick="{{confirm}}" style="min-height: 44px; padding: 0 16px; background: #5aa9ff; color: #070a12; border: 0; border-radius: 6px; cursor: pointer; font-size: 13px; font-weight: 700">Confirm work orders</button></sc-if>
       </div>
     </div>
-    <p style="margin: 0; max-width: 820px; color: #c5d1e6">Damage, criticals and crew losses carry over from the last battle. Repairs and refits cost credits. A ship having more than 4 hull repaired, or a new upgrade fitted, needs dock time and <strong style="color: #eef3fb">sits out the next mission</strong>.</p>
+    <p style="margin: 0; max-width: 820px; color: #c5d1e6">{{dockNote}}</p>
 
     <div role="group" aria-label="Choose a ship" style="display: flex; flex-wrap: wrap; gap: 12px">
       <sc-for list="{{ships}}" as="s" hint-placeholder-count="3">
@@ -125,6 +164,10 @@ th{font-size:11px;letter-spacing:0.06em;color:#93a3bf;font-weight:600}
     <div style="display: flex; flex-wrap: wrap; gap: 20px; align-items: flex-start">
       <div style="flex: 1 1 340px; min-width: 0; display: flex; flex-direction: column; gap: 12px; padding: 16px 18px; background: #0d1220; border: 1px solid #1c2638; border-radius: 10px">
         <h3 style="margin: 0; font-family: 'Chakra Petch', sans-serif; font-size: 18px; color: #eef3fb">Repairs · {{sel.name}}</h3>
+        <div style="display: flex; justify-content: space-between; align-items: center; gap: 12px; padding-bottom: 10px; border-bottom: 1px solid #1c2638">
+          <span style="font-size: 12px; color: #93a3bf">{{sel.reserveNote}}</span>
+          <button onClick="{{sel.reserveAct}}" style="min-height: 44px; padding: 0 12px; background: #16243d; color: #e6edf8; border: 1px solid #33425f; border-radius: 6px; cursor: pointer; font-size: 12px; font-weight: 600; flex: none">{{sel.reserveLabel}}</button>
+        </div>
         <sc-for list="{{sel.repairs}}" as="r" hint-placeholder-count="3">
           <div style="display: flex; justify-content: space-between; align-items: center; gap: 12px">
             <div style="display: flex; flex-direction: column"><span style="font-weight: 600; color: #eef3fb">{{r.label}}</span><span style="font-size: 12px; color: #93a3bf">{{r.detail}}</span></div>
@@ -181,11 +224,11 @@ th{font-size:11px;letter-spacing:0.06em;color:#93a3bf;font-weight:600}
       </div>
       <div style="flex: 1 1 260px; display: flex; flex-direction: column; gap: 6px; padding: 16px; background: #0d1220; border: 1px solid #1c2638; border-radius: 10px">
         <h3 style="margin: 0; font-family: 'Chakra Petch', sans-serif; font-size: 17px; color: #eef3fb">Prizes</h3>
-        <p style="margin: 0; font-size: 13px; color: #c5d1e6">A ship you capture by boarding joins your fleet with its surviving prize crew. It needs crew and repairs before it can fight, and it only has three refit slots.</p>
+        <p style="margin: 0; font-size: 13px; color: #c5d1e6">A ship you capture by boarding joins your fleet with its surviving prize crew and flies with you from the next mission. It needs crew and repairs, and has fewer refit slots.</p>
       </div>
       <div style="flex: 1 1 260px; display: flex; flex-direction: column; gap: 6px; padding: 16px; background: #0d1220; border: 1px solid #1c2638; border-radius: 10px">
         <h3 style="margin: 0; font-family: 'Chakra Petch', sans-serif; font-size: 17px; color: #eef3fb">Veterancy</h3>
-        <p style="margin: 0; font-size: 13px; color: #c5d1e6"><strong style="color: #eef3fb">Green</strong> → <strong style="color: #eef3fb">Trained</strong> (1 battle) → <strong style="color: #eef3fb">Veteran</strong> (3: re-roll one 1 per volley) → <strong style="color: #eef3fb">Elite</strong> (6: boarders win ties). Losing half the crew drops a ship one step.</p>
+        <p style="margin: 0; font-size: 13px; color: #c5d1e6"><strong style="color: #eef3fb">Green</strong> → <strong style="color: #eef3fb">Trained</strong> (1 battle) → <strong style="color: #eef3fb">Veteran</strong> (3: re-roll one 1 per volley) → <strong style="color: #eef3fb">Elite</strong> (6: boarders win ties). Shown on each ship; veterancy and captain traits are not in the battle rules yet.</p>
       </div>
     </div>
 
@@ -221,7 +264,66 @@ th{font-size:11px;letter-spacing:0.06em;color:#93a3bf;font-weight:600}
 class Component extends DCLogic {
   constructor(props) {
     super(props);
-    this.state = { mission: 'm2a', ship: 'resolute', slot: 'weapons', fit: {}, rep: {} };
+    this.state = { mission: null, ship: null, slot: 'weapons', fit: {}, rep: {}, sv: null, mode: 'loading', confirmReset: false };
+    this.storeInit((sv) => this.onSave(sv));
+  }
+
+  /* ───────────── CAMPAIGN SAVE ─────────────
+     Shared with the battle board: one private record per player in the artifact's database,
+     falling back to this browser's storage, then to this view only. */
+  storeInit(cb0) {
+    if (typeof window === 'undefined') return;
+    const cb = (v) => setTimeout(() => cb0(v), 0);
+    const LS = 'gunline.campaign.v1';
+    this.store = { mode: 'memory', ref: null };
+    const lsGet = () => { try { const t = window.localStorage.getItem(LS); return t ? JSON.parse(t) : null; } catch (e) { return undefined; } };
+    const useLocal = () => {
+      const v = lsGet();
+      if (v === undefined) { this.store.mode = 'memory'; cb(null); return; }
+      this.store.mode = 'local'; cb(v);
+      try { window.addEventListener('storage', (e) => { if (e.key === LS) { try { cb(e.newValue ? JSON.parse(e.newValue) : null); } catch (x) { /* ignore */ } } }); } catch (e) { /* ignore */ }
+    };
+    const cl = window.claude;
+    if (!cl || typeof cl.use !== 'function') { useLocal(); return; }
+    let settled = false;
+    const timer = setTimeout(() => { if (!settled) { settled = true; useLocal(); } }, 5000);
+    // With a viewer id the save is private to each player; without one it is the canvas's single campaign record,
+    // which only people who can edit the canvas may write (anyone else drops back to browser storage on their first save).
+    Promise.all([cl.use('db'), cl.use('user')]).then((r) => {
+      const db = r[0], user = r[1];
+      if (!db) throw new Error('no store');
+      const idp = user && typeof user.id === 'function' ? user.id().catch(() => null) : Promise.resolve(null);
+      return idp.then((uid) => { this.store.shared = !uid; return db.doc(uid ? 'data/users/' + uid + '/gunline_campaign' : 'gunline/campaign'); });
+    }).then((ref) => {
+      if (settled) return;
+      settled = true; clearTimeout(timer);
+      this.store.mode = 'db'; this.store.ref = ref;
+      this.store.unsub = ref.onSnapshot((snap) => { if (this.store.mode === 'db') cb(snap.exists ? JSON.parse(JSON.stringify(snap.data())) : null); }, () => { if (this.store.mode === 'db') { this.store.mode = 'local'; useLocal(); } });
+    }).catch(() => { if (!settled) { settled = true; clearTimeout(timer); useLocal(); } });
+  }
+
+  storeSave(obj) {
+    const data = JSON.parse(JSON.stringify(obj));
+    if (this.store && this.store.mode === 'db' && this.store.ref) this.store.ref.set(data).catch(() => { this.store.mode = 'local'; try { if (this.store.unsub) this.store.unsub(); } catch (e) { /* ignore */ } this.setState({ mode: 'local' }); });
+    try { window.localStorage.setItem('gunline.campaign.v1', JSON.stringify(data)); } catch (e) { /* memory only */ }
+  }
+
+  onSave(sv) {
+    const mode = this.store ? this.store.mode : 'memory';
+    if (!sv || !sv.fleet) { sv = this.freshSave(); if (mode !== 'memory') this.storeSave(sv); }
+    this.setState({ sv: sv, mode: mode });
+  }
+
+  write(sv, extra) { this.storeSave(sv); this.setState(Object.assign({ sv: sv }, extra || {})); }
+  cur() { return this.state.sv || this.freshSave(); }
+  copy() { return JSON.parse(JSON.stringify(this.cur())); }
+
+  freshSave() {
+    return { v: 1, op: 'iron_tide', credits: 600, renown: 0, done: {}, dockLeft: {}, current: null, mods: {}, results: {}, history: [], debrief: null,
+      fleet: [
+        { id: 'resolute', cls: 'resolute', name: 'CNS Resolute', hull: 14, crew: 8, crits: [], fit: {}, battles: 0, captain: 'Capt. Ilse Varga · Gunnery Master' },
+        { id: 'vigilant', cls: 'vigilant', name: 'CNS Vigilant', hull: 8, crew: 6, crits: [], fit: {}, battles: 0, captain: 'Capt. Tomas Rheel · Daredevil' }
+      ] };
   }
 
   data() {
@@ -229,154 +331,259 @@ class Component extends DCLogic {
     const U = [
       { id: 'heavy_bs', slot: 'weapons', name: 'Heavy broadside batteries', cost: 300, effect: '+1 die on each broadside; Turn −5° from the extra mass' },
       { id: 'long_lance', slot: 'weapons', name: 'Long-focus lances', cost: 200, effect: 'Lance range +6u' },
-      { id: 'torpedoes', slot: 'weapons', name: 'Torpedo tubes', cost: 350, effect: 'Two torpedoes per battle: slow-moving markers, 2d6 damage each, fore arc' },
-      { id: 'pd', slot: 'defence', name: 'Point-defence grid', cost: 150, effect: 'Enemy lances and boarding torpedoes are −1 to hit this ship' },
-      { id: 'shields', slot: 'defence', name: 'Reinforced shield emitters', cost: 250, effect: '+1 shield on the facing of your choice' },
+      { id: 'torpedoes', slot: 'weapons', name: 'Torpedo tubes', cost: 350, effect: 'Two torpedoes per battle: slow-moving markers, 2d6 damage each, fore arc (not in the battle rules yet)', sim: false },
+      { id: 'pd', slot: 'defence', name: 'Point-defence grid', cost: 150, effect: 'Enemy lances are −1 to hit this ship' },
+      { id: 'shields', slot: 'defence', name: 'Reinforced shield emitters', cost: 250, effect: '+1 fore shield' },
       { id: 'plating', slot: 'defence', name: 'Ablative plating', cost: 200, effect: 'Armour saves +1 against the first volley each turn' },
       { id: 'drives', slot: 'engines', name: 'Overcharged drives', cost: 200, effect: 'Speed +2u' },
       { id: 'thrusters', slot: 'engines', name: 'Vectored thrusters', cost: 150, effect: 'Turn +10°' },
-      { id: 'marines', slot: 'crew', name: 'Marine detachment', cost: 120, effect: 'Crew +2; boarding parties of 4+ add a die on ties' },
+      { id: 'marines', slot: 'crew', name: 'Marine detachment', cost: 120, effect: 'Crew +2 (bigger boarding parties, harder to board)' },
       { id: 'gunners', slot: 'crew', name: 'Veteran gun crews', cost: 250, effect: 'Re-roll 1s to hit with broadsides' },
       { id: 'dc_teams', slot: 'crew', name: 'Damage-control teams', cost: 150, effect: 'Criticals repaired on 4+ (Fire! on 3+)' },
       { id: 'ram', slot: 'special', name: 'Ram prow', cost: 180, effect: 'Ram damage +2; ramming shock −1' },
-      { id: 'tractor', slot: 'special', name: 'Tractor beam', cost: 300, effect: 'End of movement: pull an enemy within 8u up to 3u closer, setting up a boarding' },
-      { id: 'ecm', slot: 'special', name: 'ECM suite', cost: 220, effect: 'Enemies at long range are −1 to hit this ship' }
+      { id: 'tractor', slot: 'special', name: 'Tractor beam', cost: 300, effect: 'End of movement: pull an enemy within 8u up to 3u closer (not in the battle rules yet)', sim: false },
+      { id: 'ecm', slot: 'special', name: 'ECM suite', cost: 220, effect: 'Enemies at long range (>24u) are −1 to hit this ship' }
     ];
-    const SH = {
-      resolute: { name: 'CNS Resolute', cls: 'Dominion-class battleship', col: '#5aa9ff', hull: 9, max: 14, crew: 6, crewMax: 8, crits: ['Gun Deck Hit (port)'], vet: 'Trained · 1 battle', captain: 'Capt. Ilse Varga · Gunnery Master', slots: ['weapons', 'defence', 'engines', 'crew', 'special'], tag: 'DAMAGED', tagBg: '#3a2208', tagFg: '#ffc94d' },
-      vigilant: { name: 'CNS Vigilant', cls: 'Valiant-class cruiser', col: '#5aa9ff', hull: 8, max: 8, crew: 6, crewMax: 6, crits: [], vet: 'Trained · 1 battle', captain: 'Capt. Tomas Rheel · Daredevil', slots: ['weapons', 'defence', 'engines', 'crew'], tag: 'READY', tagBg: '#11301f', tagFg: '#7be3a4' },
-      prize: { name: 'Gutterfang', cls: 'Harrow-class raider · prize, captured in M1', col: '#d7b8ff', hull: 4, max: 10, crew: 2, crewMax: 4, crits: ['Engines Hit', 'Steering Jammed'], vet: 'Green · prize crew', captain: 'No captain assigned', slots: ['weapons', 'engines', 'crew'], tag: 'PRIZE', tagBg: '#2a1a3a', tagFg: '#d7b8ff' }
+    const CLS = {
+      resolute: { cls: 'Dominion-class battleship', hull: 14, crew: 8, slots: ['weapons', 'defence', 'engines', 'crew', 'special'] },
+      vigilant: { cls: 'Valiant-class cruiser', hull: 8, crew: 6, slots: ['weapons', 'defence', 'engines', 'crew'] },
+      maw: { cls: 'Ravager-class battleship', hull: 13, crew: 7, slots: ['weapons', 'engines', 'crew'] },
+      carrion: { cls: 'Harrow-class raider', hull: 10, crew: 4, slots: ['weapons', 'engines', 'crew'] },
+      hydra: { cls: 'Hydra-class tender', hull: 14, crew: 5, slots: ['defence', 'crew'] }
     };
+    const CRIT = { breach: 'Hull Breach', fire: 'Fire!', engines: 'Engines Hit', steering: 'Steering Jammed', gundeck: 'Gun Deck Hit', bridge: 'Bridge Hit' };
     const M = {
-      m1: { code: 'M1', name: 'Picket Line', type: 'FLEET ENGAGEMENT', x: 14, y: 45, state: 'done', brief: 'Your squadron met the Reaver vanguard at the Varn picket. The Maw of Ruin withdrew damaged; its raider escort was boarded and taken.', terrain: 'Open space, 160 × 110u', force: 'Resolute + Vigilant',
-        blocks: [['RESULT', '#7be3a4', ['Victory · 2 turns ahead of schedule', 'Raider Carrion Wing captured; renamed Gutterfang', '+400 credits, +1 renown']]] },
-      m2a: { code: 'M2A', name: 'Convoy Run', type: 'ESCORT', x: 43, y: 23, state: 'open', brief: 'Three ore freighters must cross the Varn shallows to the yards. Reaver raiders will come in from the north edge from turn 3.', terrain: 'Open space; freighters move 8u a turn on a fixed lane', force: 'Up to 600 points from your fleet',
+      m1: { code: 'M1', name: 'Picket Line', type: 'FLEET ENGAGEMENT', x: 14, y: 45, brief: 'The Reaver vanguard is probing the Varn picket: the Maw of Ruin and its raider escort. Break them before the rest of the clan follows.', terrain: 'Open space, 160 × 110u',
+        blocks: [['ENEMY', '#ff8a8a', ['Maw of Ruin (Ravager-class battleship)', 'Carrion Wing (Harrow-class raider)']],
+                 ['OBJECTIVES', '#ffc94d', ['Destroy, capture or drive off both Reaver ships']],
+                 ['REWARDS', '#7be3a4', ['+400 credits, +1 renown', 'Any ship you board and capture joins your fleet as a prize']]] },
+      m2a: { code: 'M2A', name: 'Convoy Run', type: 'ESCORT', x: 43, y: 23, brief: 'Three ore freighters must cross the Varn shallows to the yards. Reaver raiders will come in from the north edge from turn 3.', terrain: 'Open space; freighters steam west at 12u a turn',
         blocks: [['ENEMY', '#ff8a8a', ['Two Harrow-class raiders arrive on turn 3', 'Maw of Ruin arrives on turn 5 if any freighter is still on the map']],
-                 ['OBJECTIVES', '#ffc94d', ['Primary: at least 2 freighters exit the west edge by turn 8', 'Secondary: no freighter lost']],
-                 ['SPECIAL RULES', '#8cc4ff', ['Freighters have Hull 4, Shields 1 all round, no weapons', 'Ships within 6u of a freighter may Brace for it instead of themselves']],
-                 ['REWARDS', '#7be3a4', ['+250 credits per freighter saved', 'Secondary: Cmdr. Ama Okafor joins as a captain']],
+                 ['OBJECTIVES', '#ffc94d', ['Primary: at least 2 freighters exit the west edge by turn 9', 'Secondary: all 3 get through']],
+                 ['SPECIAL RULES', '#8cc4ff', ['Freighters have Hull 4, Shields 1 all round, no weapons, and hold their course']],
+                 ['REWARDS', '#7be3a4', ['+250 credits per freighter saved', 'Secondary: +1 renown and Cmdr. Ama Okafor joins as a captain']],
                  ['IF YOU FAIL', '#ff8a8a', ['The yards cannot supply you: drydock prices +25% for the rest of the operation']]] },
-      m2b: { code: 'M2B', name: 'Salvage Field', type: 'RAID', x: 43, y: 67, state: 'open', brief: 'A wrecked Concord cruiser lies in the Tessaly asteroid belt with its lance foci intact. Recover the salvage before the Reavers strip it.', terrain: 'Asteroid field: rocks block fire and cause collisions', force: 'Up to 450 points from your fleet',
+      m2b: { code: 'M2B', name: 'Salvage Field', type: 'RAID', x: 43, y: 67, brief: 'A wrecked Concord cruiser lies in the Tessaly asteroid belt with its lance foci intact. Recover the salvage before the Reavers strip it.', terrain: 'Asteroid field: rocks block fire and hole hulls',
         blocks: [['ENEMY', '#ff8a8a', ['Two Harrow-class raiders', 'Proximity mines around the wreck (2d6 to any ship ending within 3u)']],
-                 ['OBJECTIVES', '#ffc94d', ['Primary: recover 2 of 3 salvage beacons (end a move within 3u), then exit the east edge', 'Secondary: recover all 3']],
-                 ['SPECIAL RULES', '#8cc4ff', ['A ship that ends within 2u of an asteroid takes D3 (no saves)', 'Asteroids block line of fire between ships']],
-                 ['REWARDS', '#7be3a4', ['+200 credits per beacon', 'Long-focus lances unlocked at half price', 'Secondary: a free Point-defence grid']],
-                 ['IF YOU FAIL', '#ff8a8a', ['The Reavers refit with the salvage: their lances get +6u range in M3']]] },
-      d1: { code: 'D1', name: 'Drydock Varn', type: 'DRYDOCK', x: 70, y: 45, state: 'dock', brief: 'Repair, recruit and refit before pushing into Reaver space. See the drydock section below.', terrain: 'Safe harbour', force: 'Whole fleet',
-        blocks: [['SERVICES', '#8cc4ff', ['Hull 40 credits per point · criticals 60 each · crew 30 each', 'Upgrades from the catalogue (dock time applies)']]] },
-      m3: { code: 'M3', name: 'The Reaver Lair', type: 'PRIZE HUNT', x: 95, y: 45, state: 'locked', brief: 'Gutterfang’s logs point to the tender Mother Hydra, which refuels every Reaver raid. Take her intact.', terrain: 'Reaver station in a debris ring; the station guns fire at anything within 20u', force: 'Up to 700 points',
-        blocks: [['ENEMY', '#ff8a8a', ['Mother Hydra (Hull 16, Crew 10, no guns)', 'Maw of Ruin and a Harrow raider escort', 'Station turrets: 4d6 at 20u, all arcs']],
-                 ['OBJECTIVES', '#ffc94d', ['Primary: capture Mother Hydra by boarding. Destroying her fails the mission', 'Secondary: cripple the Maw of Ruin']],
-                 ['REWARDS', '#7be3a4', ['Mother Hydra joins your fleet as a support carrier', 'Tractor beam unlocked', '+500 credits']],
-                 ['IF YOU FAIL', '#ff8a8a', ['The Reavers keep their supply line: +1 Reaver raider in every later mission']]] },
-      m4: { code: 'M4', name: 'Kessel Gate', type: 'BREAKTHROUGH', x: 120, y: 64, state: 'locked', brief: 'The Reaver blockade line holds the only jump route to Station Aurel. Punch through it.', terrain: 'A gravity well in the centre bends every course 15° toward it', force: 'Up to 800 points',
-        blocks: [['ENEMY', '#ff8a8a', ['A blockade line of 3 Reaver ships across the middle of the map']],
-                 ['OBJECTIVES', '#ffc94d', ['Primary: get 2 ships off the far edge by turn 9', 'Secondary: lose no ships']],
-                 ['IF YOU FAIL', '#ff8a8a', ['Ships still in the zone after turn 9 are captured']]] },
-      d2: { code: 'D2', name: 'Forward Base Sela', type: 'DRYDOCK', x: 136, y: 24, state: 'locked', brief: 'Last chance to repair and refit before the final battle.', terrain: 'Safe harbour', force: 'Whole fleet',
+                 ['OBJECTIVES', '#ffc94d', ['Primary: recover 2 of 3 salvage beacons (end a move within 5u), then exit the east edge by turn 12', 'Secondary: recover all 3']],
+                 ['SPECIAL RULES', '#8cc4ff', ['A ship that ends its move inside an asteroid takes D3 (no saves)', 'Asteroids block line of fire between ships']],
+                 ['REWARDS', '#7be3a4', ['+200 credits per beacon and +1 renown', 'Secondary: +150 credits']],
+                 ['IF YOU FAIL', '#ff8a8a', ['The Reavers refit with the salvage: their lances get +6u range for the rest of the operation']]] },
+      d1: { code: 'D1', name: 'Drydock Varn', type: 'DRYDOCK', x: 70, y: 45, dock: true, brief: 'Repair, recruit and refit before pushing into Reaver space. Use the drydock section below, then leave dock to unlock M3.', terrain: 'Safe harbour',
+        blocks: [['SERVICES', '#8cc4ff', ['Hull 40 credits per point · criticals 60 each · crew 30 each', 'Upgrades from the catalogue']]] },
+      m3: { code: 'M3', name: 'The Reaver Lair', type: 'PRIZE HUNT', x: 95, y: 45, brief: 'Prisoners point to the tender Mother Hydra, which refuels every Reaver raid. Take her intact.', terrain: 'Reaver station in a debris ring; the station guns fire at anything within 20u',
+        blocks: [['ENEMY', '#ff8a8a', ['Mother Hydra (Hull 14, Crew 5, no guns, cannot move)', 'Lair Station: 4d6 turrets at 20u, all arcs', 'Maw of Ruin on guard']],
+                 ['OBJECTIVES', '#ffc94d', ['Primary: capture Mother Hydra by boarding by turn 10. Destroying her fails the mission', 'Secondary: cripple the Maw of Ruin']],
+                 ['REWARDS', '#7be3a4', ['Mother Hydra joins your fleet', '+500 credits, +2 renown (+1 for the secondary)']],
+                 ['IF YOU FAIL', '#ff8a8a', ['The Reavers keep their supply line: +1 Reaver raider in M4 and M5']]] },
+      m4: { code: 'M4', name: 'Kessel Gate', type: 'BREAKTHROUGH', x: 120, y: 64, brief: 'The Reaver blockade line holds the only jump route to Station Aurel. Punch through it.', terrain: 'A gravity well in the centre drags every course toward it',
+        blocks: [['ENEMY', '#ff8a8a', ['Maw of Ruin and two raiders across the middle of the map']],
+                 ['OBJECTIVES', '#ffc94d', ['Primary: get 2 ships off the east edge by turn 10', 'Secondary: lose no ships']],
+                 ['REWARDS', '#7be3a4', ['+600 credits, +1 renown (+1 for the secondary)']],
+                 ['IF YOU FAIL', '#ff8a8a', ['Ships still in the zone after turn 10 are captured']]] },
+      d2: { code: 'D2', name: 'Forward Base Sela', type: 'DRYDOCK', x: 136, y: 24, dock: true, brief: 'Last chance to repair before the final battle. Leave dock to unlock M5.', terrain: 'Safe harbour',
         blocks: [['SERVICES', '#8cc4ff', ['Repairs only; no new upgrades (no shipyard)']]] },
-      m5: { code: 'M5', name: 'Iron Tide', type: 'HOLD THE STATION', x: 150, y: 49, state: 'locked', brief: 'The Maw of Ruin leads the full Reaver tide against Station Aurel. Hold the station until the home fleet arrives.', terrain: 'Station Aurel in the centre (Hull 20, 6d6 at 24u)', force: 'Your whole fleet',
-        blocks: [['ENEMY', '#ff8a8a', ['Maw of Ruin as flagship (Hull 16, refitted), plus a 600-point Reaver squadron', 'Reinforcements on turns 4 and 7']],
+      m5: { code: 'M5', name: 'Iron Tide', type: 'HOLD THE STATION', x: 150, y: 49, brief: 'The Maw of Ruin leads the Reaver tide against Station Aurel. Hold the station until the home fleet arrives.', terrain: 'Station Aurel in the centre (Hull 20, shields 3, 6d6 at 24u)',
+        blocks: [['ENEMY', '#ff8a8a', ['Maw of Ruin as flagship (refitted, Hull 16) with a raider', 'Reinforcements on turns 4 and 7']],
                  ['OBJECTIVES', '#ffc94d', ['Primary: Station Aurel survives 8 turns', 'Secondary: destroy or capture the Maw of Ruin']],
-                 ['REWARDS', '#7be3a4', ['Operation complete; unlocks Operation 2: Black Meridian', 'Every surviving captain gains a trait']]] }
+                 ['REWARDS', '#7be3a4', ['+800 credits, +3 renown (+1 for the secondary). Operation complete']]] }
     };
     const order = ['m1', 'm2a', 'm2b', 'd1', 'm3', 'm4', 'd2', 'm5'];
     const caps = [
-      { name: 'Capt. Ilse Varga', trait: 'Gunnery Master', effect: 'Lock On also lets this ship re-roll its misses once per turn.', where: 'Commands CNS Resolute' },
-      { name: 'Capt. Tomas Rheel', trait: 'Daredevil', effect: 'All Ahead Full keeps its full Turn value.', where: 'Commands CNS Vigilant' },
-      { name: 'Cmdr. Ama Okafor', trait: 'Boarding Master', effect: 'Boarders win ties on the first round of every boarding action.', where: 'Joins after M2A if every freighter survives' },
-      { name: 'Capt. Davin Holt', trait: 'Steady Hand', effect: 'Brace for Impact no longer halves this ship’s dice.', where: 'Available for hire at Forward Base Sela (300 credits)' }
+      { name: 'Capt. Ilse Varga', trait: 'Gunnery Master', effect: 'Lock On also lets this ship re-roll its misses once per turn.', where: 'Commands CNS Resolute', key: null },
+      { name: 'Capt. Tomas Rheel', trait: 'Daredevil', effect: 'All Ahead Full keeps its full Turn value.', where: 'Commands CNS Vigilant', key: null },
+      { name: 'Cmdr. Ama Okafor', trait: 'Boarding Master', effect: 'Boarders win ties on the first round of every boarding action.', where: 'Joins after M2A if every freighter survives', key: 'okafor' },
+      { name: 'Capt. Davin Holt', trait: 'Steady Hand', effect: 'Brace for Impact no longer halves this ship’s dice.', where: 'For hire at Forward Base Sela (300 credits)', key: null }
     ];
-    this.D = { U: U, SH: SH, M: M, order: order, caps: caps, budget: 1200, costs: { hull: 40, crit: 60, crew: 30 } };
+    this.D = { U: U, CLS: CLS, CRIT: CRIT, M: M, order: order, caps: caps, costs: { hull: 40, crit: 60, crew: 30 } };
     return this.D;
   }
 
+  // Where the operation stands: each node's state, and which drydock (if any) the fleet is at.
+  progress(sv) {
+    const d = sv.done || {}, left = sv.dockLeft || {}, st = {};
+    const after2 = !!(d.m2a || d.m2b);
+    st.m1 = d.m1 ? d.m1 : 'open';
+    ['m2a', 'm2b'].forEach((k) => { st[k] = d[k] ? d[k] : d.m1 ? 'open' : 'locked'; });
+    st.d1 = after2 ? (left.d1 ? 'won' : 'dock') : 'locked';
+    st.m3 = d.m3 ? d.m3 : left.d1 ? 'open' : 'locked';
+    st.m4 = d.m4 ? d.m4 : d.m3 ? 'open' : 'locked';
+    st.d2 = d.m4 ? (left.d2 ? 'won' : 'dock') : 'locked';
+    st.m5 = d.m5 ? d.m5 : left.d2 ? 'open' : 'locked';
+    const dock = !d.m1 ? 'start' : st.d1 === 'dock' ? 'd1' : st.d2 === 'dock' ? 'd2' : null;
+    return { st: st, dock: dock, complete: !!d.m5 };
+  }
+
+  price(n) { const k = (this.cur().mods || {}).dockPrice || 1; return Math.round(n * k); }
+  cls(f) { return this.data().CLS[f.cls] || this.data().CLS.carrion; }
+
+  draftFit(f) { return this.state.fit[f.id] || f.fit || {}; }
+
   spentOf(st) {
-    const D = this.data(); let n = 0;
-    Object.keys(st.rep).forEach((id) => { const r = st.rep[id]; n += (r.hull || 0) * D.costs.hull + (r.crit || 0) * D.costs.crit + (r.crew || 0) * D.costs.crew; });
-    Object.keys(st.fit).forEach((id) => Object.keys(st.fit[id]).forEach((sl) => { const u = D.U.filter((x) => x.id === st.fit[id][sl])[0]; if (u) n += u.cost; }));
+    const D = this.data(), sv = this.cur(); let n = 0;
+    sv.fleet.forEach((f) => {
+      const r = st.rep[f.id] || {};
+      n += this.price((r.hull || 0) * D.costs.hull + (r.crit || 0) * D.costs.crit + (r.crew || 0) * D.costs.crew);
+      const dfit = st.fit[f.id]; if (!dfit) return;
+      Object.keys(dfit).forEach((sl) => { if (dfit[sl] && dfit[sl] !== (f.fit || {})[sl]) { const u = D.U.filter((x) => x.id === dfit[sl])[0]; if (u) n += this.price(u.cost); } });
+    });
     return n;
   }
 
+  ship(id) { const sv = this.cur(); return sv.fleet.filter((f) => f.id === id)[0] || sv.fleet[0]; }
+
   setRep(id, key, delta) {
-    const D = this.data(), sh = D.SH[id], rep = Object.assign({}, this.state.rep), r = Object.assign({ hull: 0, crit: 0, crew: 0 }, rep[id]);
-    const lim = { hull: sh.max - sh.hull, crit: sh.crits.length, crew: sh.crewMax - sh.crew }[key];
+    const D = this.data(), f = this.ship(id), C = this.cls(f), rep = Object.assign({}, this.state.rep), r = Object.assign({ hull: 0, crit: 0, crew: 0 }, rep[id]);
+    const lim = { hull: C.hull - f.hull, crit: (f.crits || []).length, crew: C.crew + ((this.draftFit(f).crew === 'marines') ? 2 : 0) - f.crew }[key];
     const next = Math.max(0, Math.min(lim, r[key] + delta));
     const st = { rep: Object.assign(rep, { [id]: Object.assign(r, { [key]: next }) }), fit: this.state.fit };
-    if (this.spentOf(st) > D.budget) return;
+    if (this.spentOf(st) > this.cur().credits) return;
     this.setState({ rep: st.rep });
   }
 
   setFit(id, slot, uid) {
-    const D = this.data(), fit = Object.assign({}, this.state.fit), f = Object.assign({}, fit[id]);
-    if (uid) f[slot] = uid; else delete f[slot];
-    fit[id] = f;
-    if (this.spentOf({ rep: this.state.rep, fit: fit }) > D.budget) return;
+    const f = this.ship(id), fit = Object.assign({}, this.state.fit), nf = Object.assign({}, this.draftFit(f));
+    if (uid) nf[slot] = uid; else delete nf[slot];
+    fit[id] = nf;
+    if (this.spentOf({ rep: this.state.rep, fit: fit }) > this.cur().credits) return;
     this.setState({ fit: fit });
   }
 
+  // Apply the drafted work orders to the save. Heavy repairs or new upgrades keep a ship in dock for the next mission.
+  confirmWork() {
+    const sv = this.copy(), spent = this.spentOf(this.state);
+    sv.fleet.forEach((f) => {
+      const r = this.state.rep[f.id] || {}, df = this.state.fit[f.id];
+      let fresh = false;
+      if (df) { Object.keys(df).forEach((sl) => { if (df[sl] && df[sl] !== (f.fit || {})[sl]) fresh = true; }); f.fit = Object.assign({}, df); }
+      const C = this.cls(f);
+      f.hull = Math.min(C.hull, f.hull + (r.hull || 0));
+      f.crits = (f.crits || []).slice(r.crit || 0);
+      f.crew = f.crew + (r.crew || 0);
+      if ((r.hull || 0) > 4 || fresh) f.sitsOut = true;
+    });
+    sv.credits = sv.credits - spent;
+    this.write(sv, { rep: {}, fit: {} });
+  }
+
+  leaveDock() { const sv = this.copy(), p = this.progress(sv); if (!p.dock || p.dock === 'start') return; sv.dockLeft = Object.assign({}, sv.dockLeft, { [p.dock]: true }); this.write(sv, { rep: {}, fit: {}, mission: p.dock === 'd1' ? 'm3' : 'm5' }); }
+  ready(k) { const sv = this.copy(); sv.current = k; this.write(sv); }
+  standDown() { const sv = this.copy(); sv.current = null; this.write(sv); }
+  toggleReserve(id) { const sv = this.copy(); sv.fleet.forEach((f) => { if (f.id === id) f.reserve = !f.reserve; }); this.write(sv); }
+  recall() { const sv = this.copy(); sv.fleet.forEach((f) => { f.sitsOut = false; }); this.write(sv); }
+  dismiss() { const sv = this.copy(); if (sv.debrief) sv.debrief.seen = true; this.write(sv); }
+  restart() {
+    if (!this.state.confirmReset) { this.setState({ confirmReset: true }); return; }
+    this.write(this.freshSave(), { confirmReset: false, rep: {}, fit: {}, mission: 'm1', ship: 'resolute' });
+  }
+
+  vet(n) { n = n || 0; return n >= 6 ? 'Elite · ' + n + ' battles' : n >= 3 ? 'Veteran · ' + n + ' battles' : n >= 1 ? 'Trained · ' + n + ' battle' + (n === 1 ? '' : 's') : 'Green · no battles'; }
+
   renderVals() {
-    const D = this.data(), st = this.state, spent = this.spentOf(st), left = D.budget - spent;
-    const fmt = (n) => n.toLocaleString('en-GB');
-    const stateLook = { done: ['COMPLETED', '#11301f', '#7be3a4', '#7be3a4'], open: ['AVAILABLE', '#3a2a08', '#ffc94d', '#ffc94d'], dock: ['DRYDOCK', '#16243d', '#8cc4ff', '#5aa9ff'], locked: ['LOCKED', '#1a2335', '#93a3bf', '#5a6a86'] };
+    const D = this.data(), st = this.state, sv = this.cur(), P = this.progress(sv);
+    const fmt = (n) => Math.round(n).toLocaleString('en-GB');
+    const spent = this.spentOf(st), left = sv.credits - spent;
+    const firstOpen = D.order.filter((k) => P.st[k] === 'open' || P.st[k] === 'dock')[0] || 'm5';
+    const mk = st.mission && D.M[st.mission] ? st.mission : (sv.current || firstOpen);
+    const look = { won: ['COMPLETED', '#11301f', '#7be3a4', '#7be3a4'], failed: ['FAILED', '#3a1212', '#ff8a8a', '#ff8a8a'], skipped: ['NOT FLOWN', '#1a2335', '#93a3bf', '#5a6a86'], open: ['AVAILABLE', '#3a2a08', '#ffc94d', '#ffc94d'], dock: ['DRYDOCK', '#16243d', '#8cc4ff', '#5aa9ff'], locked: ['LOCKED', '#1a2335', '#93a3bf', '#5a6a86'], ready: ['READY TO LAUNCH', '#3a2a08', '#ffc94d', '#ffc94d'] };
+    const stOf = (k) => (sv.current === k && P.st[k] === 'open' ? 'ready' : P.st[k]);
     const nodes = D.order.map((k) => {
-      const m = D.M[k], L = stateLook[m.state], on = st.mission === k, dock = m.state === 'dock' || m.type === 'DRYDOCK';
+      const m = D.M[k], s = stOf(k), L = look[s], on = mk === k, dock = !!m.dock;
       return {
-        name: m.code + ' · ' + m.name, sub: m.type.toLowerCase(), subCol: L[3], glyph: dock ? '' : (m.state === 'done' ? '✓' : m.code.replace('M', '')),
+        name: m.code + ' · ' + m.name, sub: s === 'ready' ? 'ready to launch' : m.type.toLowerCase(), subCol: L[3], glyph: dock ? '' : (s === 'won' ? '✓' : s === 'failed' ? '✗' : m.code.replace('M', '')),
         aria: m.code + ' ' + m.name + ', ' + L[0].toLowerCase(), pressed: on ? 'true' : 'false', pick: () => this.setState({ mission: k }),
         style: 'position: absolute; left: ' + (m.x / 1.6).toFixed(2) + '%; top: ' + (m.y / 0.9).toFixed(2) + '%; transform: translate(-50%, -22px); display: flex; flex-direction: column; align-items: center; gap: 2px; padding: 0; background: transparent; border: 0; cursor: pointer; min-width: 44px; min-height: 44px;',
         dotStyle: 'display: flex; align-items: center; justify-content: center; width: 34px; height: 34px; border-radius: ' + (dock ? '6px; transform: rotate(45deg)' : '50%') + '; font-family: JetBrains Mono, monospace; font-size: 13px; font-weight: 700; background: ' + (on ? L[3] : '#0d1220') + '; color: ' + (on ? '#070a12' : L[3]) + '; box-shadow: 0 0 0 2px ' + L[3] + (on ? ', 0 0 16px ' + L[3] : '') + ';'
       };
     });
-    const mm = D.M[st.mission], L = stateLook[mm.state];
+    // Route lines: green for legs already flown.
+    const flown = (a, b) => { const sa = P.st[a], sb = P.st[b]; return (sa === 'won' || sa === 'failed') && (sb === 'won' || sb === 'failed' || sb === 'dock'); };
+    const legs = [['m1', 'm2a'], ['m1', 'm2b'], ['m2a', 'd1'], ['m2b', 'd1'], ['d1', 'm3'], ['m3', 'm4'], ['m4', 'd2'], ['d2', 'm5']];
+    const rs = {}; legs.forEach((l, i) => { const sa = P.st[l[0]], sb = P.st[l[1]]; rs['l' + i] = flown(l[0], l[1]) ? 'stroke: #7be3a4' : (sa === 'won' || sa === 'failed') && sb === 'open' ? 'stroke: #ffc94d; stroke-dasharray: 1.6 1.2' : 'stroke: #33425f; stroke-dasharray: 1.6 1.2'; });
+
+    const deploy = sv.fleet.filter((f) => !f.sitsOut && !f.reserve);
+    const mm = D.M[mk], ms = stOf(mk), L = look[ms], res = (sv.results || {})[mk];
+    const blocks = mm.blocks.map((b) => ({ title: b[0], col: b[1], items: b[2] }));
+    if (res) blocks.unshift({ title: 'RESULT · TURN ' + res.turn, col: res.won ? '#7be3a4' : '#ff8a8a', items: res.lines.map((l) => (l.ok ? '✓ ' : '✗ ') + l.text).concat(['+' + res.credits + ' credits · +' + res.renown + ' renown']).concat(res.lost.length ? ['Lost: ' + res.lost.join(', ')] : []).concat(res.prizes.length ? ['Prizes: ' + res.prizes.join(', ')] : []) });
+    const canReady = ms === 'open' && deploy.length > 0;
     const m = {
-      code: mm.code, name: mm.name, type: mm.type, status: L[0], stBg: L[1], stFg: L[2], brief: mm.brief, terrain: mm.terrain, force: mm.force,
-      blocks: mm.blocks.map((b) => ({ title: b[0], col: b[1], items: b[2] })),
-      canLaunch: mm.state === 'open', noLaunch: mm.state !== 'open',
-      lockNote: mm.state === 'done' ? 'Mission complete' : mm.state === 'dock' ? 'Docked: use the refit screen below' : 'Locked: complete the earlier missions first'
+      code: mm.code, name: mm.name, type: mm.type, status: L[0], stBg: L[1], stFg: L[2], brief: mm.brief, terrain: mm.terrain,
+      force: mm.dock ? 'Whole fleet' : deploy.length ? deploy.map((f) => f.name).join(' + ') : 'No ships ready',
+      blocks: blocks, canReady: canReady, isReady: ms === 'ready',
+      readyLabel: 'Ready the fleet for ' + mm.code, readyAct: () => this.ready(mk), standDown: () => this.standDown(),
+      canLeave: ms === 'dock' && P.dock === mk, leaveLabel: 'Leave ' + mm.name + (mk === 'd1' ? ' and unlock M3' : ' and unlock M5'), leaveAct: () => this.leaveDock(),
+      noLaunch: !canReady && ms !== 'ready' && !(ms === 'dock' && P.dock === mk),
+      lockNote: ms === 'won' ? (mm.dock ? 'Fleet has left dock' : 'Mission complete') : ms === 'failed' ? 'Mission failed: the operation moves on' : ms === 'skipped' ? 'Not flown: you took the other fork' : ms === 'open' ? 'No ships ready: every ship is in dock or reserve' : 'Locked: complete the earlier missions first',
+      showRecall: ms === 'open' && !deploy.length && sv.fleet.some((f) => f.sitsOut), recall: () => this.recall()
     };
-    const ships = Object.keys(D.SH).map((id) => {
-      const sh = D.SH[id], r = Object.assign({ hull: 0, crit: 0, crew: 0 }, st.rep[id]), on = st.ship === id;
-      const hull = sh.hull + r.hull, newFit = Object.keys(st.fit[id] || {}).length > 0;
-      const pips = []; for (let i = 0; i < sh.max; i++) pips.push('width: 10px; height: 12px; border-radius: 2px; ' + (i < sh.hull ? 'background: ' + sh.col : i < hull ? 'background: #7be3a4' : 'background: #1a2335; box-shadow: inset 0 0 0 1px #2a3650'));
+
+    const dockOpen = !!P.dock, repairsOnly = P.dock === 'd2';
+    const sid = (sv.fleet.filter((f) => f.id === st.ship)[0] || sv.fleet[0] || {}).id;
+    const ships = sv.fleet.map((f) => {
+      const C = this.cls(f), r = Object.assign({ hull: 0, crit: 0, crew: 0 }, st.rep[f.id]), on = sid === f.id, col = f.prize ? '#d7b8ff' : '#5aa9ff';
+      const hull = f.hull + r.hull, dfit = this.draftFit(f), newFit = Object.keys(dfit).some((sl) => dfit[sl] && dfit[sl] !== (f.fit || {})[sl]);
+      const pips = []; for (let i = 0; i < C.hull; i++) pips.push('width: 10px; height: 12px; border-radius: 2px; ' + (i < f.hull ? 'background: ' + col : i < hull ? 'background: #7be3a4' : 'background: #1a2335; box-shadow: inset 0 0 0 1px #2a3650'));
+      const tag = f.sitsOut ? ['IN DOCK', '#16243d', '#8cc4ff'] : f.reserve ? ['RESERVE', '#1a2335', '#93a3bf'] : f.prize ? ['PRIZE', '#2a1a3a', '#d7b8ff'] : f.hull < C.hull || (f.crits || []).length ? ['DAMAGED', '#3a2208', '#ffc94d'] : ['READY', '#11301f', '#7be3a4'];
+      const maxCrew = C.crew + (dfit.crew === 'marines' ? 2 : 0);
       return {
-        name: sh.name, cls: sh.cls, col: sh.col, tag: sh.tag, tagBg: sh.tagBg, tagFg: sh.tagFg, pips: pips, hull: hull + '/' + sh.max, crew: (sh.crew + r.crew) + '/' + sh.crewMax, vet: sh.vet, captain: sh.captain,
-        sitsOut: r.hull > 4 || newFit, pressed: on ? 'true' : 'false', pick: () => this.setState({ ship: id, slot: sh.slots.indexOf(st.slot) >= 0 ? st.slot : sh.slots[0] }),
-        style: 'flex: 1 1 260px; min-width: 0; display: flex; flex-direction: column; align-items: flex-start; gap: 6px; padding: 14px 16px; border-radius: 10px; cursor: pointer; text-align: left; ' + (on ? 'background: #111c33; border: 1px solid ' + sh.col + '; box-shadow: 0 0 0 1px ' + sh.col + ';' : 'background: #0d1220; border: 1px solid #1c2638;')
+        name: f.name, cls: C.cls + (f.prize ? ' · prize' : ''), col: col, tag: tag[0], tagBg: tag[1], tagFg: tag[2], pips: pips, hull: hull + '/' + C.hull, crew: (f.crew + r.crew) + '/' + maxCrew, vet: this.vet(f.battles), captain: f.captain || 'No captain assigned',
+        sitsOut: (r.hull > 4 || newFit) && !f.sitsOut, pressed: on ? 'true' : 'false', pick: () => this.setState({ ship: f.id, slot: C.slots.indexOf(st.slot) >= 0 ? st.slot : C.slots[0] }),
+        style: 'flex: 1 1 260px; min-width: 0; display: flex; flex-direction: column; align-items: flex-start; gap: 6px; padding: 14px 16px; border-radius: 10px; cursor: pointer; text-align: left; ' + (on ? 'background: #111c33; border: 1px solid ' + col + '; box-shadow: 0 0 0 1px ' + col + ';' : 'background: #0d1220; border: 1px solid #1c2638;')
       };
     });
-    const sid = st.ship, sh = D.SH[sid], r = Object.assign({ hull: 0, crit: 0, crew: 0 }, st.rep[sid]);
-    const sq = (dis) => 'width: 44px; height: 44px; border-radius: 6px; font-size: 18px; font-weight: 700; cursor: ' + (dis ? 'not-allowed' : 'pointer') + '; ' + (dis ? 'background: #111a2c; color: #4a5a7a; border: 1px solid #1c2638;' : 'background: #16243d; color: #e6edf8; border: 1px solid #33425f;');
-    const rep = [
-      ['hull', 'Repair hull', (sh.hull + r.hull) + '/' + sh.max + ' · ' + D.costs.hull + ' credits per point' + (r.hull > 4 ? ' · needs dock time' : ''), sh.max - sh.hull, D.costs.hull],
-      ['crit', 'Clear criticals', (sh.crits.length - r.crit) + ' left · ' + D.costs.crit + ' credits each', sh.crits.length, D.costs.crit],
-      ['crew', 'Recruit crew', (sh.crew + r.crew) + '/' + sh.crewMax + ' · ' + D.costs.crew + ' credits each', sh.crewMax - sh.crew, D.costs.crew]
-    ].map((x) => {
-      const cur = r[x[0]], minusOff = cur <= 0, plusOff = cur >= x[3] || left < x[4];
-      return { label: x[1], detail: x[2], minus: () => this.setRep(sid, x[0], -1), plus: () => this.setRep(sid, x[0], 1), minusOff: minusOff, plusOff: plusOff, minusStyle: sq(minusOff), plusStyle: sq(plusOff), minusAria: 'Less: ' + x[1], plusAria: 'More: ' + x[1] };
-    });
-    const crits = sh.crits.map((c, i) => ({ name: c + (i < r.crit ? ' · repaired' : ''), style: 'font-size: 11px; font-weight: 600; padding: 3px 8px; border-radius: 4px; ' + (i < r.crit ? 'background: #11301f; color: #7be3a4; border: 1px solid #1f5a39;' : 'background: #3a2208; color: #ffc94d; border: 1px solid #6b4310;') }));
-    const fit = st.fit[sid] || {}, slotLabel = { weapons: 'WEAPONS', defence: 'DEFENCE', engines: 'ENGINES', crew: 'CREW', special: 'SPECIAL' };
-    const slot = sh.slots.indexOf(st.slot) >= 0 ? st.slot : sh.slots[0];
-    const slots = sh.slots.map((sl) => {
-      const u = D.U.filter((x) => x.id === fit[sl])[0], on = sl === slot;
-      return { label: slotLabel[sl], fit: u ? u.name : 'Empty', fitCol: u ? '#7be3a4' : '#93a3bf', pressed: on ? 'true' : 'false', pick: () => this.setState({ slot: sl }),
-        style: 'flex: 1 1 150px; min-height: 52px; display: flex; flex-direction: column; align-items: flex-start; justify-content: center; gap: 2px; padding: 6px 10px; border-radius: 6px; cursor: pointer; text-align: left; ' + (on ? 'background: #16243d; border: 1px solid #5aa9ff;' : 'background: #0a1222; border: 1px solid #26324a;') };
-    });
-    const options = D.U.filter((u) => u.slot === slot).map((u) => {
-      const installed = fit[slot] === u.id, extra = installed ? 0 : u.cost - ((D.U.filter((x) => x.id === fit[slot])[0] || {}).cost || 0), off = !installed && extra > left;
-      return { name: u.name, effect: u.effect, cost: fmt(u.cost) + ' cr', btn: installed ? 'Remove' : off ? 'Too costly' : 'Install', off: off,
-        act: () => this.setFit(sid, slot, installed ? null : u.id),
-        style: 'display: flex; justify-content: space-between; align-items: center; gap: 14px; padding: 10px 12px; border-radius: 8px; ' + (installed ? 'background: #0f2a1c; border: 1px solid #1f5a39;' : 'background: #080c16; border: 1px solid #1c2638;'),
-        btnStyle: 'min-height: 44px; min-width: 96px; padding: 0 12px; border-radius: 6px; font-weight: 700; font-size: 13px; cursor: ' + (off ? 'not-allowed' : 'pointer') + '; ' + (installed ? 'background: transparent; color: #e6edf8; border: 1px solid #33425f;' : off ? 'background: #111a2c; color: #4a5a7a; border: 1px solid #1c2638;' : 'background: #5aa9ff; color: #070a12; border: 0;') };
-    });
-    const slotNames = { weapons: 'Weapons', defence: 'Defence', engines: 'Engines', crew: 'Crew', special: 'Special' };
+    let sel = { name: '—', repairs: [], crits: [], hasCrits: false, slots: [], options: [], noSlots: true, reserveLabel: '', reserveAct: () => {}, reserveNote: '' };
+    if (sid) {
+      const f = this.ship(sid), C = this.cls(f), r = Object.assign({ hull: 0, crit: 0, crew: 0 }, st.rep[sid]);
+      const sq = (dis) => 'width: 44px; height: 44px; border-radius: 6px; font-size: 18px; font-weight: 700; cursor: ' + (dis ? 'not-allowed' : 'pointer') + '; ' + (dis ? 'background: #111a2c; color: #4a5a7a; border: 1px solid #1c2638;' : 'background: #16243d; color: #e6edf8; border: 1px solid #33425f;');
+      const dfit = this.draftFit(f), maxCrew = C.crew + (dfit.crew === 'marines' ? 2 : 0), crits = f.crits || [];
+      const rep = [
+        ['hull', 'Repair hull', (f.hull + r.hull) + '/' + C.hull + ' · ' + this.price(D.costs.hull) + ' credits per point' + (r.hull > 4 ? ' · needs dock time' : ''), C.hull - f.hull, this.price(D.costs.hull)],
+        ['crit', 'Clear criticals', (crits.length - r.crit) + ' left · ' + this.price(D.costs.crit) + ' credits each', crits.length, this.price(D.costs.crit)],
+        ['crew', 'Recruit crew', (f.crew + r.crew) + '/' + maxCrew + ' · ' + this.price(D.costs.crew) + ' credits each', maxCrew - f.crew, this.price(D.costs.crew)]
+      ].map((x) => {
+        const cur = r[x[0]], minusOff = !dockOpen || cur <= 0, plusOff = !dockOpen || cur >= x[3] || left < x[4];
+        return { label: x[1], detail: x[2], minus: () => this.setRep(sid, x[0], -1), plus: () => this.setRep(sid, x[0], 1), minusOff: minusOff, plusOff: plusOff, minusStyle: sq(minusOff), plusStyle: sq(plusOff), minusAria: 'Less: ' + x[1], plusAria: 'More: ' + x[1] };
+      });
+      const critChips = crits.map((c, i) => ({ name: (D.CRIT[c.k] || c.k) + (c.k === 'gundeck' && c.side ? ' (' + c.side + ')' : '') + (i < r.crit ? ' · repaired' : ''), style: 'font-size: 11px; font-weight: 600; padding: 3px 8px; border-radius: 4px; ' + (i < r.crit ? 'background: #11301f; color: #7be3a4; border: 1px solid #1f5a39;' : 'background: #3a2208; color: #ffc94d; border: 1px solid #6b4310;') }));
+      const slotLabel = { weapons: 'WEAPONS', defence: 'DEFENCE', engines: 'ENGINES', crew: 'CREW', special: 'SPECIAL' };
+      const slot = C.slots.indexOf(st.slot) >= 0 ? st.slot : C.slots[0];
+      const slots = C.slots.map((sl) => {
+        const u = D.U.filter((x) => x.id === dfit[sl])[0], on = sl === slot, isNew = u && dfit[sl] !== (f.fit || {})[sl];
+        return { label: slotLabel[sl], fit: u ? u.name + (isNew ? ' · new' : '') : 'Empty', fitCol: u ? '#7be3a4' : '#93a3bf', pressed: on ? 'true' : 'false', pick: () => this.setState({ slot: sl }),
+          style: 'flex: 1 1 150px; min-height: 52px; display: flex; flex-direction: column; align-items: flex-start; justify-content: center; gap: 2px; padding: 6px 10px; border-radius: 6px; cursor: pointer; text-align: left; ' + (on ? 'background: #16243d; border: 1px solid #5aa9ff;' : 'background: #0a1222; border: 1px solid #26324a;') };
+      });
+      const options = D.U.filter((u) => u.slot === slot).map((u) => {
+        const installed = dfit[slot] === u.id, owned = (f.fit || {})[slot] === u.id, extra = installed || owned ? 0 : this.price(u.cost), off = !installed && (!dockOpen || repairsOnly || extra > left);
+        const btn = installed ? 'Remove' : !dockOpen ? 'No shipyard' : repairsOnly ? 'Repairs only' : extra > left ? 'Too costly' : owned ? 'Refit' : 'Install';
+        return { name: u.name, effect: u.effect, cost: fmt(this.price(u.cost)) + ' cr', btn: btn, off: off || (installed && !dockOpen),
+          act: () => this.setFit(sid, slot, installed ? null : u.id),
+          style: 'display: flex; justify-content: space-between; align-items: center; gap: 14px; padding: 10px 12px; border-radius: 8px; ' + (installed ? 'background: #0f2a1c; border: 1px solid #1f5a39;' : 'background: #080c16; border: 1px solid #1c2638;'),
+          btnStyle: 'min-height: 44px; min-width: 96px; padding: 0 12px; border-radius: 6px; font-weight: 700; font-size: 13px; cursor: ' + (off ? 'not-allowed' : 'pointer') + '; ' + (installed ? 'background: transparent; color: #e6edf8; border: 1px solid #33425f;' : off ? 'background: #111a2c; color: #4a5a7a; border: 1px solid #1c2638;' : 'background: #5aa9ff; color: #070a12; border: 0;') };
+      });
+      sel = { name: f.name, repairs: rep, crits: critChips, hasCrits: critChips.length > 0, slots: slots, options: options, noSlots: C.slots.length === 0,
+        reserveLabel: f.reserve ? 'In reserve: deploy it' : 'Deploys: hold it in reserve', reserveAct: () => this.toggleReserve(sid),
+        reserveNote: f.sitsOut ? 'In dock for work orders: sits out the next mission.' : f.reserve ? 'Held back: it will not fly the next mission.' : 'Flies the next mission.' };
+    }
+    const dockName = P.dock === 'start' ? 'Fleet yard, before M1' : P.dock ? D.M[P.dock].name : 'No drydock in reach';
+    const dockNote = !P.dock ? 'Your fleet is in the field. Repairs and refits open at D1 Drydock Varn (after M2) and D2 Forward Base Sela (after M4); the next battle starts with every scar from the last.'
+      : repairsOnly ? 'Forward Base Sela has no shipyard: repairs and crew only.' : 'Damage, criticals and crew losses carry over from the last battle. A ship having more than 4 hull repaired, or a new upgrade fitted, needs dock time and sits out the next mission.';
+    const db = sv.debrief && !sv.debrief.seen ? sv.debrief : null;
+    const done = ['m1', 'm2a', 'm2b', 'm3', 'm4', 'm5'].filter((k) => (sv.done || {})[k] === 'won' || (sv.done || {})[k] === 'failed').length;
+    const lostAll = !sv.fleet.length;
     return {
-      creditsLeft: fmt(left), spent: fmt(spent), reset: () => this.setState({ fit: {}, rep: {} }),
-      nodes: nodes, m: m, ships: ships,
-      sel: { name: sh.name, repairs: rep, crits: crits, hasCrits: crits.length > 0, slots: slots, options: options, noSlots: sh.slots.length === 0 },
-      captains: D.caps,
-      catalogue: D.U.map((u) => ({ name: u.name, slot: slotNames[u.slot], cost: fmt(u.cost), effect: u.effect }))
+      creditsLeft: fmt(left), renown: String(sv.renown || 0), missions: done + ' / 5', fleetN: sv.fleet.length + (sv.fleet.length === 1 ? ' hull' : ' hulls'),
+      where: P.complete ? 'Complete' : P.dock ? 'In dock' : 'In the field',
+      storage: st.mode === 'db' ? (this.store && this.store.shared ? 'Campaign saved in this canvas (one save for the canvas, synced across your devices); the battle board reads and writes the same save.' : 'Campaign saved to your private record in this canvas; the battle board reads and writes the same save.') : st.mode === 'local' ? 'Campaign saved in this browser (the canvas database was not available here); the battle board shares it.' : st.mode === 'loading' ? 'Loading your campaign…' : 'This view cannot save: progress lasts until you close it.',
+      showDebrief: !!db, db: db ? { title: db.code + ' · ' + db.name + ': ' + (db.won ? 'mission accomplished' : 'mission failed'), col: db.won ? '#7be3a4' : '#ff8a8a', lines: db.lines.map((l) => ({ mark: l.ok ? '✓' : '✗', col: l.ok ? '#7be3a4' : '#ff8a8a', text: l.text })), rewards: '+' + db.credits + ' credits · +' + db.renown + ' renown', lost: db.lost.length ? 'Lost: ' + db.lost.join(', ') : 'No ships lost', prizes: db.prizes.length ? 'Prizes joining your fleet: ' + db.prizes.join(', ') : '', hasPrizes: db.prizes.length > 0 } : { title: '', col: '#7be3a4', lines: [], rewards: '', lost: '', prizes: '', hasPrizes: false },
+      dismiss: () => this.dismiss(),
+      showEnd: P.complete || lostAll, endText: lostAll ? 'Your squadron is lost. Restart the operation to try again.' : 'Operation Iron Tide is over: ' + (sv.done.m5 === 'won' ? 'Station Aurel held. ' : 'Station Aurel fell. ') + (sv.renown || 0) + ' renown earned.',
+      restart: () => this.restart(), restartLabel: st.confirmReset ? 'Click again to wipe this campaign' : 'Restart operation', restartStyle: 'min-height: 44px; padding: 0 14px; border-radius: 6px; cursor: pointer; font-size: 13px; font-weight: 600; ' + (st.confirmReset ? 'background: #ff8a8a; color: #1a0606; border: 0;' : 'background: transparent; color: #e6edf8; border: 1px solid #33425f;'),
+      rs: rs,
+      nodes: nodes, m: m, ships: ships, sel: sel,
+      dockTitle: '2 · Drydock · ' + dockName, dockNote: dockNote, dockOpen: dockOpen, spent: fmt(spent), credits: fmt(sv.credits),
+      reset: () => this.setState({ fit: {}, rep: {} }), confirm: () => this.confirmWork(), canConfirm: dockOpen && (spent > 0 || Object.keys(st.fit).length > 0), noConfirm: !(dockOpen && (spent > 0 || Object.keys(st.fit).length > 0)),
+      captains: D.caps.map((c) => ({ name: c.name, trait: c.trait, effect: c.effect, where: c.key && sv[c.key] ? 'Joined your fleet' : c.where })),
+      catalogue: D.U.map((u) => ({ name: u.name, slot: ({ weapons: 'Weapons', defence: 'Defence', engines: 'Engines', crew: 'Crew', special: 'Special' })[u.slot], cost: fmt(this.price(u.cost)), effect: u.effect }))
     };
   }
 }

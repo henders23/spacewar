@@ -1,4 +1,4 @@
-# Gunline — Core Rules (draft v0.3)
+# Gunline — Core Rules (draft v0.4)
 
 Capital ships slugging it out in open space. Both admirals write orders in secret,
 every ship moves at the same moment, and then every gun fires at the same moment.
@@ -143,8 +143,31 @@ Speed 18u · Turn 60° · Hull 10 · Shields F3 P1 S1 A0 · Armour 5+ · Crew 4
 
 Model: `assets/ships/carrion.glb` (pack file "spacecraft battleship 3d model.glb").
 
+## 9. Campaign battles (Operation Iron Tide)
+
+In the campaign the battle board loads your saved fleet and the mission readied on the Operation board, then writes the result back.
+
+- **Scars carry over** — each ship starts with the hull, crew and criticals it ended its last battle with, and its fitted upgrades. Destroyed or captured ships leave the fleet; enemy ships captured by boarding join it as prizes.
+- **Objectives & exits** — each mission has a turn limit and objectives checked at the end of every turn. Leaving by the mission's exit edge (green band) is escaping, not fleeing.
+- **Asteroids** block line of fire; a ship ending its move inside one takes D3 (no saves). **Mines**: 2d6 to a ship ending within 3u, once. **Salvage beacons**: your warships recover one by ending within 5u.
+- **Gravity well** — after orders are revealed, every destination inside the well is dragged toward its centre (up to ~5u near the core).
+- **Freighters** hold course at full speed and can't be ordered. **Stations** never move, fire at the closest enemy in range, and can be boarded.
+- **Refits in battle** — heavy broadsides (+1 die, Turn −5°), long-focus lances (+6u), reinforced emitters (+1 fore shield), ablative plating (+1 save vs the first volley each turn), drives (+2u), thrusters (+10°), marines (Crew +2), veteran gun crews (re-roll 1s on broadsides), damage-control teams (repairs 4+, Fire! 3+), ram prow, ECM (−1 to hit at >24u) and point defence (lances −1 to hit). Torpedoes and tractor beams are not in the battle rules yet.
+
+| Mission | Set-up | Win | Reward | If you fail |
+|---|---|---|---|---|
+| M1 Picket Line | 2v2 vs Maw of Ruin + Carrion Wing | Destroy, capture or drive off both | +400 cr, +1 renown | — |
+| M2A Convoy Run | 3 freighters steam west; 2 raiders turn 3, the Maw turn 5 | 2 freighters off the west edge by turn 9 | +250 cr per freighter | Drydock prices +25% |
+| M2B Salvage Field | Asteroids, mines, 3 beacons, 2 raiders | 2 beacons + exit east by turn 12 | +200 cr per beacon, +1 renown | Reaver lances +6u |
+| M3 The Reaver Lair | Mother Hydra (Hull 14, Crew 5), Lair Station (4d6, 20u), the Maw | Capture the Hydra by boarding by turn 10 | Hydra joins, +500 cr, +2 renown | +1 raider in M4 and M5 |
+| M4 Kessel Gate | Gravity well; the Maw + 2 raiders | 2 ships off the east edge by turn 10 | +600 cr | Ships left in the zone are captured |
+| M5 Iron Tide | Station Aurel (Hull 20, 6d6 at 24u); Maw (Hull 16) + raider; reinforcements turns 4 and 7 | Station survives 8 turns | +800 cr, +3 renown | Operation lost |
+
+M2A and M2B are a fork: flying one skips the other. Drydocks (before M1, D1 after the fork, D2 after M4) sell repairs (hull 40, criticals 60, crew 30 credits) and upgrades (D2: repairs only); a ship with more than 4 hull repaired or a new upgrade sits out the next mission.
+
 ## Designer's notes (online build)
 
 - **Server-authoritative turns**: clients submit `{destination, specialOrder}` per ship; the server validates against the manoeuvre zone and waits for both players (or a timer). In gunnery it prompts each player for their own rolls and generates each die on the player's click, so rolls stay tamper-proof, then streams results to both clients.
 - **Balance snapshot**: `node tools/balance-sim.js` runs 1,500 AI-vs-AI duels. Current 2v2 squadrons with ramming and boarding: Concord ≈47%, Reaver ≈47%, mutual destruction ≈6%, ~7 turns per battle. The AI is a simple one-turn look-ahead, so treat this as a starting point.
+- **Campaign check**: `node tools/campaign-sim.js` plays every mission AI-vs-AI and checks the save write-back. With a scripted pilot that flies the objective, M2B is won ~74% of the time, M4 ~32% and M3 ~25% (that pilot also shoots the Hydra to pieces in about a third of runs).
 - **Open questions**: should a priority target cost something (e.g. −1 to hit when it isn't the closest enemy)?; wreck hazards; firing in mid-move tick slices vs. end of move; altitude bands.

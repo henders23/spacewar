@@ -30,9 +30,9 @@ button:focus-visible{outline:2px solid #ffc94d;outline-offset:2px}
       <h1 style="margin: 0; font-family: 'Chakra Petch', sans-serif; font-weight: 700; font-size: 22px; letter-spacing: 0.12em; color: #eef3fb">GUNLINE</h1>
     </div>
     <div style="display: flex; align-items: center; gap: 16px; flex-wrap: wrap">
-      <span style="font-family: 'JetBrains Mono', monospace; font-size: 13px; color: #c5d1e6">TURN {{turn}} · {{phaseLabel}}</span>
+      <span style="font-family: 'JetBrains Mono', monospace; font-size: 13px; color: #c5d1e6">TURN {{turn}}{{turnMax}} · {{phaseLabel}}</span>
       <span style="font-size: 12px; color: #93a3bf; padding: 4px 10px; border: 1px solid #26324a; border-radius: 999px">{{modeLabel}}</span>
-      <button onClick="{{restart}}" style="min-height: 44px; padding: 0 16px; background: transparent; color: #d8e1f0; border: 1px solid #33425f; border-radius: 6px; cursor: pointer; font-size: 13px; font-weight: 600">New battle</button>
+      <button onClick="{{restart}}" style="min-height: 44px; padding: 0 16px; background: transparent; color: #d8e1f0; border: 1px solid #33425f; border-radius: 6px; cursor: pointer; font-size: 13px; font-weight: 600">{{restartLabel}}</button>
     </div>
   </header>
 
@@ -102,8 +102,23 @@ button:focus-visible{outline:2px solid #ffc94d;outline-offset:2px}
       </sc-if>
 
 
+      <div style="position: absolute; z-index: 40; left: 14px; top: 14px; display: flex; flex-direction: column; gap: 8px; width: 300px; max-width: calc(100% - 120px)">
+      <sc-if value="{{mis.show}}" hint-placeholder-val="{{ false }}">
+        <div role="region" aria-label="Mission objectives" style="display: flex; flex-direction: column; gap: 6px; padding: 10px 12px; background: rgba(0,0,0,0.86); border: 1px solid #4a3a12; border-left: 3px solid #ffc94d; border-radius: 8px; font-size: 12px; color: #d8e1f0">
+          <div style="display: flex; justify-content: space-between; gap: 8px"><span style="font-size: 11px; font-weight: 700; letter-spacing: 0.08em; color: #ffc94d">{{mis.type}}</span><span style="font-family: 'JetBrains Mono', monospace; color: #c5d1e6">{{mis.turnTxt}}</span></div>
+          <span style="font-family: 'Chakra Petch', sans-serif; font-size: 15px; font-weight: 700; color: #eef3fb">{{mis.title}}</span>
+          <sc-for list="{{mis.lines}}" as="l" hint-placeholder-count="2"><div style="display: flex; gap: 6px"><span style="color: {{l.col}}; font-weight: 700">{{l.mark}}</span><span style="color: {{l.col}}">{{l.text}}</span></div></sc-for>
+          <sc-if value="{{mis.hasNotes}}" hint-placeholder-val="{{ false }}"><sc-for list="{{mis.notes}}" as="n" hint-placeholder-count="1"><span style="font-size: 11px; color: #93a3bf">▸ {{n}}</span></sc-for></sc-if>
+        </div>
+      </sc-if>
+      <sc-if value="{{mis.ready}}" hint-placeholder-val="{{ false }}">
+        <div role="region" aria-label="Campaign mission ready" style="display: flex; flex-direction: column; gap: 8px; padding: 10px 12px; background: rgba(0,0,0,0.86); border: 1px solid #4a3a12; border-left: 3px solid #ffc94d; border-radius: 8px; font-size: 12px; color: #d8e1f0">
+          <span>{{mis.readyText}}</span>
+          <button onClick="{{startMissionClick}}" style="min-height: 44px; border: 0; border-radius: 6px; background: #ffc94d; color: #1a1204; font-weight: 700; font-size: 13px; cursor: pointer">Start the mission</button>
+        </div>
+      </sc-if>
       <sc-if value="{{pv.show}}" hint-placeholder-val="{{ false }}">
-        <div role="region" aria-label="Firing preview" aria-live="polite" style="position: absolute; z-index: 40; left: 14px; top: 14px; width: 290px; max-width: calc(100% - 120px); box-sizing: border-box; display: flex; flex-direction: column; gap: 8px; padding: 10px 12px; background: rgba(0,0,0,0.86); border: 1px solid #26324a; border-radius: 8px; font-size: 12px; color: #d8e1f0; pointer-events: none">
+        <div role="region" aria-label="Firing preview" aria-live="polite" style="width: 100%; box-sizing: border-box; display: flex; flex-direction: column; gap: 8px; padding: 10px 12px; background: rgba(0,0,0,0.86); border: 1px solid #26324a; border-radius: 8px; font-size: 12px; color: #d8e1f0; pointer-events: none">
           <span style="font-size: 11px; font-weight: 700; letter-spacing: 0.08em; color: #93a3bf">FIRING PREVIEW · {{pv.ship}}</span>
           <sc-if value="{{pv.empty}}" hint-placeholder-val="{{ true }}"><span style="color: #b9c6dc">Hover inside the manoeuvre zone to see expected damage from that position.</span></sc-if>
           <sc-if value="{{pv.full}}" hint-placeholder-val="{{ false }}">
@@ -129,6 +144,8 @@ button:focus-visible{outline:2px solid #ffc94d;outline-offset:2px}
         </div>
       </sc-if>
 
+      </div>
+
       <div style="position: absolute; z-index: 40; right: 14px; top: 14px; display: flex; flex-direction: column; align-items: flex-end; gap: 8px">
         <button onClick="{{toggleSound}}" aria-pressed="{{soundPressed}}" aria-label="{{soundLabel}}" title="{{soundLabel}}" style="width: 44px; height: 44px; background: rgba(8,12,22,0.86); color: #e6edf8; border: 1px solid #33425f; border-radius: 6px; cursor: pointer; display: flex; align-items: center; justify-content: center"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M11 5 6 9H3v6h3l5 4V5z"></path><sc-if value="{{soundOn}}" hint-placeholder-val="{{ true }}"><path d="M15.5 8.5a5 5 0 0 1 0 7M18.5 5.5a9 9 0 0 1 0 13"></path></sc-if><sc-if value="{{soundOff}}" hint-placeholder-val="{{ false }}"><path d="m16 9 5 6M21 9l-5 6"></path></sc-if></svg></button>
         <button onClick="{{toggleBadges}}" aria-pressed="{{badgesPressed}}" style="min-height: 44px; padding: 0 14px; background: {{badgesBg}}; color: #e6edf8; border: 1px solid #33425f; border-radius: 6px; cursor: pointer; font-size: 12px; font-weight: 600">Arc values</button>
@@ -148,6 +165,24 @@ button:focus-visible{outline:2px solid #ffc94d;outline-offset:2px}
             <h2 style="margin: 0; font-family: 'Chakra Petch', sans-serif; font-size: 26px; color: #ff6a3d">Reaver commander</h2>
             <p style="margin: 0; color: #c5d1e6; line-height: 1.5">The Concord's orders are sealed. Pass the device to the Reaver player, then plot a course for each Reaver ship.</p>
             <button onClick="{{takeOver}}" style="min-height: 44px; padding: 0 22px; background: #ff6a3d; color: #1a0a04; border: 0; border-radius: 6px; cursor: pointer; font-weight: 700; font-size: 14px">I'm the Reaver — show my ships</button>
+          </div>
+        </div>
+      </sc-if>
+
+      <sc-if value="{{showDebrief}}" hint-placeholder-val="{{ false }}">
+        <div style="position: absolute; inset: 0; z-index: 60; display: flex; align-items: center; justify-content: center; background: rgba(4,6,11,0.78)">
+          <div role="dialog" aria-label="Mission debrief" style="display: flex; flex-direction: column; gap: 12px; padding: 26px 30px; background: #0d1220; border: 1px solid #33425f; border-top: 3px solid {{db.col}}; border-radius: 10px; width: min(520px, calc(100% - 40px)); box-sizing: border-box">
+            <span style="font-size: 11px; font-weight: 700; letter-spacing: 0.1em; color: #93a3bf">DEBRIEF · {{db.name}}</span>
+            <h2 style="margin: 0; font-family: 'Chakra Petch', sans-serif; font-size: 30px; color: {{db.col}}">{{db.title}}</h2>
+            <sc-for list="{{db.lines}}" as="l" hint-placeholder-count="2"><div style="display: flex; gap: 8px; font-size: 14px"><span style="color: {{l.col}}; font-weight: 700">{{l.mark}}</span><span style="color: #d8e1f0">{{l.text}}</span></div></sc-for>
+            <span style="font-family: 'JetBrains Mono', monospace; color: #ffc94d">{{db.rewards}}</span>
+            <span style="font-size: 13px; color: #c5d1e6">{{db.lost}}</span>
+            <sc-if value="{{db.hasPrizes}}" hint-placeholder-val="{{ false }}"><span style="font-size: 13px; color: #d7b8ff">{{db.prizes}}</span></sc-if>
+            <span style="font-size: 12px; color: #93a3bf">Damage, crew losses and criticals carry over to your fleet. {{db.saved}}</span>
+            <div style="display: flex; flex-wrap: wrap; gap: 10px">
+              <a href="Operation.dc.html" style="display: flex; align-items: center; justify-content: center; min-height: 46px; padding: 0 18px; border-radius: 6px; background: #5aa9ff; color: #070a12; font-weight: 700; text-decoration: none">Return to Operation Iron Tide</a>
+              <button onClick="{{skirmish}}" style="min-height: 46px; padding: 0 16px; border-radius: 6px; background: transparent; color: #e6edf8; border: 1px solid #33425f; font-weight: 600; cursor: pointer">Fight a skirmish</button>
+            </div>
           </div>
         </div>
       </sc-if>
@@ -270,19 +305,20 @@ class Component extends DCLogic {
     this.setCanvas = (el) => { if (el) this.canvas = el; };
     this.setInspect = (el) => { if (el) this.inspCanvas = el; };
     this.labelEls = {}; this.labelY = {}; this.labelRefs = {}; this.tipOn = {}; this.pickOn = {};
-    this.D.IDS.forEach((id) => {
-      this.labelRefs[id] = (el) => { if (el) this.labelEls[id] = el; };
-      this.tipOn[id] = () => { this.ui.tip = id; this.bump(); };
-      this.pickOn[id] = () => this.selectShip(id);
-    });
+    // Per-ship handlers are created on demand (and cached) because the roster changes from battle to battle.
+    this.lref = (id) => this.labelRefs[id] || (this.labelRefs[id] = (el) => { if (el) this.labelEls[id] = el; });
+    this.tipFn = (id) => this.tipOn[id] || (this.tipOn[id] = () => { this.ui.tip = id; this.bump(); });
+    this.pickFn = (id) => this.pickOn[id] || (this.pickOn[id] = () => this.selectShip(id));
+    this.buildRoster(this.skirmishRoster());
     this.ui.sel = 'resolute';
     this.ui.target = 'auto'; this.ui.arcBadges = true; this.ui.muted = false;
     this.shake = 0; this.slowUntil = 0;
     this.badgeEls = {}; this.badgeRefs = {}; this.targetOn = {};
-    this.D.IDS.forEach((id) => {
-      this.D.FACINGS.forEach((f) => { const k = id + ':' + f; this.badgeRefs[k] = (el) => { if (el) this.badgeEls[k] = el; }; });
-      this.targetOn[id] = () => this.setTarget(id);
-    });
+    this.badgeRef = (k) => this.badgeRefs[k] || (this.badgeRefs[k] = (el) => { if (el) this.badgeEls[k] = el; });
+    this.targetFn = (id) => this.targetOn[id] || (this.targetOn[id] = () => this.setTarget(id));
+    this.save = null; this.mission = null;
+    this.startMissionClick = () => { if (this.save && this.save.current) this.startMission(this.save.current); };
+    this.skirmish = () => { this.newGame(); };
     this.targetAuto = () => this.setTarget('auto');
     this.toggleSound = () => { this.unlockAudio(); this.ui.muted = !this.ui.muted; if (this.audio) this.audio.master.gain.value = this.ui.muted ? 0 : 0.8; this.bump(); };
     this.toggleBadges = () => { this.ui.arcBadges = !this.ui.arcBadges; this.bump(); };
@@ -306,7 +342,8 @@ class Component extends DCLogic {
     this.onLeave = () => { this.ui.hover = null; this.drag = null; this.refreshHover(); };
     this.onWheel = (e) => this.wheelZoom(e);
     this.noMenu = (e) => e.preventDefault();
-    this.restart = () => this.newGame();
+    // A mission in progress restarts from the saved fleet; once its result is written, the button starts a skirmish instead.
+    this.restart = () => { if (this.mission && this.g.phase !== 'over') this.startMission(this.mission.code.toLowerCase()); else this.newGame(); };
     this.commit = () => this.commitOrders();
     this.takeOver = () => { this.g.phase = 'orders'; this.startPlotting('reaver'); this.refreshOverlays(); this.bump(); };
     this.toggleEnemyArcs = () => { this.ui.enemyArcs = !this.ui.enemyArcs; this.refreshOverlays(); this.bump(); };
@@ -314,6 +351,7 @@ class Component extends DCLogic {
     this.zoomOut = () => { this.cam.dist = Math.min(230, this.cam.dist * 1.25); };
     this.recenter = () => this.frameShips();
     this.newGame(true);
+    this.storeInit((sv) => this.onSave(sv));
   }
 
   /* ───────────── DATA ───────────── */
@@ -357,7 +395,7 @@ class Component extends DCLogic {
         { id: 'ram', label: 'Ram', short: 'Full speed · Turn ½ · ram', desc: 'Move at least full Speed, up to 1.5× Speed; Turn halved; −1 to hit. If an enemy ends within reach in your fore arc (your priority target first) you ram it: 1d6 + mass damage, ignoring shields and armour. You take half a d6.' },
         { id: 'brace', label: 'Brace for Impact', short: '+1 save · half dice', desc: 'Armour saves improve by 1 this turn, but every weapon rolls half dice (round up).' }
       ],
-      SHIPS: {
+      CLASSES: {
         resolute: {
           id: 'resolute', side: 'concord', len: 8, beam: 1.5, name: 'CNS Resolute', cls: 'Dominion-class battleship · Concord Navy', color: '#5aa9ff', hex: 0x5aa9ff,
           speed: 12, turn: 45, hull: 14, shields: { fore: 2, port: 2, stbd: 2, aft: 1 }, armour: 4, crew: 8, ram: false,
@@ -405,6 +443,28 @@ class Component extends DCLogic {
             { id: 'turret', name: 'Spinal turrets', dice: 2, range: 18, arcs: ['fore', 'port', 'stbd', 'aft'] }
           ],
           assets: { mesh: '/_blob/08d8e56b994af5349f1a7e5a0b1eac58', base: '/_blob/b638cc5f369cb5d16c19d54534bc5104', normal: '/_blob/8da63acb2cebf790c7f9a82c6a3193d7', rm: '/_blob/efbe2e8fcaf666606aeb8ccd26999727' }
+        },
+        freighter: {
+          id: 'freighter', side: 'concord', len: 7, beam: 1.4, rotY: Math.PI / 2, npc: true, name: 'Ore Freighter', cls: 'Ore freighter · Varn Combine', color: '#8fb8e0', hex: 0x8fb8e0,
+          speed: 12, turn: 20, hull: 4, shields: { fore: 1, port: 1, stbd: 1, aft: 1 }, armour: 5, crew: 2, ram: false, start: { x: 0, y: 0, h: Math.PI }, weapons: [],
+          assets: { mesh: '/_blob/1fa5df8ce84bed95fe23325f44b2e362', base: '/_blob/8a75273136ecf5340fa3ecc45893fee2', normal: '/_blob/ea0895e5f8c135c123ef5f566b01aee0', rm: '/_blob/073ae7a48cbe57b4123eef44d69b73fb' }
+        },
+        hydra: {
+          id: 'hydra', side: 'reaver', len: 11, beam: 1.7, rotY: Math.PI / 2, static: true, name: 'Mother Hydra', cls: 'Hydra-class tender · Reaver Clans', color: '#ff6a3d', hex: 0xff6a3d,
+          speed: 0, turn: 0, hull: 14, shields: { fore: 2, port: 2, stbd: 2, aft: 2 }, armour: 4, crew: 5, ram: false, start: { x: 0, y: 0, h: Math.PI }, weapons: [],
+          assets: { mesh: '/_blob/1fa5df8ce84bed95fe23325f44b2e362', base: '/_blob/8a75273136ecf5340fa3ecc45893fee2', normal: '/_blob/ea0895e5f8c135c123ef5f566b01aee0', rm: '/_blob/073ae7a48cbe57b4123eef44d69b73fb' }
+        },
+        lair: {
+          id: 'lair', side: 'reaver', len: 13, beam: 1, static: true, name: 'Lair Station', cls: 'Reaver station', color: '#ff6a3d', hex: 0xff6a3d,
+          speed: 0, turn: 0, hull: 20, shields: { fore: 2, port: 2, stbd: 2, aft: 2 }, armour: 4, crew: 10, ram: false, start: { x: 0, y: 0, h: Math.PI },
+          weapons: [{ id: 'turret', name: 'Station turrets', dice: 4, range: 20, arcs: ['fore', 'port', 'stbd', 'aft'] }],
+          assets: { mesh: '/_blob/61f3bdf41de0d7f850ce3abbd0dad3e6', base: '/_blob/a05d33ec5191a3900bc29dadafcfcaa0', normal: '/_blob/0e8fd72339192966f2e9ebc06726b678', rm: '/_blob/7241d03f459c65ef36df002f044de3ad' }
+        },
+        aurel: {
+          id: 'aurel', side: 'concord', len: 13, beam: 1, static: true, name: 'Station Aurel', cls: 'Concord orbital station', color: '#5aa9ff', hex: 0x5aa9ff,
+          speed: 0, turn: 0, hull: 20, shields: { fore: 3, port: 3, stbd: 3, aft: 3 }, armour: 4, crew: 12, ram: false, start: { x: 0, y: 0, h: 0 },
+          weapons: [{ id: 'turret', name: 'Station batteries', dice: 6, range: 24, arcs: ['fore', 'port', 'stbd', 'aft'] }],
+          assets: { mesh: '/_blob/61f3bdf41de0d7f850ce3abbd0dad3e6', base: '/_blob/a05d33ec5191a3900bc29dadafcfcaa0', normal: '/_blob/0e8fd72339192966f2e9ebc06726b678', rm: '/_blob/7241d03f459c65ef36df002f044de3ad' }
         }
       }
     };
@@ -418,7 +478,7 @@ class Component extends DCLogic {
   crippled(s) { return s.hull <= s.def.hull / 2; }
   ids() { return this.D.IDS; }
   sideOf(id) { return this.D.SHIPS[id].side; }
-  active(s) { return !!s && !s.dead && !s.fled && !s.captured; }
+  active(s) { return !!s && !s.dead && !s.fled && !s.captured && !s.away && !s.escaped; }
   enemySide(side) { return side === 'concord' ? 'reaver' : 'concord'; }
   sideShips(side) { return this.ids().filter((id) => this.sideOf(id) === side && this.active(this.g.ships[id])); }
   perShip(f) { const o = {}; this.ids().forEach((id) => { o[id] = f(id); }); return o; }
@@ -428,7 +488,309 @@ class Component extends DCLogic {
     return best;
   }
 
-  mkShip(def) { return { def: def, id: def.id, x: def.start.x, y: def.start.y, h: def.start.h, hull: def.hull, crew: def.crew, crits: [], dead: false, fled: false, captured: false }; }
+  mkShip(def) {
+    const c = def.carry || {};
+    return { def: def, id: def.id, x: def.start.x, y: def.start.y, h: def.start.h,
+      hull: c.hull != null ? Math.max(1, Math.min(def.hull, c.hull)) : def.hull, crew: c.crew != null ? Math.min(def.crew, c.crew) : def.crew,
+      crits: (c.crits || []).map((k) => Object.assign({}, k)), dead: false, fled: false, captured: false, escaped: false, away: (def.spawn || 0) > 1 };
+  }
+
+  skirmishRoster() { return ['resolute', 'vigilant', 'maw', 'carrion'].map((k) => ({ id: k, cls: k })); }
+
+  // Build this battle's ships from class templates: each ship inherits its class and carries its own name, side,
+  // position, damage, crew and fitted upgrades.
+  buildRoster(list) {
+    const C = this.D.CLASSES, SHIPS = {}, IDS = [];
+    list.forEach((it) => {
+      const base = C[it.cls], d = Object.create(base), side = it.side || base.side, SD = this.D.SIDES[side];
+      d.id = it.id; d.cls = it.cls; d.name = it.name || base.name; d.side = side; d.color = SD.color; d.hex = SD.hex;
+      d.weapons = base.weapons.map((w) => Object.assign({}, w)); d.shields = Object.assign({}, base.shields);
+      d.start = { x: it.x != null ? it.x : base.start.x, y: it.y != null ? it.y : base.start.y, h: it.h != null ? it.h : base.start.h };
+      d.spawn = it.spawn || 0; d.spawnIf = it.spawnIf || null; d.fit = Object.assign({}, it.fit || {});
+      d.carry = { hull: it.hull, crew: it.crew, crits: it.crits }; d.captain = it.captain || ''; d.prize = !!it.prize; d.battles = it.battles || 0; d.campaignId = it.campaignId || null;
+      if (it.hullMax) d.hull = it.hullMax;
+      if (it.lanceBonus) d.weapons.forEach((w) => { if (w.lance) w.range += it.lanceBonus; });
+      this.applyFit(d);
+      SHIPS[d.id] = d; IDS.push(d.id);
+    });
+    this.D.SHIPS = SHIPS; this.D.IDS = IDS;
+  }
+
+  // Refit upgrades that change the battle rules (torpedo tubes and tractor beams are not simulated yet).
+  applyFit(d) {
+    const f = d.fit || {}, has = (u) => Object.keys(f).some((k) => f[k] === u);
+    if (has('heavy_bs')) { d.weapons.forEach((w) => { if (w.broadside) w.dice += 1; }); d.turn = d.turn - 5; }
+    if (has('long_lance')) d.weapons.forEach((w) => { if (w.lance) w.range += 6; });
+    if (has('shields')) d.shields.fore = (d.shields.fore || 0) + 1;
+    if (has('drives')) d.speed = d.speed + 2;
+    if (has('thrusters')) d.turn = d.turn + 10;
+    if (has('marines')) d.crew = d.crew + 2;
+    if (has('ram')) d.ram = true;
+    d.gunners = has('gunners'); d.dcTeams = has('dc_teams'); d.plating = has('plating'); d.ecm = has('ecm'); d.pd = has('pd');
+  }
+
+  // Ships a player (or the AI) gives orders to: not scripted freighters or fixed stations.
+  ctrl(side) { return this.sideShips(side).filter((id) => { const d = this.D.SHIPS[id]; return !d.npc && !d.static; }); }
+
+  // Scripted units: stations hold position, freighters steam straight ahead at their speed.
+  autoOrders() {
+    const g = this.g;
+    this.ids().forEach((id) => {
+      const s = g.ships[id], d = s.def;
+      if (!this.active(s)) return;
+      if (d.static) g.orders[id] = { order: 'steady', dest: { x: s.x, y: s.y }, target: 'auto' };
+      else if (d.npc) g.orders[id] = { order: 'steady', dest: { x: s.x + Math.cos(s.h) * d.speed, y: s.y + Math.sin(s.h) * d.speed }, target: 'auto' };
+    });
+  }
+
+  exitOk(s) {
+    const ex = this.mission && this.mission.exit; if (!ex) return false;
+    const edge = ex.edge === 'west' ? s.x < -this.D.W / 2 : ex.edge === 'east' ? s.x > this.D.W / 2 : false;
+    const who = ex.who === 'freighter' ? s.def.cls === 'freighter' : (s.def.side === 'concord' && !s.def.npc && !s.def.static);
+    return edge && who;
+  }
+
+  // Asteroid strikes (D3, no saves), mines (2d6, once) and salvage beacons (picked up by your warships).
+  featureHazards() {
+    const g = this.g, F = g.feat || {};
+    this.ids().forEach((id) => {
+      const s = g.ships[id]; if (!this.active(s) || s.def.static) return;
+      (F.rocks || []).forEach((k) => {
+        if (Math.hypot(s.x - k.x, s.y - k.y) < k.r + 1.6) {
+          const d = 1 + Math.floor(Math.random() * 3);
+          s.hull = Math.max(0, s.hull - d); g.taken[id] += d;
+          this.floater(id, 'word', 'Asteroid strike', 0); this.floater(id, 'hull', '−' + d, 1);
+          g.turnRolls[id].push({ owner: id, label: 'Struck an asteroid', result: d + ' damage (no saves)', dice: [] });
+          if (this.three) this.boom('x_small_orange', this.m2v(s.x, s.y, 1.4), 3.5, 0.6);
+        }
+      });
+      (F.mines || []).forEach((k) => {
+        if (k.live && Math.hypot(s.x - k.x, s.y - k.y) < 3) {
+          k.live = false;
+          const d = this.d6() + this.d6();
+          s.hull = Math.max(0, s.hull - d); g.taken[id] += d;
+          this.floater(id, 'word', 'Mine!', 0); this.floater(id, 'hull', '−' + d, 1);
+          g.turnRolls[id].push({ owner: id, label: 'Proximity mine', result: d + ' damage (2d6, no saves)', dice: [] });
+          if (this.three) { this.boom('x_breach_red', this.m2v(k.x, k.y, 1.4), 5, 0.8); this.sfx('hit_big', 0.8); this.addShake(0.8); }
+        }
+      });
+      if (s.def.side === 'concord' && !s.def.npc) (F.beacons || []).forEach((k) => {
+        if (!k.got && Math.hypot(s.x - k.x, s.y - k.y) < 5) { k.got = true; this.floater(id, 'word', 'Salvage recovered', 0); if (this.three) this.flash('i_sparks_gold', this.m2v(k.x, k.y, 1.5), 4, 0.5, true); }
+      });
+      if (s.hull <= 0 && !s.dead) { s.dead = true; s.deadAt = performance.now(); if (this.three) this.explode(s); }
+    });
+    this.updateFeatures();
+  }
+
+  /* ───────────── CAMPAIGN ─────────────
+     The campaign save is shared with the Operation board: one private record per player in the artifact's
+     database, falling back to this browser's storage, then to this session only. */
+  storeInit(cb0) {
+    if (typeof window === 'undefined') return;
+    const cb = (v) => setTimeout(() => cb0(v), 0);
+    const LS = 'gunline.campaign.v1';
+    this.store = { mode: 'memory', ref: null, mem: null };
+    const lsGet = () => { try { const t = window.localStorage.getItem(LS); return t ? JSON.parse(t) : null; } catch (e) { return undefined; } };
+    const useLocal = () => {
+      const v = lsGet();
+      if (v === undefined) { this.store.mode = 'memory'; cb(null); return; }
+      this.store.mode = 'local'; cb(v);
+      try { window.addEventListener('storage', (e) => { if (e.key === LS) { try { cb(e.newValue ? JSON.parse(e.newValue) : null); } catch (x) { /* ignore */ } } }); } catch (e) { /* ignore */ }
+    };
+    const cl = window.claude;
+    if (!cl || typeof cl.use !== 'function') { useLocal(); return; }
+    let settled = false;
+    const timer = setTimeout(() => { if (!settled) { settled = true; useLocal(); } }, 5000);
+    // With a viewer id the save is private to each player; without one it is the canvas's single campaign record,
+    // which only people who can edit the canvas may write (anyone else drops back to browser storage on their first save).
+    Promise.all([cl.use('db'), cl.use('user')]).then((r) => {
+      const db = r[0], user = r[1];
+      if (!db) throw new Error('no store');
+      const idp = user && typeof user.id === 'function' ? user.id().catch(() => null) : Promise.resolve(null);
+      return idp.then((uid) => { this.store.shared = !uid; return db.doc(uid ? 'data/users/' + uid + '/gunline_campaign' : 'gunline/campaign'); });
+    }).then((ref) => {
+      if (settled) return;
+      settled = true; clearTimeout(timer);
+      this.store.mode = 'db'; this.store.ref = ref;
+      this.store.unsub = ref.onSnapshot((snap) => { if (this.store.mode === 'db') cb(snap.exists ? JSON.parse(JSON.stringify(snap.data())) : null); }, () => { if (this.store.mode === 'db') { this.store.mode = 'local'; useLocal(); } });
+    }).catch(() => { if (!settled) { settled = true; clearTimeout(timer); useLocal(); } });
+  }
+
+  storeSave(obj) {
+    const data = JSON.parse(JSON.stringify(obj));
+    if (this.store && this.store.mode === 'db' && this.store.ref) this.store.ref.set(data).catch(() => { this.store.mode = 'local'; try { if (this.store.unsub) this.store.unsub(); } catch (e) { /* ignore */ } });
+    try { window.localStorage.setItem('gunline.campaign.v1', JSON.stringify(data)); } catch (e) { if (this.store) this.store.mem = data; }
+  }
+
+  onSave(sv) {
+    this.save = sv;
+    const g = this.g;
+    if (sv && sv.current && !this.mission && g && g.turn === 1 && g.phase === 'orders' && !Object.keys(g.drafts).length) this.startMission(sv.current);
+    else this.bump();
+  }
+
+  startMission(code) {
+    const spec = this.missionSpec(code, this.save || {});
+    if (spec) this.newGame(false, spec);
+  }
+
+  // Mission set-ups for Operation Iron Tide. Your deployed fleet comes from the save; enemies and map features from here.
+  missionSpec(code, sv) {
+    const mods = sv.mods || {}, W = this.D.W / 2, H = this.D.H / 2;
+    const fleet = (sv.fleet || []).filter((f) => !f.sitsOut && !f.reserve);
+    const deploy = (slots) => fleet.map((f, i) => {
+      const sl = slots[i % slots.length], row = Math.floor(i / slots.length);
+      return { id: f.id, cls: f.cls, side: 'concord', name: f.name, hull: f.hull, crew: f.crew, crits: f.crits, fit: f.fit, captain: f.captain, prize: f.prize, battles: f.battles, campaignId: f.id, x: sl.x - row * 9, y: sl.y, h: sl.h };
+    });
+    const lb = mods.reaverLances ? 6 : 0;
+    const raider = (id, name, x, y, h, extra) => Object.assign({ id: id, cls: 'carrion', name: name, x: x, y: y, h: h, lanceBonus: lb }, extra || {});
+    const maw = (x, y, h, extra) => Object.assign({ id: 'e_maw', cls: 'maw', name: 'Maw of Ruin', x: x, y: y, h: h, lanceBonus: lb }, extra || {});
+    const M = {
+      m1: { name: 'Picket Line', type: 'Fleet engagement', turns: 0,
+        roster: deploy([{ x: -44, y: -14, h: 0 }, { x: -48, y: 8, h: 0 }]).concat([maw(44, 14, Math.PI), raider('e_carrion', 'Carrion Wing', 48, -8, Math.PI)]) },
+      m2a: { name: 'Convoy Run', type: 'Escort', turns: 9, exit: { edge: 'west', who: 'freighter' },
+        roster: deploy([{ x: 4, y: -24, h: Math.PI }, { x: 14, y: 22, h: Math.PI }]).concat([
+          { id: 'f1', cls: 'freighter', name: 'Freighter Ostra', x: 14, y: -8, h: Math.PI }, { id: 'f2', cls: 'freighter', name: 'Freighter Bell', x: 22, y: 0, h: Math.PI }, { id: 'f3', cls: 'freighter', name: 'Freighter Kaye', x: 14, y: 8, h: Math.PI },
+          raider('e_r1', 'Bone Kite', -20, H - 4, -Math.PI / 2, { spawn: 3 }), raider('e_r2', 'Grief Hook', -44, H - 4, -Math.PI / 2, { spawn: 3 }),
+          maw(-10, H - 4, -Math.PI / 2, { spawn: 5, spawnIf: 'freightersRemain' })]) },
+      m2b: { name: 'Salvage Field', type: 'Raid', turns: 12, exit: { edge: 'east', who: 'player' },
+        features: { beacons: [{ x: -14, y: 22 }, { x: 12, y: -18 }, { x: 34, y: 20 }], mines: [{ x: -9, y: 26 }, { x: 16, y: -22 }, { x: 30, y: 15 }, { x: 38, y: 25 }],
+          rocks: [{ x: -30, y: 6, r: 4 }, { x: -6, y: 0, r: 5 }, { x: 0, y: 30, r: 3.5 }, { x: 22, y: 2, r: 4.5 }, { x: 42, y: -8, r: 3.5 }, { x: -18, y: -24, r: 4 }, { x: 8, y: -40, r: 3 }, { x: 52, y: 32, r: 4 }, { x: -40, y: 32, r: 3 }] },
+        roster: deploy([{ x: -56, y: -6, h: 0 }, { x: -58, y: 12, h: 0 }]).concat([raider('e_r1', 'Sawtooth', 56, 10, Math.PI), raider('e_r2', 'Gutter Saint', 60, -20, Math.PI)]) },
+      m3: { name: 'The Reaver Lair', type: 'Prize hunt', turns: 10,
+        features: { rocks: [{ x: 26, y: -30, r: 4 }, { x: 58, y: 34, r: 4 }, { x: 10, y: 36, r: 3.5 }] },
+        roster: deploy([{ x: -62, y: -10, h: 0 }, { x: -64, y: 12, h: 0 }]).concat([
+          { id: 'e_hydra', cls: 'hydra', name: 'Mother Hydra', x: 48, y: 16, h: Math.PI }, { id: 'e_lair', cls: 'lair', name: 'Lair Station', x: 52, y: -14, h: Math.PI },
+          maw(40, -34, Math.PI)]) },
+      m4: { name: 'Kessel Gate', type: 'Breakthrough', turns: 10, exit: { edge: 'east', who: 'player' },
+        features: { well: { x: 6, y: 0, r: 34, pull: 4 } },
+        roster: deploy([{ x: -44, y: -14, h: 0 }, { x: -46, y: 14, h: 0 }]).concat([maw(18, 0, Math.PI), raider('e_r1', 'Sawtooth', 14, -30, Math.PI), raider('e_r2', 'Bone Kite', 14, 30, Math.PI)].concat(mods.extraRaider ? [raider('e_r3', 'Grief Hook', 34, 10, Math.PI)] : [])) },
+      m5: { name: 'Iron Tide', type: 'Hold the station', turns: 8,
+        roster: deploy([{ x: -14, y: -14, h: 0 }, { x: -14, y: 14, h: 0 }]).concat([
+          { id: 'aurel', cls: 'aurel', name: 'Station Aurel', x: 0, y: 0, h: 0 },
+          maw(58, 6, Math.PI, { hullMax: 16 }), raider('e_r1', 'Sawtooth', 62, -24, Math.PI),
+          raider('e_r2', 'Bone Kite', 0, H - 4, -Math.PI / 2, { spawn: 4 }), raider('e_r3', 'Grief Hook', 0, -H + 4, Math.PI / 2, { spawn: 7 })].concat(mods.extraRaider ? [raider('e_r4', 'Gutter Saint', 64, 30, Math.PI)] : [])) }
+    };
+    const m = M[code]; if (!m) return null;
+    m.code = code.toUpperCase(); m.features = m.features || {};
+    return m;
+  }
+
+  // Objectives and outcome, checked at the end of every turn.
+  missionCheck() {
+    const g = this.g, m = this.mission, T = g.turn, ids = this.ids(), sh = (id) => g.ships[id];
+    const mine = ids.filter((id) => sh(id).def.side === 'concord' && !sh(id).def.npc && !sh(id).def.static);
+    const myLive = mine.filter((id) => this.active(sh(id))).length;
+    const foes = ids.filter((id) => sh(id).def.side === 'reaver');
+    const foesLeft = foes.filter((id) => this.active(sh(id)) || sh(id).away).length;
+    const limit = m.turns && T >= m.turns;
+    const res = { over: false, won: false, lines: [], credits: 0, renown: 0, secondary: false };
+    const L = (ok, text) => res.lines.push({ ok: ok, text: text });
+    if (m.code === 'M1') {
+      L(foesLeft === 0, 'Destroy, capture or drive off the Reaver vanguard');
+      res.over = foesLeft === 0 || myLive === 0; res.won = foesLeft === 0 && myLive > 0;
+      if (res.won) { res.credits = 400; res.renown = 1; }
+    } else if (m.code === 'M2A') {
+      const fr = ids.filter((id) => sh(id).def.cls === 'freighter'), esc = fr.filter((id) => sh(id).escaped).length, lost = fr.filter((id) => sh(id).dead || sh(id).captured).length, on = fr.filter((id) => this.active(sh(id))).length;
+      L(esc >= 2, 'At least 2 freighters exit the west edge by turn 9 (' + esc + ' escaped)');
+      L(lost === 0 && esc === 3, 'Secondary: all 3 freighters get through (' + lost + ' lost so far)');
+      res.over = on === 0 || limit || (myLive === 0 && foesLeft > 0) || (foesLeft === 0 && on === 0);
+      if (foesLeft === 0 && on > 0) { res.over = true; L(true, 'The raiders are gone; the remaining freighters reach the yards'); }
+      const saved = res.over && foesLeft === 0 ? esc + on : esc;
+      res.won = saved >= 2; res.secondary = saved === 3 && lost === 0;
+      res.credits = 250 * saved; res.renown = res.secondary ? 1 : 0;
+    } else if (m.code === 'M2B') {
+      const got = (g.feat.beacons || []).filter((b) => b.got).length, out = mine.filter((id) => sh(id).escaped).length;
+      L(got >= 2 && out > 0, 'Recover 2 of 3 salvage beacons and exit the east edge by turn 12 (' + got + ' recovered, ' + out + ' out)');
+      L(got === 3, 'Secondary: recover all 3');
+      res.over = myLive === 0 || limit; res.won = got >= 2 && out > 0; res.secondary = got === 3 && res.won;
+      res.credits = 200 * (res.won ? got : 0) + (res.secondary ? 150 : 0); res.renown = res.won ? 1 : 0;
+    } else if (m.code === 'M3') {
+      const hy = ids.filter((id) => sh(id).def.cls === 'hydra').map(sh)[0], mw = sh('e_maw');
+      const took = hy && hy.captured && hy.capturedBy === 'concord', gone = hy && (hy.dead || (hy.captured && hy.capturedBy !== 'concord'));
+      L(!!took, 'Capture Mother Hydra by boarding (destroying her fails the mission)');
+      res.secondary = !!(mw && (mw.dead || mw.captured || this.crippled(mw)));
+      L(res.secondary, 'Secondary: cripple the Maw of Ruin');
+      res.over = took || gone || myLive === 0 || limit; res.won = !!took;
+      res.credits = res.won ? 500 : 0; res.renown = res.won ? 2 + (res.secondary ? 1 : 0) : 0;
+    } else if (m.code === 'M4') {
+      const out = mine.filter((id) => sh(id).escaped).length, lostN = mine.filter((id) => sh(id).dead || sh(id).captured).length;
+      L(out >= 2, 'Get 2 ships off the east edge by turn 10 (' + out + ' through)');
+      res.over = myLive === 0 || limit;
+      if (res.over && limit) mine.forEach((id) => { const s = sh(id); if (this.active(s)) { s.captured = true; s.capturedBy = 'reaver'; } });
+      res.won = out >= 2; res.secondary = res.won && lostN === 0;
+      L(res.secondary, 'Secondary: lose no ships');
+      res.credits = res.won ? 600 : 0; res.renown = res.won ? 1 + (res.secondary ? 1 : 0) : 0;
+    } else if (m.code === 'M5') {
+      const st = sh('aurel'), mw = sh('e_maw'), stOk = st && !st.dead && !st.captured;
+      L(stOk && (T >= 8 || foesLeft === 0), 'Station Aurel survives 8 turns (turn ' + T + ')');
+      res.secondary = !!(mw && (mw.dead || mw.captured));
+      L(res.secondary, 'Secondary: destroy or capture the Maw of Ruin');
+      res.over = !stOk || limit || foesLeft === 0; res.won = stOk && (limit || foesLeft === 0);
+      res.credits = res.won ? 800 : 0; res.renown = res.won ? 3 + (res.secondary ? 1 : 0) : 0;
+    }
+    return res;
+  }
+
+  // Write the battle's outcome back to the campaign: damage, crew, losses, prizes, rewards, progress.
+  endMission(res) {
+    const g = this.g, m = this.mission, sv = JSON.parse(JSON.stringify(this.save || {}));
+    if (!sv.fleet) return;
+    const key = m.code.toLowerCase(), lost = [], prizes = [], fleet = [];
+    sv.fleet.forEach((f) => {
+      const s = g.ships[f.id];
+      if (!s) { f.sitsOut = false; fleet.push(f); return; }
+      if (s.dead || s.captured) { lost.push(f.name + (s.dead ? ' (destroyed)' : ' (captured)')); return; }
+      f.hull = Math.max(1, s.hull); f.crew = Math.max(1, s.crew); f.crits = s.crits.map((c) => ({ k: c.k, roll: c.roll, side: c.side || null }));
+      f.battles = (f.battles || 0) + 1; f.sitsOut = false;
+      fleet.push(f);
+    });
+    this.ids().forEach((id) => {
+      const s = g.ships[id];
+      if (s.captured && s.capturedBy === 'concord' && s.def.side === 'reaver') {
+        prizes.push(s.def.name);
+        fleet.push({ id: 'p_' + s.def.cls + '_' + (Date.now() % 1e6), cls: s.def.cls, name: s.def.name, hull: Math.max(1, s.hull), crew: Math.max(1, s.crew), crits: [], fit: {}, battles: 0, captain: 'No captain assigned', prize: true, sitsOut: false });
+      }
+    });
+    sv.fleet = fleet;
+    sv.credits = (sv.credits || 0) + res.credits; sv.renown = (sv.renown || 0) + res.renown;
+    sv.done = sv.done || {}; sv.done[key] = res.won ? 'won' : 'failed';
+    if (key === 'm2a' || key === 'm2b') sv.done[key === 'm2a' ? 'm2b' : 'm2a'] = 'skipped';
+    sv.mods = sv.mods || {};
+    if (!res.won && key === 'm2a') sv.mods.dockPrice = 1.25;
+    if (!res.won && key === 'm2b') sv.mods.reaverLances = true;
+    if (!res.won && key === 'm3') sv.mods.extraRaider = true;
+    if (key === 'm2a' && res.secondary) sv.okafor = true;
+    if (key === 'm1' || key === 'm2a' || key === 'm2b') sv.docked = null;
+    sv.current = null;
+    sv.debrief = { code: m.code, name: m.name, won: res.won, lines: res.lines, credits: res.credits, renown: res.renown, lost: lost, prizes: prizes, turn: g.turn, at: Date.now() };
+    sv.history = (sv.history || []).concat([{ code: m.code, won: res.won, turn: g.turn }]);
+    sv.results = Object.assign({}, sv.results, { [key]: sv.debrief });
+    this.save = sv;
+    this.storeSave(sv);
+    g.debrief = Object.assign({}, res, { lost: lost, prizes: prizes, saved: this.store ? this.store.mode : 'memory' });
+  }
+
+  // Gravity well: every destination within its pull is dragged toward the centre.
+  bend(d) {
+    const w = this.g.feat.well, dx = w.x - d.x, dy = w.y - d.y, r = Math.hypot(dx, dy);
+    if (r > w.r || r < 0.5) return d;
+    const k = Math.min(r, w.pull * (1 - r / w.r) + 1.2);
+    return { x: d.x + dx / r * k, y: d.y + dy / r * k };
+  }
+
+  defMod(B, r, w) { return (B.def.ecm && r > 24 ? 1 : 0) + (B.def.pd && w.lance ? 1 : 0); }
+
+  // Asteroids block fire between ships.
+  blocked(A, T) {
+    const rocks = (this.g.feat && this.g.feat.rocks) || [];
+    for (let i = 0; i < rocks.length; i++) {
+      const k = rocks[i], dx = T.x - A.x, dy = T.y - A.y, L2 = dx * dx + dy * dy || 1;
+      const t = Math.max(0, Math.min(1, ((k.x - A.x) * dx + (k.y - A.y) * dy) / L2));
+      if (Math.hypot(A.x + dx * t - k.x, A.y + dy * t - k.y) < k.r * 0.85) return true;
+    }
+    return false;
+  }
 
   env(s, order) {
     const speed = Math.max(4, s.def.speed - 4 * this.count(s, 'engines'));
@@ -499,7 +861,7 @@ class Component extends DCLogic {
     const pref = prefId && prefId !== 'auto' ? targets.filter((t) => t.id === prefId)[0] : null;
     A.def.weapons.forEach((w) => {
       const n = this.weaponDice(A, w, order); if (n <= 0) return;
-      const bears = (T) => { const r = Math.hypot(T.x - A.x, T.y - A.y); return r <= w.range && w.arcs.indexOf(this.arcOf(A, T.x, T.y)) >= 0 ? r : -1; };
+      const bears = (T) => { const r = Math.hypot(T.x - A.x, T.y - A.y); return r <= w.range && w.arcs.indexOf(this.arcOf(A, T.x, T.y)) >= 0 && !this.blocked(A, T) ? r : -1; };
       let best = null, bd = 1e9;
       if (pref && bears(pref) >= 0) { best = pref; bd = bears(pref); }
       else targets.forEach((T) => { const r = bears(T); if (r >= 0 && r < bd) { bd = r; best = T; } });
@@ -511,7 +873,7 @@ class Component extends DCLogic {
       let dist = [1], lanceHits = 0;
       const parts = [];
       G.ws.forEach((x) => {
-        const tn = this.toHitTN(G.r, narrow, order, A), p = (7 - tn) / 6;
+        const tn = Math.min(6, this.toHitTN(G.r, narrow, order, A) + this.defMod(T, G.r, x.w)), p = (7 - tn) / 6;
         parts.push((x.w.broadside ? (x.w.side === 'port' ? 'Port' : 'Stbd') : x.w.lance ? 'Lance' : 'Turrets') + ' ' + x.n + 'd6@' + tn + '+');
         if (x.w.lance) { lanceHits += x.n * p; return; }
         for (let i = 0; i < x.n; i++) { const nd = new Array(dist.length + 1).fill(0); dist.forEach((v, k) => { nd[k] += v * (1 - p); nd[k + 1] += v * p; }); dist = nd; }
@@ -613,10 +975,13 @@ class Component extends DCLogic {
   }
 
   /* ───────────── GAME FLOW ───────────── */
-  newGame(silent) {
+  newGame(silent, mission) {
+    this.mission = mission || null;
+    this.buildRoster(mission ? mission.roster : this.skirmishRoster());
     const S = this.D.SHIPS, ships = {};
     this.ids().forEach((id) => { ships[id] = this.mkShip(S[id]); });
-    this.g = { turn: 1, phase: 'orders', side: 'concord', plotting: 'resolute', ships: ships, orders: {}, drafts: {}, dest: null, log: [], winner: null, overText: '' };
+    this.g = { turn: 1, phase: 'orders', side: 'concord', plotting: this.ids()[0], ships: ships, orders: {}, drafts: {}, dest: null, log: [], winner: null, overText: '', debrief: null };
+    this.g.feat = mission ? JSON.parse(JSON.stringify(mission.features || {})) : {};
     this.ui.hover = null;
     this.anim = null;
     this.fx.forEach((f) => f.kill && f.kill());
@@ -626,24 +991,39 @@ class Component extends DCLogic {
     this.seq = null; this.rolling = null; this.seqId = (this.seqId || 0) + 1; this.ui.tip = null;
     this.startPlotting('concord');
     if (this.three) {
+      this.syncShipObjs();
+      Promise.all(this.loadNeededModels()).then(() => { this.inspDirty = true; });
       this.placeShips();
-      this.ids().forEach((id) => { const o = this.three.objs[id]; o.root.visible = true; o.model.visible = true; o.glow.visible = true; o.ring.visible = true; o.dmgKey = null; o.list = 0; o.rollAmp = 0; o.ring.material.color.setHex(this.D.SHIPS[id].hex); });
+      this.ids().forEach((id) => { const o = this.three.objs[id]; o.model.visible = true; o.glow.visible = true; o.ring.visible = true; o.dmgKey = null; o.list = 0; o.rollAmp = 0; o.ring.material.color.setHex(this.D.SHIPS[id].hex); });
+      this.buildFeatures();
       this.killCam = null;
       this.frameShips(); this.refreshOverlays();
     }
     if (!silent) this.bump();
   }
 
-  // Selecting a ship inspects it; in the orders phase, selecting one of the plotting side's ships also switches plotting to it.
+  // Ships that join mid-battle arrive at the start of their turn.
+  spawnArrivals() {
+    const g = this.g;
+    this.ids().forEach((id) => {
+      const s = g.ships[id], d = s.def;
+      if (!s.away || d.spawn > g.turn) return;
+      if (d.spawnIf === 'freightersRemain' && !this.ids().some((k) => g.ships[k].def.cls === 'freighter' && this.active(g.ships[k]))) { s.away = false; s.fled = true; return; }
+      s.away = false; s.x = d.start.x; s.y = d.start.y; s.h = d.start.h;
+      this.floater(id, 'word', 'Arrives', 0);
+    });
+    this.placeShips();
+  }
+
   selectShip(id) {
     const g = this.g;
     this.ui.sel = id; this.inspDirty = true;
-    if (g.phase === 'orders' && this.sideOf(id) === g.side && this.active(g.ships[id]) && id !== g.plotting) { this.switchPlot(id); return; }
+    if (g.phase === 'orders' && this.sideOf(id) === g.side && this.active(g.ships[id]) && id !== g.plotting && this.ctrl(g.side).indexOf(id) >= 0) { this.switchPlot(id); return; }
     this.bump();
   }
 
   startPlotting(side) {
-    const g = this.g, list = this.sideShips(side);
+    const g = this.g, list = this.ctrl(side);
     g.side = side; g.drafts = {}; g.dest = null;
     g.plotting = list[0] || g.plotting;
     this.ui.order = 'steady';
@@ -675,8 +1055,8 @@ class Component extends DCLogic {
     this.bump();
   }
 
-  allDrafted() { const g = this.g; return this.sideShips(g.side).every((id) => !!g.drafts[id]); }
-  nextUndrafted() { const g = this.g, list = this.sideShips(g.side), i = list.indexOf(g.plotting); for (let k = 1; k <= list.length; k++) { const id = list[(i + k) % list.length]; if (!g.drafts[id]) return id; } return null; }
+  allDrafted() { const g = this.g; return this.ctrl(g.side).every((id) => !!g.drafts[id]); }
+  nextUndrafted() { const g = this.g, list = this.ctrl(g.side), i = list.indexOf(g.plotting); for (let k = 1; k <= list.length; k++) { const id = list[(i + k) % list.length]; if (!g.drafts[id]) return id; } return null; }
 
   shipAt(p) {
     const ids = this.ids();
@@ -714,7 +1094,7 @@ class Component extends DCLogic {
     const g = this.g;
     this.unlockAudio();
     if (g.phase !== 'orders' || !this.allDrafted()) return;
-    this.sideShips(g.side).forEach((id) => { g.orders[id] = { order: g.drafts[id].order, dest: g.drafts[id].dest, target: g.drafts[id].target || 'auto' }; });
+    this.ctrl(g.side).forEach((id) => { g.orders[id] = { order: g.drafts[id].order, dest: g.drafts[id].dest, target: g.drafts[id].target || 'auto' }; });
     g.dest = null; this.ui.hover = null; this.ui.order = 'steady';
     if (g.side === 'concord') {
       if (this.modeHot()) { g.phase = 'handoff'; g.drafts = {}; this.refreshOverlays(); this.bump(); return; }
@@ -725,7 +1105,7 @@ class Component extends DCLogic {
 
   aiOrders(side) {
     const g = this.g;
-    this.sideShips(side).forEach((id) => {
+    this.ctrl(side).forEach((id) => {
       const me = g.ships[id], foe = this.nearestEnemy(me);
       if (!foe) { const e = this.env(me, 'steady'); g.orders[id] = { order: 'steady', dest: { x: me.x + Math.cos(me.h) * e.speed, y: me.y + Math.sin(me.h) * e.speed } }; return; }
       const plan = this.aiPlan(me, foe);
@@ -738,12 +1118,14 @@ class Component extends DCLogic {
   beginMovement() {
     const g = this.g;
     g.phase = 'moving';
+    this.autoOrders();
     g.taken = this.perShip(() => 0); g.turnRolls = this.perShip(() => []); g.floaters = this.perShip(() => []);
     this.ui.tip = null;
     const ent = [];
     this.ids().forEach((id) => {
       const s = g.ships[id], o = g.orders[id];
       if (!o || !this.active(s)) { delete g.orders[id]; return; }
+      if (g.feat && g.feat.well && !s.def.static) o.dest = this.bend(o.dest);
       o.path = this.path(s, o.dest);
       const ord = this.D.ORDERS.filter((x) => x.id === o.order)[0];
       ent.push({ side: id, text: s.def.name + ': ' + ord.label + ' — moves ' + o.path.d.toFixed(1) + 'u.' });
@@ -767,7 +1149,14 @@ class Component extends DCLogic {
     g.collided = false;
     moved.forEach((id) => { const s = g.ships[id], e = g.orders[id].path.at(1); s.x = e.x; s.y = e.y; s.h = this.norm(e.h); });
     // Disengagement: ending outside the arena means the ship has fled.
-    moved.forEach((id) => { const s = g.ships[id]; if (Math.abs(s.x) > this.D.W / 2 || Math.abs(s.y) > this.D.H / 2) s.fled = true; });
+    moved.forEach((id) => {
+      const s = g.ships[id];
+      if (Math.abs(s.x) > this.D.W / 2 || Math.abs(s.y) > this.D.H / 2) {
+        if (this.exitOk(s)) { s.escaped = true; this.floater(id, 'word', 'Escaped', 0); g.turnRolls[id].push({ owner: id, label: s.def.name + ' escapes', result: 'off the ' + this.mission.exit.edge + ' edge', dice: [] }); }
+        else s.fled = true;
+      }
+    });
+    this.featureHazards();
     // Ram orders: an enemy within reach in the fore arc (priority target first) gets rammed during gunnery.
     g.rams = [];
     this.ids().forEach((id) => {
@@ -1061,7 +1450,7 @@ class Component extends DCLogic {
         this.record({ owner: id, label: s.def.name + ' is burning', result: fires + ' fire damage', dice: [] }, id);
       }
       if (s.hull > 0 && s.crits.length) {
-        const tns = s.crits.map((c) => (c.k === 'fire' ? 4 : 5));
+        const tns = s.crits.map((c) => (c.k === 'fire' ? (s.def.dcTeams ? 3 : 4) : (s.def.dcTeams ? 4 : 5)));
         const dice = yield { type: 'roll', owner: id, n: s.crits.length, label: s.def.name + ' · damage control', sub: s.crits.map((c, i) => this.critName(c) + ' ' + tns[i] + '+').join(' · ') };
         const keep = [];
         s.crits.forEach((c, i) => { if (dice[i] < tns[i]) keep.push(c); });
@@ -1088,10 +1477,10 @@ class Component extends DCLogic {
       if (this.weaponDice(A, w, oA) <= 0) return;
       let best = null, bd = 1e9;
       // Priority target first, if this weapon can bear on it; otherwise the closest enemy it can bear on.
-      if (pref) { const r = Math.hypot(pref.x - A.x, pref.y - A.y); if (r <= w.range && w.arcs.indexOf(this.arcOf(A, pref.x, pref.y)) >= 0) { best = pref; bd = r; } }
+      if (pref) { const r = Math.hypot(pref.x - A.x, pref.y - A.y); if (r <= w.range && w.arcs.indexOf(this.arcOf(A, pref.x, pref.y)) >= 0 && !this.blocked(A, pref)) { best = pref; bd = r; } }
       if (!best) enemies.forEach((T) => {
         const r = Math.hypot(T.x - A.x, T.y - A.y);
-        if (r > w.range || w.arcs.indexOf(this.arcOf(A, T.x, T.y)) < 0) return;
+        if (r > w.range || w.arcs.indexOf(this.arcOf(A, T.x, T.y)) < 0 || this.blocked(A, T)) return;
         if (r < bd) { bd = r; best = T; }
       });
       if (!best) return;
@@ -1110,11 +1499,13 @@ class Component extends DCLogic {
       const hits = [];
       let shVis = Math.max(0, (B.def.shields[facing] || 0) - pend[B.id].shield[facing]);
       for (const w of grp.ws) {
-        const n = this.weaponDice(A, w, oA), tn = this.toHitTN(r, narrow, oA, A);
+        const n = this.weaponDice(A, w, oA), tn = Math.min(6, this.toHitTN(r, narrow, oA, A) + this.defMod(B, r, w));
         const hit = (v) => v !== 1 && (v === 6 || v >= tn);
         const dice = yield { type: 'roll', owner: A.id, n: n, label: A.def.name + ' · ' + w.name + (w.lance ? ' (lance)' : '') + ' → ' + B.def.name + (pref && pref.id === B.id ? ' (target)' : ''), sub: n + 'd6 to hit, need ' + tn + '+' + (narrow ? ' (narrow profile)' : '') + ' · range ' + Math.round(r) + 'u' };
+        let rr = 0;
+        if (A.def.gunners && w.broadside) for (let k = 0; k < dice.length; k++) if (dice[k] === 1) { dice[k] = this.d6(); rr++; }
         const nh = dice.filter(hit).length;
-        this.record({ owner: A.id, label: A.def.name + ' · ' + w.name, dice: dice.map((v) => ({ v: v, kind: hit(v) ? (v === 6 ? 'crit' : 'hit') : 'miss' })), result: nh + ' hit' + (nh === 1 ? '' : 's') + ' (need ' + tn + '+)' }, B.id);
+        this.record({ owner: A.id, label: A.def.name + ' · ' + w.name, dice: dice.map((v) => ({ v: v, kind: hit(v) ? (v === 6 ? 'crit' : 'hit') : 'miss' })), result: nh + ' hit' + (nh === 1 ? '' : 's') + ' (need ' + tn + '+)' + (rr ? ' · veteran crews re-rolled ' + rr + ' × 1' : '') }, B.id);
         dice.forEach((v) => { if (hit(v)) hits.push({ v: v, lance: !!w.lance }); });
         yield { type: 'fx', kind: 'bolts', A: A, B: B, shots: dice.map((v) => { const h = hit(v), sh = h && !w.lance && shVis > 0; if (sh) shVis--; return { w: w, hit: h, onShield: sh }; }) };
       }
@@ -1127,7 +1518,8 @@ class Component extends DCLogic {
       this.record({ owner: B.id, label: B.def.name + ' · ' + FN[facing] + ' shields (' + shield + ' left)', result: sh > 0 ? 'absorb ' + sh + ' hit' + (sh === 1 ? '' : 's') : (shield ? 'only lance hits' : 'shields on this facing are spent'), dice: [] }, B.id);
       if (sh > 0) { this.floater(B.id, 'shield', '−' + sh); yield { type: 'fx', kind: 'shield', id: B.id }; }
       if (!through.length) continue;
-      const saveTN = Math.max(2, Math.min(6, B.def.armour - (oB === 'brace' ? 1 : 0)));
+      const plate = B.def.plating && !P.plated; if (plate) P.plated = true;
+      const saveTN = Math.max(2, Math.min(6, B.def.armour - (oB === 'brace' ? 1 : 0) - (plate ? 1 : 0)));
       const crits6 = through.filter((h) => h.v === 6).length;
       const saves = yield { type: 'roll', owner: B.id, n: through.length, label: B.def.name + ' · armour saves', sub: through.length + 'd6, need ' + saveTN + '+' + (oB === 'brace' ? ' (braced)' : '') + (crits6 ? ' · ' + crits6 + ' critical hit' + (crits6 === 1 ? '' : 's') + ' at risk' : '') };
       let dmg = 0;
@@ -1274,6 +1666,20 @@ class Component extends DCLogic {
   finishTurn() {
     const g = this.g;
     g.pending = null;
+    if (this.mission) {
+      const res = this.missionCheck();
+      if (res.over) {
+        g.phase = 'over'; g.winner = res.won ? 'concord' : 'reaver'; g.debrief = res;
+        this.endMission(res);
+        this.anim = null; this.inspDirty = true; this.refreshOverlays(); this.bump();
+        return;
+      }
+      g.turn += 1; g.phase = 'orders'; g.orders = {};
+      this.spawnArrivals();
+      this.startPlotting('concord');
+      this.anim = null; this.inspDirty = true; this.refreshOverlays(); this.bump();
+      return;
+    }
     const cOut = this.sideShips('concord').length === 0, rOut = this.sideShips('reaver').length === 0;
     const fate = (side) => { const sh = this.ids().filter((id) => this.sideOf(id) === side).map((id) => g.ships[id]); return sh.every((x) => x.dead) ? 'destroyed' : sh.some((x) => x.captured) ? 'taken' : 'broken'; };
     if (cOut || rOut) {
@@ -1283,6 +1689,7 @@ class Component extends DCLogic {
       else { g.winner = 'reaver'; g.overText = 'The Concord squadron is ' + ({ destroyed: 'destroyed', taken: 'destroyed or taken', broken: 'broken and withdrawing' })[fate('concord')] + ' after ' + g.turn + ' turns. The Reavers claim the field.'; }
     } else {
       g.turn += 1; g.phase = 'orders'; g.orders = {};
+      this.spawnArrivals();
       this.startPlotting('concord');
     }
     this.anim = null;
@@ -1336,7 +1743,8 @@ class Component extends DCLogic {
     const tl = new T.TextureLoader();
     Object.keys(this.D.ART).forEach((k) => tl.load(this.D.ART[k], (t) => { t.encoding = T.sRGBEncoding; this.three.tex[k] = t; }));
     this.buildBackdrop();
-    this.ids().forEach((id) => { this.three.objs[id] = this.buildShipObj(this.D.SHIPS[id]); });
+    this.three.models = {}; this.three.featG = new T.Group(); scene.add(this.three.featG);
+    this.syncShipObjs();
     this.placeShips();
     this.frameShips(true);
     this.refreshOverlays();
@@ -1353,7 +1761,8 @@ class Component extends DCLogic {
     this.initInspector();
     this.ui.loadNote = 'Loading ship models…';
     this.bump();
-    Promise.all(this.ids().map((id) => this.loadModel(id).catch(() => null))).then((r) => {
+    this.buildFeatures();
+    Promise.all(this.loadNeededModels()).then((r) => {
       this.ui.loading = false;
       if (r.indexOf(null) >= 0) this.pushLog('SYSTEM', [{ side: 'sys', text: 'A ship model could not load; showing a stand-in hull.' }]);
       this.refreshOverlays();
@@ -1413,11 +1822,14 @@ class Component extends DCLogic {
     return { root: root, model: model, stand: stand, ring: ring, glow: glow, shield: shield, flash: 0, ghostSrc: null };
   }
 
-  loadModel(id) {
-    const T = this.three.T, def = this.D.SHIPS[id], a = def.assets, obj = this.three.objs[id];
+  // Each ship class's model loads once; every ship of that class gets its own copy.
+  loadClassModel(cls) {
+    this.modelP = this.modelP || {};
+    if (this.modelP[cls]) return this.modelP[cls];
+    const T = this.three.T, def = this.D.CLASSES[cls], a = def.assets;
     const tl = new T.TextureLoader();
     const tex = (u) => new Promise((ok) => tl.load(u, ok, undefined, () => ok(null)));
-    return fetch(a.mesh).then((r) => r.json()).then((j) => {
+    const p = fetch(a.mesh).then((r) => r.json()).then((j) => {
       const bin = atob(j.glb), buf = new Uint8Array(bin.length);
       for (let i = 0; i < bin.length; i++) buf[i] = bin.charCodeAt(i);
       return Promise.all([new Promise((ok, bad) => new T.GLTFLoader().parse(buf.buffer, '', ok, bad)), tex(a.base), tex(a.normal), tex(a.rm)]);
@@ -1428,18 +1840,90 @@ class Component extends DCLogic {
       const mat = new T.MeshStandardMaterial({ map: base, normalMap: normal, roughnessMap: rm, metalnessMap: rm, metalness: rm ? 0.45 : 0.4, roughness: rm ? 1 : 0.55, color: base ? 0xffffff : 0x8a94a6 });
       const m = gltf.scene;
       m.traverse((o) => { if (o.isMesh) o.material = mat; });
-      const box = new T.Box3().setFromObject(m), size = box.getSize(new T.Vector3()), c = box.getCenter(new T.Vector3());
-      // Length normalised to 8u; beam ×1.5 and height ×1.3 so the hulls read broader and more solid from above.
+      const holder = new T.Group(); holder.add(m);
+      if (def.rotY) m.rotation.y = def.rotY;
+      holder.updateMatrixWorld(true);
+      const box = new T.Box3().setFromObject(holder), size = box.getSize(new T.Vector3()), c = box.getCenter(new T.Vector3());
+      // Length normalised to the class length; beam and height scaled so hulls read broad and solid from above.
       const k = def.len / size.z, kx = k * def.beam, ky = k * 1.3;
       def.halfBeamU = size.x * kx / 2;
       def.deckY = 0.3 + size.y * ky * 0.8;
-      m.scale.set(kx, ky, k);
-      m.position.set(-c.x * kx, -box.min.y * ky + 0.3, -c.z * k);
-      obj.model.remove(obj.stand);
-      obj.model.add(m);
-      obj.ghostSrc = m;
-      this.inspAdd(id, m);
+      holder.scale.set(kx, ky, k);
+      holder.position.set(-c.x * kx, -box.min.y * ky + 0.3, -c.z * k);
+      this.three.models[cls] = holder;
+      this.ids().forEach((id) => { if (this.D.SHIPS[id].cls === cls) this.attachModel(id); });
+      return true;
+    }).catch(() => null);
+    this.modelP[cls] = p;
+    return p;
+  }
+
+  loadNeededModels() { const cls = {}; this.ids().forEach((id) => { cls[this.D.SHIPS[id].cls] = 1; }); return Object.keys(cls).map((c) => this.loadClassModel(c)); }
+
+  attachModel(id) {
+    const o = this.three.objs[id], src = this.three.models[this.D.SHIPS[id].cls];
+    if (!o || !src || o.attached) return;
+    const m = src.clone(true);
+    if (o.stand.parent) o.model.remove(o.stand);
+    o.model.add(m); o.ghostSrc = m; o.attached = true;
+    this.inspAdd(id, m);
+  }
+
+  // Keep one 3D object per ship in this battle's roster.
+  syncShipObjs() {
+    const t3 = this.three; if (!t3) return;
+    Object.keys(t3.objs).forEach((id) => {
+      if (this.D.SHIPS[id] && t3.objs[id].defRef === this.D.SHIPS[id]) return;
+      t3.scene.remove(t3.objs[id].root);
+      if (this.insp && this.insp.models[id]) { this.insp.sc.remove(this.insp.models[id]); delete this.insp.models[id]; }
+      delete t3.objs[id];
     });
+    this.ids().forEach((id) => { if (!t3.objs[id]) { const o = this.buildShipObj(this.D.SHIPS[id]); o.defRef = this.D.SHIPS[id]; t3.objs[id] = o; this.attachModel(id); } });
+  }
+
+  // Mission map features: asteroids, mines, salvage beacons, the gravity well and the exit edge.
+  buildFeatures() {
+    const t3 = this.three; if (!t3 || !t3.featG) return;
+    const T = t3.T, grp = t3.featG, F = this.g.feat || {}, W = this.D.W / 2, H = this.D.H / 2;
+    this.disposeGroup(grp);
+    (F.rocks || []).forEach((k, i) => {
+      const geo = new T.IcosahedronGeometry(k.r, 1), pos = geo.attributes.position;
+      for (let v = 0; v < pos.count; v++) { const f = 0.75 + 0.45 * Math.abs(Math.sin(v * 12.9898 + i * 7.1)); pos.setXYZ(v, pos.getX(v) * f, pos.getY(v) * f * 0.6, pos.getZ(v) * f); }
+      geo.computeVertexNormals();
+      const rock = new T.Mesh(geo, new T.MeshStandardMaterial({ color: 0x3a3631, roughness: 1, metalness: 0, flatShading: true }));
+      rock.position.set(k.x, 0.6, -k.y); rock.rotation.set(i, i * 2.3, i * 0.7); grp.add(rock);
+    });
+    (F.beacons || []).forEach((b) => {
+      const g2 = new T.Group(); g2.userData.beacon = b;
+      const ring = new T.Mesh(new T.RingGeometry(1.4, 1.9, 32), new T.MeshBasicMaterial({ toneMapped: false, color: 0xffc94d, transparent: true, opacity: 0.9, side: T.DoubleSide, depthWrite: false }));
+      ring.rotation.x = -Math.PI / 2; g2.add(ring);
+      const sp = new T.Sprite(new T.SpriteMaterial({ toneMapped: false, map: t3.glowTex, color: 0xffc94d, transparent: true, blending: T.AdditiveBlending, depthWrite: false })); sp.position.y = 1.2; sp.scale.setScalar(3); g2.add(sp);
+      g2.add(this.circle(0, 0, 5, 0xffc94d, 0.4));
+      g2.position.set(b.x, 0.1, -b.y); grp.add(g2);
+    });
+    (F.mines || []).forEach((k) => {
+      const sp = new T.Sprite(new T.SpriteMaterial({ toneMapped: false, map: t3.glowTex, color: 0xff3b3b, transparent: true, blending: T.AdditiveBlending, depthWrite: false }));
+      sp.position.set(k.x, 1, -k.y); sp.scale.setScalar(1.8); sp.userData.mine = k; grp.add(sp);
+    });
+    if (F.well) {
+      const wg = new T.Group(); wg.userData.well = true;
+      for (let i = 1; i <= 4; i++) wg.add(this.circle(0, 0, F.well.r * i / 4, 0x9a7bff, 0.12 + 0.08 * (4 - i)));
+      for (let a = 0; a < 6; a++) {
+        const pts = []; for (let t = 0; t <= 24; t++) { const rr = F.well.r * (1 - t / 26), ang = a * Math.PI / 3 + t * 0.12; pts.push(new T.Vector3(Math.cos(ang) * rr, 0.08, Math.sin(ang) * rr)); }
+        wg.add(new T.Line(new T.BufferGeometry().setFromPoints(pts), new T.LineBasicMaterial({ toneMapped: false, color: 0xb59bff, transparent: true, opacity: 0.35 })));
+      }
+      wg.position.set(F.well.x, 0, -F.well.y); grp.add(wg);
+    }
+    const ex = this.mission && this.mission.exit;
+    if (ex) {
+      const band = new T.Mesh(new T.PlaneGeometry(4, this.D.H), new T.MeshBasicMaterial({ toneMapped: false, color: 0x7be3a4, transparent: true, opacity: 0.16, side: T.DoubleSide, depthWrite: false }));
+      band.rotation.x = -Math.PI / 2; band.position.set(ex.edge === 'west' ? -W + 2 : W - 2, 0.05, 0); grp.add(band);
+    }
+  }
+
+  updateFeatures() {
+    const t3 = this.three; if (!t3 || !t3.featG) return;
+    t3.featG.children.forEach((c) => { if (c.userData.beacon) c.visible = !c.userData.beacon.got; if (c.userData.mine) c.visible = c.userData.mine.live !== false; });
   }
 
   initInspector() {
@@ -1486,7 +1970,7 @@ class Component extends DCLogic {
   placeBadges() {
     const t3 = this.three, w = this.canvas.clientWidth, h = this.canvas.clientHeight, ang = { fore: 0, port: Math.PI / 2, stbd: -Math.PI / 2, aft: Math.PI };
     this.ids().forEach((id) => {
-      const s = this.g.ships[id], o = t3.objs[id], gone = s.dead || s.fled || s.captured, hd = o.root.rotation.y - Math.PI / 2, rr = 5 * s.def.len / 8 + 1.3;
+      const s = this.g.ships[id], o = t3.objs[id], gone = !o || s.dead || s.fled || s.captured || s.away || s.escaped, hd = o.root.rotation.y - Math.PI / 2, rr = 5 * s.def.len / 8 + 1.3;
       this.D.FACINGS.forEach((f) => {
         const el = this.badgeEls[id + ':' + f]; if (!el) return;
         if (gone || !this.ui.arcBadges) { el.style.transform = 'translate(-9999px, 0)'; return; }
@@ -1503,7 +1987,7 @@ class Component extends DCLogic {
     this.ids().forEach((id) => {
       const el = this.labelEls[id]; if (!el) return;
       const s = this.g.ships[id], o = t3.objs[id];
-      if (s.fled || (s.dead && performance.now() - (s.deadAt || 0) > 3200)) { el.style.transform = 'translate(-9999px, 0)'; return; }
+      if (s.fled || s.away || s.escaped || (s.dead && performance.now() - (s.deadAt || 0) > 3200)) { el.style.transform = 'translate(-9999px, 0)'; return; }
       const v = o.root.position.clone(); v.y = 4.2; v.project(t3.camera);
       if (v.z > 1) { el.style.transform = 'translate(-9999px, 0)'; return; }
       const x = (v.x + 1) / 2 * w, lw = el.offsetWidth || 100, lh = (el.offsetHeight || 20) + 3;
@@ -1526,9 +2010,10 @@ class Component extends DCLogic {
   placeShips() {
     if (!this.three) return;
     this.ids().forEach((id) => {
-      const s = this.g.ships[id], o = this.three.objs[id];
+      const s = this.g.ships[id], o = this.three.objs[id]; if (!o) return;
       o.root.position.set(s.x, 0, -s.y);
       o.root.rotation.y = s.h + Math.PI / 2;
+      o.root.visible = !s.away && !s.escaped;
     });
   }
 
@@ -1637,14 +2122,14 @@ class Component extends DCLogic {
     const e = this.env(me, this.ui.order), D = Math.PI / 180;
     ov.add(this.sector(me.x, me.y, e.minMove, e.maxMove, me.h - e.turn * D, me.h + e.turn * D, me.def.hex, 0.24, 1));
     // Courses already plotted for the rest of this side's ships
-    this.sideShips(g.side).forEach((id) => {
+    this.ctrl(g.side).forEach((id) => {
       const d = g.drafts[id]; if (id === g.plotting || !d) return;
       const s = g.ships[id], end = this.path(s, d.dest).at(1);
       ov.add(this.pathLine(s, d.dest, s.def.hex, 0.55));
       ov.add(this.ghost(s.def, end.x, end.y, end.h, 0.22));
     });
     // Priority-target lines: bright for the ship being plotted, dim for the rest of the squadron.
-    this.sideShips(g.side).forEach((id) => {
+    this.ctrl(g.side).forEach((id) => {
       const d = g.drafts[id], tid = id === g.plotting ? this.ui.target : (d && d.target);
       if (!tid || tid === 'auto' || !this.active(g.ships[tid])) return;
       const s = g.ships[id], t = g.ships[tid], from = d ? this.path(s, d.dest).at(1) : s, bright = id === g.plotting;
@@ -1963,6 +2448,7 @@ class Component extends DCLogic {
       o.model.rotation.y = crip ? Math.sin(now / 1700 + i * 1.3) * 0.07 : 0;
     });
     this.damageFx(fxDt, now);
+    if (t3.featG) t3.featG.children.forEach((c) => { if (c.userData.well) c.rotation.y += fxDt * 0.25; });
     this.ids().forEach((id, i) => { const o = t3.objs[id]; o.model.position.y = Math.sin(now / 900 + i * 2) * 0.12; o.ring.material.opacity = id === this.ui.sel ? 0.95 : (g.phase === 'orders' && id === g.plotting ? 0.8 : 0.4); });
     // Effects may spawn new effects while updating; collect those separately so none are dropped.
     const cur = this.fx; this.fx = [];
@@ -2156,12 +2642,12 @@ class Component extends DCLogic {
       const td = this.deg(2 * p.b);
       destTurn = td === 0 ? 'unchanged' : Math.abs(td) + '° ' + (td > 0 ? 'to port' : 'to stbd');
     }
-    const own = canOrder ? this.sideShips(g.side) : [];
+    const own = canOrder ? this.ctrl(g.side) : [];
     const drafted = own.filter((id) => g.drafts[id]).length;
     const fleet = own.map((id) => {
       const s = g.ships[id], on = id === g.plotting, done = !!g.drafts[id];
       return {
-        name: s.def.name.replace('CNS ', ''), mark: done ? 'plotted' : 'to plot', pick: this.pickOn[id], pressed: on ? 'true' : 'false',
+        name: s.def.name.replace('CNS ', ''), mark: done ? 'plotted' : 'to plot', pick: this.pickFn(id), pressed: on ? 'true' : 'false',
         style: 'min-height: 44px; flex: 1 1 120px; display: flex; align-items: center; justify-content: space-between; gap: 6px; padding: 0 10px; border-radius: 6px; cursor: pointer; text-align: left; ' +
           (on ? 'background: #16243d; color: #eef3fb; border: 1px solid ' + s.def.color + ';' : 'background: #0a1222; color: #c5d1e6; border: 1px solid #26324a;'),
         markStyle: 'font-size: 11px; font-weight: 600; color: ' + (done ? '#7be3a4' : '#93a3bf') + ';'
@@ -2170,7 +2656,7 @@ class Component extends DCLogic {
     const commitDisabled = !(canOrder && own.length && drafted === own.length);
     const tchip = (on) => 'min-height: 44px; flex: 1 1 0; min-width: 0; padding: 0 6px; border-radius: 6px; line-height: 1.15; cursor: pointer; font-size: 12px; font-weight: 700; ' + (on ? 'background: #3a0f12; color: #ffb3b3; border: 1px solid #ff4d4d;' : 'background: #0a1222; color: #c5d1e6; border: 1px solid #26324a;');
     const targets = canOrder ? [{ name: 'Closest', pick: this.targetAuto, pressed: this.ui.target === 'auto' ? 'true' : 'false', style: tchip(this.ui.target === 'auto') }].concat(
-      this.sideShips(this.enemySide(g.side)).map((id) => ({ name: g.ships[id].def.name.replace('CNS ', ''), pick: this.targetOn[id], pressed: this.ui.target === id ? 'true' : 'false', style: tchip(this.ui.target === id) }))) : [];
+      this.sideShips(this.enemySide(g.side)).map((id) => ({ name: g.ships[id].def.name.replace('CNS ', ''), pick: this.targetFn(id), pressed: this.ui.target === id ? 'true' : 'false', style: tchip(this.ui.target === id) }))) : [];
     const pv = this.pv, f1 = (x) => (Math.round(x * 10) / 10).toFixed(1);
     const pvm = { show: !!pv && g.phase === 'orders', ship: pv ? pv.ship : '', empty: !pv || !!pv.empty, full: !!pv && !pv.empty, where: '', dealTotal: '0.0', takeTotal: '0.0', deal: [], take: [], noDeal: true, noTake: true };
     if (pv && !pv.empty) {
@@ -2182,8 +2668,34 @@ class Component extends DCLogic {
       pvm.takeTotal = f1(Object.keys(r.take).reduce((a, id) => a + r.take[id].dmg, 0));
       pvm.noDeal = !pvm.deal.length; pvm.noTake = !pvm.take.length;
     }
+    // Campaign: mission tracker, ready-to-start prompt, and the debrief.
+    const misView = { show: false, ready: false };
+    if (this.mission) {
+      const r = this.missionCheck(), m = this.mission;
+      misView.show = true; misView.title = m.code + ' · ' + m.name; misView.type = m.type.toUpperCase();
+      misView.turnTxt = 'Turn ' + g.turn + (m.turns ? ' of ' + m.turns : '');
+      misView.lines = r.lines.map((l) => ({ text: l.text, mark: l.ok ? '✓' : '○', col: l.ok ? '#7be3a4' : '#c5d1e6' }));
+      const notes = [];
+      if (m.exit) notes.push('Green band: the ' + m.exit.edge + ' exit edge');
+      if (g.feat.well) notes.push('Gravity well bends every course toward the purple swirl');
+      if ((g.feat.rocks || []).length) notes.push('Asteroids block fire; ending a move inside one costs D3 hull');
+      if ((g.feat.mines || []).length) notes.push('Red lights are mines: 2d6 to any ship ending within 3u · gold rings are beacons (end within 5u)');
+      const away = this.ids().filter((id) => g.ships[id].away).map((id) => g.ships[id].def.name + ' (turn ' + g.ships[id].def.spawn + ')');
+      if (away.length) notes.push('Expected: ' + away.join(', '));
+      misView.notes = notes; misView.hasNotes = notes.length > 0;
+    } else if (this.save && this.save.current) {
+      misView.ready = true; misView.readyText = 'Operation Iron Tide: ' + this.save.current.toUpperCase() + ' is ready to launch with your saved fleet.';
+    }
+    const dbr = g.debrief || {}, dbView = {
+      title: dbr.won ? 'Mission accomplished' : 'Mission failed', col: dbr.won ? '#7be3a4' : '#ff8a8a', name: this.mission ? this.mission.code + ' · ' + this.mission.name : '',
+      lines: (dbr.lines || []).map((l) => ({ text: l.text, mark: l.ok ? '✓' : '✗', col: l.ok ? '#7be3a4' : '#ff8a8a' })),
+      rewards: '+' + (dbr.credits || 0) + ' credits · +' + (dbr.renown || 0) + ' renown',
+      lost: (dbr.lost || []).length ? 'Lost: ' + dbr.lost.join(', ') : 'No ships lost', prizes: (dbr.prizes || []).length ? 'Prizes taken: ' + dbr.prizes.join(', ') : '',
+      hasPrizes: (dbr.prizes || []).length > 0,
+      saved: dbr.saved === 'db' ? 'Saved to the campaign record in this canvas.' : dbr.saved === 'local' ? 'Saved in this browser.' : 'This view could not save the campaign; the result is shown here only.'
+    };
     const badges = [];
-    this.ids().forEach((id) => { const s = g.ships[id]; this.D.FACINGS.forEach((f) => { badges.push({ ref: this.badgeRefs[id + ':' + f], sh: String(this.shieldLeft(s, f)), dice: String(this.arcDice(s, f)) }); }); });
+    this.ids().forEach((id) => { const s = g.ships[id]; this.D.FACINGS.forEach((f) => { badges.push({ ref: this.badgeRef(id + ':' + f), sh: String(this.shieldLeft(s, f)), dice: String(this.arcDice(s, f)) }); }); });
     const commitLabel = !canOrder ? (g.phase === 'over' ? 'Battle over' : 'Resolving…') : (drafted === own.length ? 'Commit fleet orders' : 'Plot ' + (own.length - drafted) + ' more ship' + (own.length - drafted === 1 ? '' : 's') + ' · double-click plots and moves on');
     const commitStyle = 'min-height: 44px; padding: 0 16px; border-radius: 6px; font-weight: 700; font-size: 14px; border: 0; cursor: ' + (commitDisabled ? 'not-allowed' : 'pointer') + '; ' +
       (commitDisabled ? 'background: #1a2335; color: #93a3bf;' : 'background: ' + plot.def.color + '; color: #070a12;');
@@ -2229,8 +2741,8 @@ class Component extends DCLogic {
     const labels = this.ids().map((id) => {
       const s = g.ships[id], t = tag(id), SD = this.D.SIDES[s.def.side], on = this.ui.tip === id && t.show;
       return {
-        name: s.def.name + (s.captured ? ' · captured' : ''), ref: this.labelRefs[id], border: s.captured ? this.D.SIDES[s.capturedBy].color : s.def.color, fg: SD.tagFg,
-        floats: floats(id), tagShow: t.show, dmg: t.text, tagBg: t.bg, tagFg: t.fg, tipOn: this.tipOn[id],
+        name: s.def.name + (s.captured ? ' · captured' : ''), ref: this.lref(id), border: s.captured ? this.D.SIDES[s.capturedBy].color : s.def.color, fg: SD.tagFg,
+        floats: floats(id), tagShow: t.show, dmg: t.text, tagBg: t.bg, tagFg: t.fg, tipOn: this.tipFn(id),
         tipShow: on, tipPos: (this.labelY[id] || 0.5) > 0.45 ? 'bottom: calc(100% + 6px);' : 'top: calc(100% + 6px);',
         tipHead: 'TURN ' + tipTurn + ' · ROLLS AGAINST ' + s.def.name.toUpperCase(), tipRows: on ? tipRows : []
       };
@@ -2267,7 +2779,10 @@ class Component extends DCLogic {
     const win = g.winner;
     return {
       turn: g.turn, phaseLabel: phaseLabel,
-      modeLabel: this.modeHot() ? 'Hot-seat · 2 players' : 'Versus AI · you command the Concord',
+      modeLabel: this.mission ? 'Operation Iron Tide · ' + this.mission.code + ' ' + this.mission.name : this.modeHot() ? 'Hot-seat · 2 players' : 'Skirmish · versus AI',
+      turnMax: this.mission && this.mission.turns ? ' / ' + this.mission.turns : '',
+      restartLabel: this.mission && g.phase !== 'over' ? 'Restart mission' : 'New battle',
+      mis: misView, startMissionClick: this.startMissionClick, skirmish: this.skirmish,
       insp: insp, nextShip: this.nextShip, orderOpts: orderOpts, fleet: fleet, targets: targets, pv: pvm,
       badges: badges, toggleBadges: this.toggleBadges, badgesPressed: this.ui.arcBadges ? 'true' : 'false', badgesBg: this.ui.arcBadges ? '#26324a' : 'rgba(8,12,22,0.86)',
       toggleSound: this.toggleSound, soundPressed: this.ui.muted ? 'false' : 'true', soundOn: !this.ui.muted, soundOff: this.ui.muted, soundLabel: this.ui.muted ? 'Sound off — click to unmute' : 'Sound on — click to mute', canOrder: canOrder,
@@ -2281,7 +2796,8 @@ class Component extends DCLogic {
       setInspect: this.setInspect, onDbl: this.onDbl,
       loading: this.ui.loading, loadNote: this.ui.loadNote,
       showHandoff: g.phase === 'handoff', takeOver: this.takeOver,
-      showOver: g.phase === 'over',
+      showOver: g.phase === 'over' && !this.mission,
+      showDebrief: g.phase === 'over' && !!this.mission && !!g.debrief, db: dbView,
       overTitle: win === 'draw' ? 'Mutual destruction' : win === 'concord' ? 'Concord victory' : 'Reaver victory',
       overColor: win === 'draw' ? '#ffc94d' : win === 'concord' ? '#5aa9ff' : '#ff6a3d',
       overBorder: win === 'draw' ? '#6b4310' : win === 'concord' ? '#2a5a8f' : '#8f3a22',
