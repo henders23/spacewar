@@ -22,7 +22,7 @@ th{font-size:12px;letter-spacing:0.06em;color:#93a3bf;font-weight:600}
 <main style="max-width: 1080px; margin: 0 auto; padding: 56px 24px 80px; display: flex; flex-direction: column; gap: 56px">
 
   <header style="display: flex; flex-direction: column; gap: 14px; padding-bottom: 32px; border-bottom: 1px solid #1c2638">
-    <span style="font-family: 'JetBrains Mono', monospace; font-size: 12px; letter-spacing: 0.14em; color: #ffc94d">CORE RULES · DRAFT v0.4</span>
+    <span style="font-family: 'JetBrains Mono', monospace; font-size: 12px; letter-spacing: 0.14em; color: #ffc94d">CORE RULES · DRAFT v0.5</span>
     <h1 style="margin: 0; font-family: 'Chakra Petch', sans-serif; font-weight: 700; font-size: 56px; line-height: 1.05; letter-spacing: 0.06em; color: #eef3fb">GUNLINE</h1>
     <p style="margin: 0; max-width: 720px; font-size: 18px; color: #c5d1e6">A game of capital ships slugging it out in open space. Both admirals write orders in secret, every ship moves at the same moment, and then every gun fires at the same moment. Fistfuls of d6 decide who is still flying.</p>
     <div style="display: flex; flex-wrap: wrap; gap: 10px; margin-top: 6px">
@@ -244,7 +244,30 @@ th{font-size:12px;letter-spacing:0.06em;color:#93a3bf;font-weight:600}
   </section>
 
   <section style="display: flex; flex-direction: column; gap: 18px">
-    <h2 style="margin: 0; font-family: 'Chakra Petch', sans-serif; font-size: 28px; color: #eef3fb">8 · Ship profiles · starter squadrons</h2>
+    <h2 style="margin: 0; font-family: 'Chakra Petch', sans-serif; font-size: 28px; color: #eef3fb">8 · Torpedoes</h2>
+    <p style="margin: 0; max-width: 820px; color: #c5d1e6">Torpedoes are slow, heavy and few. Cruisers carry them (Vigilant 1, Carrion Wing 2 per battle); the Torpedo Tubes refit adds 2 to any ship. They are a threat you plot around, not a weapon you roll every turn.</p>
+    <div style="display: flex; flex-wrap: wrap; gap: 12px">
+      <div style="flex: 1 1 300px; display: flex; flex-direction: column; gap: 6px; padding: 18px; background: #0d1220; border: 1px solid #1c2638; border-radius: 10px; color: #c5d1e6">
+        <h3 style="margin: 0; font-family: 'Chakra Petch', sans-serif; font-size: 18px; color: #eef3fb">Launch</h3>
+        <p style="margin: 0; font-size: 14px">With its orders, a ship with torpedoes left may launch one, in addition to its special order. It goes from the bow at the ship&rsquo;s priority target, or the nearest enemy, which must be within 40u. A ship with a Bridge Hit cannot launch.</p>
+      </div>
+      <div style="flex: 1 1 300px; display: flex; flex-direction: column; gap: 6px; padding: 18px; background: #0d1220; border: 1px solid #1c2638; border-radius: 10px; color: #c5d1e6">
+        <h3 style="margin: 0; font-family: 'Chakra Petch', sans-serif; font-size: 18px; color: #eef3fb">The run</h3>
+        <p style="margin: 0; font-size: 14px">Torpedoes move with the ships. Each move, a torpedo turns up to 60° toward where its target was when orders were given, then runs 20u. If its run passes within reach of where the target <em>ends</em> its move (1.5u + a third of the target&rsquo;s length) it strikes; otherwise it carries on. After 3 moves it burns out. A torpedo whose target is gone re-homes on the nearest enemy within 30u.</p>
+      </div>
+      <div style="flex: 1 1 300px; display: flex; flex-direction: column; gap: 6px; padding: 18px; background: #0d1220; border: 1px solid #1c2638; border-radius: 10px; color: #c5d1e6">
+        <h3 style="margin: 0; font-family: 'Chakra Petch', sans-serif; font-size: 18px; color: #eef3fb">Strike</h3>
+        <p style="margin: 0; font-size: 14px">Torpedoes strike after rams and before the guns fire. The launching player rolls <strong style="color: #eef3fb">2d6 damage, ignoring shields and armour</strong>; a double is also a critical hit. Brace for Impact halves the damage (round down). A ship with a point-defence grid rolls a d6 first: 4+ shoots the torpedo down.</p>
+      </div>
+      <div style="flex: 1 1 300px; display: flex; flex-direction: column; gap: 6px; padding: 18px; background: #0d1220; border: 1px solid #1c2638; border-radius: 10px; color: #c5d1e6">
+        <h3 style="margin: 0; font-family: 'Chakra Petch', sans-serif; font-size: 18px; color: #eef3fb">Dodging</h3>
+        <p style="margin: 0; font-size: 14px">A torpedo chases where you were, not where you are going: turning hard, changing speed or crossing its line leaves it short. Running directly away from or toward it is the way to be hit. Live torpedoes show on the map with an orange dashed line to their target.</p>
+      </div>
+    </div>
+  </section>
+
+  <section style="display: flex; flex-direction: column; gap: 18px">
+    <h2 style="margin: 0; font-family: 'Chakra Petch', sans-serif; font-size: 28px; color: #eef3fb">9 · Ship profiles · starter squadrons</h2>
     <div style="display: flex; flex-wrap: wrap; gap: 16px">
       <article style="flex: 1 1 440px; min-width: 0; display: flex; flex-direction: column; gap: 14px; padding: 20px; background: #0d1220; border: 1px solid #1c2638; border-top: 4px solid #5aa9ff; border-radius: 10px">
         <div style="display: flex; flex-direction: column; gap: 2px">
@@ -307,7 +330,7 @@ th{font-size:12px;letter-spacing:0.06em;color:#93a3bf;font-weight:600}
         <div style="overflow-x: auto">
           <table>
             <thead><tr><th>WEAPON</th><th>ARC</th><th>DICE</th><th>RANGE</th><th>NOTES</th></tr></thead>
-            <tbody><tr><td style="color: #eef3fb">Port broadside</td><td>Port</td><td>4</td><td>24u</td><td>—</td></tr><tr><td style="color: #eef3fb">Starboard broadside</td><td>Stbd</td><td>4</td><td>24u</td><td>—</td></tr><tr><td style="color: #eef3fb">Prow lance</td><td>Fore</td><td>1</td><td>24u</td><td>Lance</td></tr><tr><td style="color: #eef3fb">Dorsal turrets</td><td>All</td><td>2</td><td>18u</td><td>—</td></tr></tbody>
+            <tbody><tr><td style="color: #eef3fb">Port broadside</td><td>Port</td><td>4</td><td>24u</td><td>—</td></tr><tr><td style="color: #eef3fb">Starboard broadside</td><td>Stbd</td><td>4</td><td>24u</td><td>—</td></tr><tr><td style="color: #eef3fb">Prow lance</td><td>Fore</td><td>1</td><td>24u</td><td>Lance</td></tr><tr><td style="color: #eef3fb">Dorsal turrets</td><td>All</td><td>2</td><td>18u</td><td>—</td></tr><tr><td style="color: #eef3fb">Torpedo tube</td><td>Bow</td><td>2</td><td>40u</td><td>1 torpedo per battle</td></tr></tbody>
           </table>
         </div>
       </article>
@@ -321,7 +344,7 @@ th{font-size:12px;letter-spacing:0.06em;color:#93a3bf;font-weight:600}
         <div style="overflow-x: auto">
           <table>
             <thead><tr><th>WEAPON</th><th>ARC</th><th>DICE</th><th>RANGE</th><th>NOTES</th></tr></thead>
-            <tbody><tr><td style="color: #eef3fb">Port broadside</td><td>Port</td><td>5</td><td>24u</td><td>—</td></tr><tr><td style="color: #eef3fb">Starboard broadside</td><td>Stbd</td><td>5</td><td>24u</td><td>—</td></tr><tr><td style="color: #eef3fb">Talon lances</td><td>Fore</td><td>3</td><td>18u</td><td>Lance</td></tr><tr><td style="color: #eef3fb">Spinal turrets</td><td>All</td><td>2</td><td>18u</td><td>—</td></tr></tbody>
+            <tbody><tr><td style="color: #eef3fb">Port broadside</td><td>Port</td><td>5</td><td>24u</td><td>—</td></tr><tr><td style="color: #eef3fb">Starboard broadside</td><td>Stbd</td><td>5</td><td>24u</td><td>—</td></tr><tr><td style="color: #eef3fb">Talon lances</td><td>Fore</td><td>3</td><td>18u</td><td>Lance</td></tr><tr><td style="color: #eef3fb">Spinal turrets</td><td>All</td><td>2</td><td>18u</td><td>—</td></tr><tr><td style="color: #eef3fb">Torpedo tubes</td><td>Bow</td><td>2</td><td>40u</td><td>2 torpedoes per battle</td></tr></tbody>
           </table>
         </div>
       </article>
@@ -329,7 +352,7 @@ th{font-size:12px;letter-spacing:0.06em;color:#93a3bf;font-weight:600}
   </section>
 
   <section style="display: flex; flex-direction: column; gap: 18px">
-    <h2 style="margin: 0; font-family: 'Chakra Petch', sans-serif; font-size: 28px; color: #eef3fb">9 · Campaign battles</h2>
+    <h2 style="margin: 0; font-family: 'Chakra Petch', sans-serif; font-size: 28px; color: #eef3fb">10 · Campaign battles</h2>
     <p style="margin: 0; max-width: 820px; color: #c5d1e6">In Operation Iron Tide the battle board loads your saved fleet and the mission you readied. These rules add to the core rules for those battles.</p>
     <div style="display: flex; flex-wrap: wrap; gap: 12px">
       <div style="flex: 1 1 300px; display: flex; flex-direction: column; gap: 6px; padding: 18px; background: #0d1220; border: 1px solid #1c2638; border-radius: 10px; color: #c5d1e6">
@@ -354,7 +377,7 @@ th{font-size:12px;letter-spacing:0.06em;color:#93a3bf;font-weight:600}
       </div>
       <div style="flex: 1 1 300px; display: flex; flex-direction: column; gap: 6px; padding: 18px; background: #0d1220; border: 1px solid #1c2638; border-radius: 10px; color: #c5d1e6">
         <h3 style="margin: 0; font-family: 'Chakra Petch', sans-serif; font-size: 18px; color: #eef3fb">Refits in battle</h3>
-        <p style="margin: 0; font-size: 14px">Heavy broadsides, long-focus lances, fore shields, ablative plating, drives, thrusters, marines, veteran gun crews, damage-control teams, ram prows, ECM and point defence all apply. Torpedoes and tractor beams are not in the battle rules yet.</p>
+        <p style="margin: 0; font-size: 14px">Heavy broadsides, long-focus lances, torpedo tubes (+2 torpedoes), fore shields, ablative plating, drives, thrusters, marines, veteran gun crews, damage-control teams, ram prows, ECM and point defence all apply. Tractor beams are not in the battle rules yet.</p>
       </div>
     </div>
   </section>

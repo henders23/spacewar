@@ -240,11 +240,12 @@ button:focus-visible{outline:2px solid #ffc94d;outline-offset:2px}
           <span style="font-family: 'JetBrains Mono', monospace; font-size: 12px; color: #d8e1f0">{{insp.hullText}}</span>
         </div>
         <div style="font-size: 11px; color: #93a3bf; white-space: nowrap; overflow: hidden; text-overflow: ellipsis" title="On each side of the ship: blue = shields left on that facing this turn; red = dice that can fire in that direction"><span style="color: #5aa9ff; font-weight: 700">Blue</span> shields · <span style="color: #ff5c5c; font-weight: 700">red</span> dice, per side</div>
-        <div style="display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 6px; font-size: 11px; color: #93a3bf">
+        <div style="display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 6px; font-size: 11px; color: #93a3bf">
           <div style="display: flex; flex-direction: column; gap: 2px"><span>CREW</span><span style="font-family: 'JetBrains Mono', monospace; font-size: 13px; color: #e6edf8">{{insp.crew}}</span></div>
           <div style="display: flex; flex-direction: column; gap: 2px"><span>SPEED</span><span style="font-family: 'JetBrains Mono', monospace; font-size: 13px; color: #e6edf8">{{insp.speed}}</span></div>
           <div style="display: flex; flex-direction: column; gap: 2px"><span>TURN</span><span style="font-family: 'JetBrains Mono', monospace; font-size: 13px; color: #e6edf8">{{insp.turnTxt}}</span></div>
           <div style="display: flex; flex-direction: column; gap: 2px"><span>ARMOUR</span><span style="font-family: 'JetBrains Mono', monospace; font-size: 13px; color: #e6edf8">{{insp.armour}}</span></div>
+          <div style="display: flex; flex-direction: column; gap: 2px"><span>TORPS</span><span style="font-family: 'JetBrains Mono', monospace; font-size: 13px; color: #ffcf9a">{{insp.torps}}</span></div>
         </div>
         <sc-if value="{{insp.hasCrits}}" hint-placeholder-val="{{ false }}">
           <div style="display: flex; flex-wrap: wrap; gap: 6px; align-items: center">
@@ -277,6 +278,12 @@ button:focus-visible{outline:2px solid #ffc94d;outline-offset:2px}
               </button>
             </sc-for>
           </div>
+          <sc-if value="{{torp.show}}" hint-placeholder-val="{{ false }}">
+            <button onClick="{{torpClick}}" disabled="{{torp.disabled}}" aria-pressed="{{torp.pressed}}" style="{{torp.style}}">
+              <span style="font-weight: 700; font-size: 12px">{{torp.label}}</span>
+              <span style="font-size: 11px; opacity: 0.85">{{torp.sub}}</span>
+            </button>
+          </sc-if>
           <div style="display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 6px; font-size: 11px; color: #93a3bf; padding: 8px 10px; background: #080c16; border-radius: 6px">
             <div style="display: flex; flex-direction: column; gap: 1px"><span>MOVE</span><span style="font-family: 'JetBrains Mono', monospace; font-size: 13px; color: #e6edf8">{{destDist}}</span></div>
             <div style="display: flex; flex-direction: column; gap: 1px"><span>BEARING</span><span style="font-family: 'JetBrains Mono', monospace; font-size: 13px; color: #e6edf8">{{destBearing}}</span></div>
@@ -317,6 +324,7 @@ class Component extends DCLogic {
     this.badgeRef = (k) => this.badgeRefs[k] || (this.badgeRefs[k] = (el) => { if (el) this.badgeEls[k] = el; });
     this.targetFn = (id) => this.targetOn[id] || (this.targetOn[id] = () => this.setTarget(id));
     this.save = null; this.mission = null;
+    this.torpClick = () => this.toggleTorp();
     this.startMissionClick = () => { if (this.save && this.save.current) this.startMission(this.save.current); };
     this.skirmish = () => { this.newGame(); };
     this.targetAuto = () => this.setTarget('auto');
@@ -370,6 +378,8 @@ class Component extends DCLogic {
         x_small_orange: '/_blob/7b16720d98bfdf25905f7a3c64027b77', x_breach_red: '/_blob/9cca5611880a5440bc664f988ae734f8',
         x_capital_orange: '/_blob/76c9d2d750292cfa93d29cb2eae24fc3', x_reactor_violet: '/_blob/e088983b7a44693ca887c729c43e76bb'
       },
+      // Torpedoes: run 20u a move toward where the target was, turning up to 60°; burn out after 3 moves; launch within 40u.
+      TORP: { speed: 20, turn: 60, life: 3, range: 40, reach: 1.5, reachK: 0.35, dice: 2, plus: 0 },
       SHEETS: { x_small_orange: [4, 4, 16], x_breach_red: [4, 4, 16], x_capital_orange: [5, 4, 20], x_reactor_violet: [5, 4, 20] },
       SFX: {
         cannon_heavy: '/_blob/e5c3a8b827ea958ba638bc5e22722f6d', cannon_boom: '/_blob/16c5ec15006567069beea64c4179d022',
@@ -422,7 +432,7 @@ class Component extends DCLogic {
         },
         vigilant: {
           id: 'vigilant', side: 'concord', len: 6.5, beam: 1.5, name: 'CNS Vigilant', cls: 'Valiant-class cruiser · Concord Navy', color: '#5aa9ff', hex: 0x5aa9ff,
-          speed: 14, turn: 50, hull: 8, shields: { fore: 2, port: 1, stbd: 1, aft: 1 }, armour: 4, crew: 6, ram: false,
+          speed: 14, turn: 50, hull: 8, shields: { fore: 2, port: 1, stbd: 1, aft: 1 }, armour: 4, crew: 6, ram: false, torps: 1,
           start: { x: -48, y: 8, h: 0 },
           weapons: [
             { id: 'port', name: 'Port broadside', dice: 4, range: 24, arcs: ['port'], broadside: true, side: 'port' },
@@ -434,7 +444,7 @@ class Component extends DCLogic {
         },
         carrion: {
           id: 'carrion', side: 'reaver', len: 6.5, beam: 1, name: 'Carrion Wing', cls: 'Harrow-class raider · Reaver Clans', color: '#ff6a3d', hex: 0xff6a3d,
-          speed: 18, turn: 60, hull: 10, shields: { fore: 3, port: 1, stbd: 1, aft: 0 }, armour: 5, crew: 4, ram: false,
+          speed: 18, turn: 60, hull: 10, shields: { fore: 3, port: 1, stbd: 1, aft: 0 }, armour: 5, crew: 4, ram: false, torps: 2,
           start: { x: 48, y: -8, h: Math.PI },
           weapons: [
             { id: 'port', name: 'Port broadside', dice: 5, range: 24, arcs: ['port'], broadside: true, side: 'port' },
@@ -492,7 +502,7 @@ class Component extends DCLogic {
     const c = def.carry || {};
     return { def: def, id: def.id, x: def.start.x, y: def.start.y, h: def.start.h,
       hull: c.hull != null ? Math.max(1, Math.min(def.hull, c.hull)) : def.hull, crew: c.crew != null ? Math.min(def.crew, c.crew) : def.crew,
-      crits: (c.crits || []).map((k) => Object.assign({}, k)), dead: false, fled: false, captured: false, escaped: false, away: (def.spawn || 0) > 1 };
+      crits: (c.crits || []).map((k) => Object.assign({}, k)), torps: def.torps || 0, dead: false, fled: false, captured: false, escaped: false, away: (def.spawn || 0) > 1 };
   }
 
   skirmishRoster() { return ['resolute', 'vigilant', 'maw', 'carrion'].map((k) => ({ id: k, cls: k })); }
@@ -526,6 +536,7 @@ class Component extends DCLogic {
     if (has('thrusters')) d.turn = d.turn + 10;
     if (has('marines')) d.crew = d.crew + 2;
     if (has('ram')) d.ram = true;
+    if (has('torpedoes')) d.torps = (d.torps || 0) + 2;
     d.gunners = has('gunners'); d.dcTeams = has('dc_teams'); d.plating = has('plating'); d.ecm = has('ecm'); d.pd = has('pd');
   }
 
@@ -982,6 +993,7 @@ class Component extends DCLogic {
     this.ids().forEach((id) => { ships[id] = this.mkShip(S[id]); });
     this.g = { turn: 1, phase: 'orders', side: 'concord', plotting: this.ids()[0], ships: ships, orders: {}, drafts: {}, dest: null, log: [], winner: null, overText: '', debrief: null };
     this.g.feat = mission ? JSON.parse(JSON.stringify(mission.features || {})) : {};
+    this.g.torps = []; this.g.torpN = 0; this.ui.torp = false;
     this.ui.hover = null;
     this.anim = null;
     this.fx.forEach((f) => f.kill && f.kill());
@@ -996,6 +1008,7 @@ class Component extends DCLogic {
       this.placeShips();
       this.ids().forEach((id) => { const o = this.three.objs[id]; o.model.visible = true; o.glow.visible = true; o.ring.visible = true; o.dmgKey = null; o.list = 0; o.rollAmp = 0; o.ring.material.color.setHex(this.D.SHIPS[id].hex); });
       this.buildFeatures();
+      this.syncTorps();
       this.killCam = null;
       this.frameShips(); this.refreshOverlays();
     }
@@ -1026,7 +1039,7 @@ class Component extends DCLogic {
     const g = this.g, list = this.ctrl(side);
     g.side = side; g.drafts = {}; g.dest = null;
     g.plotting = list[0] || g.plotting;
-    this.ui.order = 'steady';
+    this.ui.order = 'steady'; this.ui.torp = false;
     this.ui.target = this.defaultTarget(g.plotting);
     this.ui.sel = g.plotting;
     this.inspDirty = true;
@@ -1035,7 +1048,7 @@ class Component extends DCLogic {
   switchPlot(id) {
     const g = this.g, d = g.drafts[id];
     g.plotting = id; g.dest = d ? d.dest : null;
-    this.ui.order = d ? d.order : 'steady';
+    this.ui.order = d ? d.order : 'steady'; this.ui.torp = !!(d && d.torp);
     this.ui.target = d && d.target ? d.target : this.defaultTarget(id);
     this.ui.sel = id; this.inspDirty = true; this.ui.hover = null;
     this.refreshOverlays();
@@ -1075,7 +1088,29 @@ class Component extends DCLogic {
     if (g.phase !== 'orders') return;
     const s = g.ships[g.plotting];
     g.dest = this.clampDest(s, this.ui.order, mx, my);
-    g.drafts[g.plotting] = { dest: g.dest, order: this.ui.order, target: this.ui.target };
+    g.drafts[g.plotting] = { dest: g.dest, order: this.ui.order, target: this.ui.target, torp: this.ui.torp };
+    this.refreshOverlays();
+    this.bump();
+  }
+
+  // Torpedo target: the priority target if it is within launch range, otherwise the nearest enemy in range.
+  torpTarget(s, tid) {
+    const g = this.g, R0 = this.D.TORP.range, dist = (t) => Math.hypot(t.x - s.x, t.y - s.y);
+    const t = tid && tid !== 'auto' ? g.ships[tid] : null;
+    if (t && this.active(t) && t.def.side !== s.def.side && dist(t) <= R0) return t;
+    const c = this.sideShips(this.enemySide(s.def.side)).map((k) => g.ships[k]).filter((x) => dist(x) <= R0).sort((a, b) => dist(a) - dist(b));
+    return c[0] || null;
+  }
+
+  canTorp(s) { return !!s && (s.torps || 0) > 0 && this.active(s) && !this.count(s, 'bridge') && !!this.torpTarget(s, this.ui.target); }
+
+  toggleTorp() {
+    const g = this.g;
+    this.unlockAudio();
+    if (g.phase !== 'orders') return;
+    const s = g.ships[g.plotting];
+    this.ui.torp = !this.ui.torp && this.canTorp(s);
+    if (g.drafts[g.plotting]) g.drafts[g.plotting].torp = this.ui.torp;
     this.refreshOverlays();
     this.bump();
   }
@@ -1085,7 +1120,7 @@ class Component extends DCLogic {
     this.unlockAudio();
     if (g.phase !== 'orders') return;
     this.ui.order = id;
-    if (g.dest) { const s = g.ships[g.plotting]; g.dest = this.clampDest(s, id, g.dest.x, g.dest.y); g.drafts[g.plotting] = { dest: g.dest, order: id, target: this.ui.target }; }
+    if (g.dest) { const s = g.ships[g.plotting]; g.dest = this.clampDest(s, id, g.dest.x, g.dest.y); g.drafts[g.plotting] = { dest: g.dest, order: id, target: this.ui.target, torp: this.ui.torp }; }
     this.refreshOverlays();
     this.bump();
   }
@@ -1094,8 +1129,8 @@ class Component extends DCLogic {
     const g = this.g;
     this.unlockAudio();
     if (g.phase !== 'orders' || !this.allDrafted()) return;
-    this.ctrl(g.side).forEach((id) => { g.orders[id] = { order: g.drafts[id].order, dest: g.drafts[id].dest, target: g.drafts[id].target || 'auto' }; });
-    g.dest = null; this.ui.hover = null; this.ui.order = 'steady';
+    this.ctrl(g.side).forEach((id) => { g.orders[id] = { order: g.drafts[id].order, dest: g.drafts[id].dest, target: g.drafts[id].target || 'auto', torp: !!g.drafts[id].torp }; });
+    g.dest = null; this.ui.hover = null; this.ui.order = 'steady'; this.ui.torp = false;
     if (g.side === 'concord') {
       if (this.modeHot()) { g.phase = 'handoff'; g.drafts = {}; this.refreshOverlays(); this.bump(); return; }
       this.aiOrders('reaver');
@@ -1111,7 +1146,9 @@ class Component extends DCLogic {
       const plan = this.aiPlan(me, foe);
       // AI focus fire: the most damaged enemy within reach, otherwise closest-target.
       const near = this.sideShips(this.enemySide(me.def.side)).map((k) => g.ships[k]).filter((t) => Math.hypot(t.x - me.x, t.y - me.y) < 38).sort((a, b) => a.hull / a.def.hull - b.hull / b.def.hull);
-      g.orders[id] = { order: plan.order, dest: plan.dest, target: near.length ? near[0].id : 'auto' };
+      const tgt = near.length ? near[0].id : 'auto', tt = me.torps > 0 ? this.torpTarget(me, tgt) : null;
+      const torp = !!tt && Math.hypot(tt.x - me.x, tt.y - me.y) <= (tt.def.speed < this.D.TORP.speed ? 40 : 30);
+      g.orders[id] = { order: plan.order, dest: plan.dest, target: tgt, torp: torp };
     });
   }
 
@@ -1131,6 +1168,8 @@ class Component extends DCLogic {
       ent.push({ side: id, text: s.def.name + ': ' + ord.label + ' — moves ' + o.path.d.toFixed(1) + 'u.' });
     });
     this.pushLog('TURN ' + g.turn, ent);
+    this.launchTorps();
+    this.syncTorps(); this.placeTorps(0, false);
     this.anim = { kind: 'move', t0: performance.now(), dur: 2600 / this.speedMul() };
     this.userCam = false;
     g.shieldUsed = {}; g.boarding = null;
@@ -1139,6 +1178,57 @@ class Component extends DCLogic {
     if (g.turn === 1) this.sfx('vo_sighted', 0.9, 0.3, 1);
     this.refreshOverlays();
     this.bump();
+  }
+
+  // Launch new torpedoes from the bow, then plan this move for every torpedo in flight. Each turns up to 60°
+  // toward where its target was when orders were given, then runs its full speed; if the run passes within reach
+  // of where the target ends its move, it hits. A torpedo whose target is gone re-homes on the nearest enemy within 30u.
+  launchTorps() {
+    const g = this.g, TP = this.D.TORP;
+    g.torps = (g.torps || []).filter((t) => !t.gone);
+    this.ids().forEach((id) => {
+      const s = g.ships[id], o = g.orders[id];
+      if (!o || !o.torp || !(s.torps > 0) || !this.active(s) || this.count(s, 'bridge')) return;
+      const tg = this.torpTarget(s, o.target); if (!tg) return;
+      s.torps -= 1; g.torpN = (g.torpN || 0) + 1;
+      const bow = s.def.len * 0.55;
+      g.torps.push({ id: 't' + g.torpN, side: s.def.side, owner: id, target: tg.id, x: s.x + Math.cos(s.h) * bow, y: s.y + Math.sin(s.h) * bow, h: s.h, life: TP.life, fresh: true });
+      g.turnRolls[id].push({ owner: id, label: s.def.name + ' launches a torpedo', result: 'at ' + tg.def.name + ' · ' + s.torps + ' left', dice: [] });
+      this.sfx('grav_lance', 0.4, 0.1, 1.6);
+    });
+    const endOf = (k) => { const o = g.orders[k]; return o && o.path ? o.path.at(1) : g.ships[k]; };
+    g.torps.forEach((t) => {
+      let T = g.ships[t.target];
+      if (!this.active(T)) {
+        const fx = this.sideShips(this.enemySide(t.side)).map((k) => g.ships[k]).filter((x) => Math.hypot(x.x - t.x, x.y - t.y) <= 30).sort((a, b) => Math.hypot(a.x - t.x, a.y - t.y) - Math.hypot(b.x - t.x, b.y - t.y));
+        T = fx[0] || null; if (T) t.target = T.id;
+      }
+      t.from = { x: t.x, y: t.y, h: t.h };
+      if (!T) { t.to = { x: t.x + Math.cos(t.h) * TP.speed, y: t.y + Math.sin(t.h) * TP.speed, h: t.h }; t.hit = false; t.life -= 1; return; }
+      // Steer for where the target was when orders were given; the hit is judged against where it ends its move.
+      const e = endOf(T.id), want = Math.atan2(T.y - t.y, T.x - t.x), lim = TP.turn * Math.PI / 180;
+      const h = t.h + Math.max(-lim, Math.min(lim, this.norm(want - t.h))), ux = Math.cos(h), uy = Math.sin(h);
+      // Closest approach to the target's end position along this run.
+      const along = Math.max(0, Math.min(TP.speed, (e.x - t.x) * ux + (e.y - t.y) * uy));
+      const cx = t.x + ux * along, cy = t.y + uy * along, miss = Math.hypot(e.x - cx, e.y - cy), reach = TP.reach + T.def.len * TP.reachK;
+      t.hit = miss <= reach;
+      t.to = t.hit ? { x: cx, y: cy, h: h } : { x: t.x + ux * TP.speed, y: t.y + uy * TP.speed, h: h };
+      t.life -= 1;
+    });
+  }
+
+  // Torpedoes reach the end of their run: hits are queued for gunnery, burnt-out or off-map ones are removed.
+  landTorps() {
+    const g = this.g, W = this.D.W / 2 + 10, H = this.D.H / 2 + 10;
+    g.torpHits = [];
+    (g.torps || []).forEach((t) => {
+      if (!t.to) return;
+      t.x = t.to.x; t.y = t.to.y; t.h = t.to.h; t.fresh = false;
+      if (t.hit && this.active(g.ships[t.target])) { g.torpHits.push(t); t.gone = true; return; }
+      if (t.life <= 0 || Math.abs(t.x) > W || Math.abs(t.y) > H) { t.gone = true; t.fizzled = true; }
+    });
+    g.torps = g.torps.filter((t) => !t.gone || g.torpHits.indexOf(t) >= 0);
+    this.syncTorps();
   }
 
   speedMul() { const v = Number(this.props.animSpeed); return v > 0 ? v : 1; }
@@ -1157,6 +1247,7 @@ class Component extends DCLogic {
       }
     });
     this.featureHazards();
+    this.landTorps();
     // Ram orders: an enemy within reach in the fore arc (priority target first) gets rammed during gunnery.
     g.rams = [];
     this.ids().forEach((id) => {
@@ -1373,6 +1464,14 @@ class Component extends DCLogic {
       this.sfx('blaster_c', 0.45, 0); this.sfx('blaster_r', 0.45, 0.12); this.sfx('hit_small', 0.35, 0.2);
       return 650;
     }
+    if (q.kind === 'torpedo') {
+      const B = q.B, at = this.m2v(q.t.x, q.t.y, 1.4), hp = this.hullPoint(B);
+      this.boom('x_breach_red', hp, 7, 0.9); this.boom('x_capital_orange', at, 4, 0.7, 0.08);
+      this.sfx('hit_big', 1); this.sfx('explode_med', 0.7, 0.06);
+      this.addShake(1.6); this.kick(B.id, 0.3); this.slowUntil = performance.now() + 350;
+      return 1000;
+    }
+    if (q.kind === 'torpKill') { this.flash('i_sparks_gold', this.m2v(q.t.x, q.t.y, 1.4), 3, 0.4, true); this.boom('x_small_orange', this.m2v(q.t.x, q.t.y, 1.4), 2.5, 0.5); this.sfx('blaster_c', 0.5); return 600; }
     if (q.kind === 'captured') {
       const o = this.three.objs[q.B.id];
       o.ring.material.color.setHex(this.D.SIDES[q.A.def.side].hex); o.glow.visible = false;
@@ -1407,6 +1506,8 @@ class Component extends DCLogic {
     const pend = this.perShip(() => ({ dmg: 0, crits: [], shield: { fore: 0, port: 0, stbd: 0, aft: 0 } }));
     g.shieldUsed = {}; this.ids().forEach((id) => { g.shieldUsed[id] = pend[id].shield; });
     for (const rm of (g.rams || [])) yield* this.ramSeq(g.ships[rm.a], g.ships[rm.b]);
+    for (const t of (g.torpHits || [])) yield* this.torpSeq(t);
+    g.torps = (g.torps || []).filter((t) => !t.gone); this.syncTorps();
     for (const id of this.ids()) {
       const A = g.ships[id];
       if (!this.active(A)) continue;
@@ -1540,6 +1641,40 @@ class Component extends DCLogic {
       }
       P.dmg += dmg;
     }
+  }
+
+  // Torpedo strike: point defence may shoot it down (4+); otherwise 2d6 damage ignoring shields and armour,
+  // halved by Brace for Impact, and a double is also a critical hit.
+  *torpSeq(t) {
+    const g = this.g, A = g.ships[t.owner], B = g.ships[t.target];
+    if (!this.active(B)) return;
+    const who = A ? A.def.name : 'A torpedo', owner = A ? A.id : B.id;
+    if (B.def.pd) {
+      const pd = (yield { type: 'roll', owner: B.id, n: 1, label: B.def.name + ' · point defence vs torpedo', sub: '1d6: 4+ shoots it down' })[0];
+      this.record({ owner: B.id, label: B.def.name + ' · point defence', dice: [{ v: pd, kind: pd >= 4 ? 'save' : 'fail' }], result: pd >= 4 ? 'torpedo destroyed' : 'missed' }, B.id);
+      if (pd >= 4) { yield { type: 'fx', kind: 'torpKill', B: B, t: t }; this.floater(B.id, 'word', 'Torpedo shot down', 0); return; }
+    }
+    const TP = this.D.TORP, dtxt = TP.dice + 'd6' + (TP.plus ? '+' + TP.plus : '');
+    const d = yield { type: 'roll', owner: owner, n: TP.dice, label: who + ' · TORPEDO → ' + B.def.name, sub: dtxt + ' damage · ignores shields and armour · ' + (TP.dice > 1 ? 'a double' : 'a 6') + ' is a critical hit' };
+    const braced = g.orders[B.id] && g.orders[B.id].order === 'brace', raw = d.reduce((a, v) => a + v, 0) + TP.plus;
+    let dmg = braced ? Math.floor(raw / 2) : raw, extra = '';
+    yield { type: 'fx', kind: 'torpedo', B: B, t: t };
+    const bB = B.hull;
+    if (TP.dice > 1 ? d[0] === d[1] : d[0] === 6) {
+      const c = (yield { type: 'roll', owner: owner, n: 1, label: who + ' · critical hit on ' + B.def.name, sub: 'Torpedo double · 1d6 on the critical table' })[0];
+      const crit = { k: this.D.CRITKEY[c], roll: c };
+      if (crit.k === 'gundeck') crit.side = this.d6() <= 3 ? 'port' : 'stbd';
+      if (crit.k === 'breach') dmg += 1; else B.crits.push(crit);
+      extra = ' · critical: ' + this.D.CRIT[c];
+      if (crit.k === 'fire') this.floater(B.id, 'fire', '', 2); else this.floater(B.id, 'word', this.critWord(crit), 2);
+    }
+    B.hull = Math.max(0, B.hull - dmg); g.taken[B.id] += dmg;
+    this.floater(B.id, 'word', 'TORPEDO', 0); this.floater(B.id, 'hull', '−' + dmg, 1);
+    this.record({ owner: owner, label: who + ' · torpedo hits ' + B.def.name, dice: d.map((v) => ({ v: v, kind: 'crit' })), result: dmg + ' damage' + (braced ? ' (braced: halved)' : '') + extra }, B.id);
+    this.impact(B.id, dmg, extra ? 1 : 0);
+    this.inspDirty = true;
+    yield* this.structural(B, bB);
+    if (B.hull <= 0 && !B.dead) { B.dead = true; B.deadAt = performance.now(); this.record({ owner: B.id, label: B.def.name + ' is destroyed!', result: '', dice: [] }, B.id); yield { type: 'fx', kind: 'explode', ship: B }; }
   }
 
   // Ram: rammer rolls 1d6 + mass (+2 ram prow) against the target, ignoring shields and armour; rammer takes half a d6 (−1 with a ram prow).
@@ -1921,6 +2056,37 @@ class Component extends DCLogic {
     }
   }
 
+  // One marker per torpedo in flight: warhead art, a drive glow in the launcher's colour, and a small ring.
+  syncTorps() {
+    const t3 = this.three; if (!t3) return;
+    const T = t3.T, g = this.g, live = {};
+    if (!t3.torpG) { t3.torpG = new T.Group(); t3.scene.add(t3.torpG); t3.torpObjs = {}; }
+    (g.torps || []).forEach((t) => { if (!t.gone) live[t.id] = t; });
+    Object.keys(t3.torpObjs).forEach((k) => { if (!live[k]) { this.disposeGroup(t3.torpObjs[k]); t3.torpG.remove(t3.torpObjs[k]); delete t3.torpObjs[k]; } });
+    Object.keys(live).forEach((k) => {
+      if (t3.torpObjs[k]) return;
+      const SD = this.D.SIDES[live[k].side], grp = new T.Group();
+      const body = this.flatQuad('p_boarding_torpedo', 1.3, 2.8, false, SD.bolt); body.rotation.y = Math.PI; grp.add(body);
+      const glow = new T.Sprite(new T.SpriteMaterial({ toneMapped: false, map: t3.glowTex, color: SD.glow, transparent: true, blending: T.AdditiveBlending, depthWrite: false }));
+      glow.scale.setScalar(3.2); glow.position.set(0, 0, 1.6); grp.add(glow);
+      const ring = new T.Mesh(new T.RingGeometry(1.5, 1.8, 24), new T.MeshBasicMaterial({ toneMapped: false, color: 0xffa040, transparent: true, opacity: 0.85, side: T.DoubleSide, depthWrite: false }));
+      ring.rotation.x = -Math.PI / 2; ring.position.y = -0.7; grp.add(ring);
+      t3.torpObjs[k] = grp; t3.torpG.add(grp);
+    });
+    this.placeTorps(1, true);
+  }
+
+  // Torpedo markers along their run (k = 0…1 of the move), or at rest.
+  placeTorps(k, rest) {
+    const t3 = this.three; if (!t3 || !t3.torpObjs) return;
+    (this.g.torps || []).forEach((t) => {
+      const o = t3.torpObjs[t.id]; if (!o) return;
+      let x = t.x, y = t.y, h = t.h;
+      if (!rest && t.from && t.to) { x = t.from.x + (t.to.x - t.from.x) * k; y = t.from.y + (t.to.y - t.from.y) * k; h = t.to.h; }
+      o.position.set(x, 1.4, -y); o.rotation.y = h + Math.PI / 2;
+    });
+  }
+
   updateFeatures() {
     const t3 = this.three; if (!t3 || !t3.featG) return;
     t3.featG.children.forEach((c) => { if (c.userData.beacon) c.visible = !c.userData.beacon.got; if (c.userData.mine) c.visible = c.userData.mine.live !== false; });
@@ -2079,6 +2245,13 @@ class Component extends DCLogic {
     return l;
   }
 
+  torpLine(x0, y0, x1, y1, op) {
+    const T = this.three.T;
+    const l = new T.Line(new T.BufferGeometry().setFromPoints([this.m2v(x0, y0, 0.9), this.m2v(x1, y1, 0.9)]), new T.LineDashedMaterial({ toneMapped: false, color: 0xffa040, transparent: true, opacity: op, dashSize: 0.5, gapSize: 0.9 }));
+    l.computeLineDistances();
+    return l;
+  }
+
   reticle(t, op) {
     const T = this.three.T, r = t.def.len * 0.75, grp = new T.Group();
     const ring = new T.Mesh(new T.RingGeometry(r, r + 0.35, 48), new T.MeshBasicMaterial({ toneMapped: false, color: 0xff4d4d, transparent: true, opacity: op, side: T.DoubleSide, depthWrite: false }));
@@ -2136,6 +2309,9 @@ class Component extends DCLogic {
       ov.add(this.targetLine(from.x, from.y, t.x, t.y, bright ? 0.9 : 0.4));
       ov.add(this.reticle(t, bright ? 0.9 : 0.45));
     });
+    // Torpedoes in flight (dashed line to what they are homing on) and this ship's planned launch.
+    (g.torps || []).forEach((t) => { const T2 = g.ships[t.target]; if (!t.gone && this.active(T2)) ov.add(this.torpLine(t.x, t.y, T2.x, T2.y, t.side === g.side ? 0.55 : 0.8)); });
+    if (this.ui.torp) { const tg = this.torpTarget(me, this.ui.target); if (tg) { const bow = me.def.len * 0.55; ov.add(this.torpLine(me.x + Math.cos(me.h) * bow, me.y + Math.sin(me.h) * bow, tg.x, tg.y, 0.95)); ov.add(this.reticle(tg, 0.6)); } }
     if (this.ui.enemyArcs) this.sideShips(this.enemySide(g.side)).forEach((id) => { const f = g.ships[id]; this.arcsFor(ov, f.def, f.x, f.y, f.h, 0.05); });
     if (g.dest) {
       const end = this.path(me, g.dest).at(1);
@@ -2435,6 +2611,7 @@ class Component extends DCLogic {
     if (this.anim && this.anim.kind === 'move') {
       const k = Math.min(1, (now - this.anim.t0) / this.anim.dur), e = k < 0.5 ? 2 * k * k : 1 - Math.pow(-2 * k + 2, 2) / 2;
       this.ids().forEach((id) => { if (!g.orders[id] || !g.orders[id].path) return; const p = g.orders[id].path.at(e), o = t3.objs[id]; o.root.position.set(p.x, 0, -p.y); o.root.rotation.y = p.h + Math.PI / 2; o.glow.scale.setScalar(2.6 + 2.2 * Math.sin(Math.PI * k)); });
+      this.placeTorps(e, false);
       if (k >= 1) { this.anim = null; this.afterMove(); }
     }
     const fxDt = now < this.slowUntil ? dt * 0.3 : dt;
@@ -2611,7 +2788,7 @@ class Component extends DCLogic {
       name: def.name, color: def.color, cls: def.cls, status: status, statusBg: bg, statusFg: fg,
       weapons: weapons, rings: rings, dmg: dmg, pips: pips, shieldFacings: shieldFacings, arcBadges: arcBadges,
       hullText: s.hull + '/' + def.hull,
-      speed: e.speed + 'u', turnTxt: e.turn + '°', armour: def.armour + '+', crew: s.crew + '/' + def.crew,
+      speed: e.speed + 'u', turnTxt: e.turn + '°', armour: def.armour + '+', crew: s.crew + '/' + def.crew, torps: def.torps ? (s.torps || 0) + '/' + def.torps : '—',
       crits: s.crits.map((c) => this.critName(c)), hasCrits: s.crits.length > 0,
       aria: 'Top-down view of ' + def.name + ': hull ' + s.hull + ' of ' + def.hull + ', shields fore ' + def.shields.fore + ' port ' + def.shields.port + ' starboard ' + def.shields.stbd + ' aft ' + def.shields.aft + ', weapons: ' + weapons.map((w) => w.name + ' ' + w.stats).join('; ')
     };
@@ -2642,6 +2819,12 @@ class Component extends DCLogic {
       const td = this.deg(2 * p.b);
       destTurn = td === 0 ? 'unchanged' : Math.abs(td) + '° ' + (td > 0 ? 'to port' : 'to stbd');
     }
+    const tLeft = plot ? plot.torps || 0 : 0, tOk = canOrder && this.canTorp(plot), tOn = canOrder && !!this.ui.torp;
+    const torpTg = tOk ? this.torpTarget(plot, this.ui.target) : null;
+    const torp = { show: canOrder && (plot.def.torps || 0) > 0, pressed: tOn ? 'true' : 'false', disabled: !tOk && !tOn,
+      label: tOn ? 'Torpedo away at ' + (torpTg ? torpTg.def.name.replace('CNS ', '') : 'target') : 'Launch torpedo',
+      sub: tLeft + ' of ' + (plot.def.torps || 0) + ' left · ' + (tLeft === 0 ? 'magazine empty' : !torpTg ? 'no enemy within 40u' : this.count(plot, 'bridge') ? 'bridge hit: cannot launch' : '2d6, ignores shields and armour'),
+      style: 'min-height: 44px; display: flex; flex-direction: column; align-items: flex-start; justify-content: center; padding: 4px 10px; border-radius: 6px; text-align: left; cursor: ' + (!tOk && !tOn ? 'not-allowed' : 'pointer') + '; ' + (tOn ? 'background: #ffa040; color: #1a0e02; border: 1px solid #ffa040;' : 'background: #111a2c; color: #ffcf9a; border: 1px solid #5a3a14;') + (!tOk && !tOn ? ' opacity: 0.5;' : '') };
     const own = canOrder ? this.ctrl(g.side) : [];
     const drafted = own.filter((id) => g.drafts[id]).length;
     const fleet = own.map((id) => {
@@ -2783,7 +2966,7 @@ class Component extends DCLogic {
       turnMax: this.mission && this.mission.turns ? ' / ' + this.mission.turns : '',
       restartLabel: this.mission && g.phase !== 'over' ? 'Restart mission' : 'New battle',
       mis: misView, startMissionClick: this.startMissionClick, skirmish: this.skirmish,
-      insp: insp, nextShip: this.nextShip, orderOpts: orderOpts, fleet: fleet, targets: targets, pv: pvm,
+      insp: insp, nextShip: this.nextShip, orderOpts: orderOpts, torp: torp, torpClick: this.torpClick, fleet: fleet, targets: targets, pv: pvm,
       badges: badges, toggleBadges: this.toggleBadges, badgesPressed: this.ui.arcBadges ? 'true' : 'false', badgesBg: this.ui.arcBadges ? '#26324a' : 'rgba(8,12,22,0.86)',
       toggleSound: this.toggleSound, soundPressed: this.ui.muted ? 'false' : 'true', soundOn: !this.ui.muted, soundOff: this.ui.muted, soundLabel: this.ui.muted ? 'Sound off — click to unmute' : 'Sound on — click to mute', canOrder: canOrder,
       plotName: canOrder ? plot.def.name : '—', plotColor: canOrder ? plot.def.color : '#93a3bf',

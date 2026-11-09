@@ -1,4 +1,4 @@
-# Gunline — Core Rules (draft v0.4)
+# Gunline — Core Rules (draft v0.5)
 
 Capital ships slugging it out in open space. Both admirals write orders in secret,
 every ship moves at the same moment, and then every gun fires at the same moment.
@@ -9,9 +9,9 @@ Movement is free (no squares or hexes).
 
 ## 1. The turn
 
-1. **Orders** — in secret, each player places a destination marker for every ship in their squadron, may give each one special order, and may nominate a priority target for each. A squadron's orders are sealed together once committed.
+1. **Orders** — in secret, each player places a destination marker for every ship in their squadron, may give each one special order, may nominate a priority target for each, and may launch a torpedo from ships that carry them. A squadron's orders are sealed together once committed.
 2. **Movement** — orders are revealed; all ships move simultaneously, each sweeping a smooth curve to its marker. Then resolve collisions and ships leaving the zone.
-3. **Gunnery** — every weapon that bears fires. Each player rolls their own dice (to-hit and criticals for their weapons, armour saves for their ship). Damage is applied only after *all* ships have fired, so a ship destroyed this phase still gets its last broadside off.
+3. **Gunnery** — rams and torpedo strikes resolve first, then every weapon that bears fires. Each player rolls their own dice (to-hit and criticals for their weapons, armour saves for their ship). Damage is applied only after *all* ships have fired, so a ship destroyed this phase still gets its last broadside off.
 4. **End phase** — fires burn, damage control repairs criticals, destroyed ships are removed, check victory.
 
 ## 2. Orders & movement
@@ -92,7 +92,16 @@ Criticals stack and take effect after gunnery. The firer rolls on the table. **E
 | 5 boarders | 89% | 77% | 64% | 40% | 22% |
 | 7 boarders | 97% | 91% | 83% | 64% | 45% |
 
-## 8. Ship profiles (starter squadrons: Resolute + Vigilant vs Maw of Ruin + Carrion Wing)
+## 8. Torpedoes
+
+Torpedoes are slow, heavy and few: a threat you plot around, not a weapon you roll every turn. Cruisers carry them (Vigilant 1, Carrion Wing 2 per battle); the Torpedo Tubes refit adds 2 to any ship.
+
+- **Launch** — with its orders, a ship with torpedoes left may launch one, in addition to its special order. It leaves the bow aimed at the ship's priority target, or the nearest enemy; the target must be within 40u. A ship with a Bridge Hit cannot launch.
+- **The run** — torpedoes move with the ships. Each move a torpedo turns up to 60° toward where its target was when orders were given, then runs 20u. If the run passes within reach of where the target *ends* its move (1.5u + 0.35 × the target's length) it strikes; otherwise it carries on. After 3 moves it burns out. A torpedo whose target is gone re-homes on the nearest enemy within 30u.
+- **Strike** — after rams, before the guns. The launching player rolls **2d6 damage, ignoring shields and armour**; a double is also a critical hit. Brace for Impact halves it (round down). A ship with a point-defence grid first rolls a d6: 4+ shoots the torpedo down.
+- **Dodging** — a torpedo chases where you were, not where you are going: turning hard or crossing its line leaves it short; running straight away from or toward it gets you hit.
+
+## 9. Ship profiles (starter squadrons: Resolute + Vigilant vs Maw of Ruin + Carrion Wing)
 
 ### CNS Resolute — Dominion-class battleship (Concord Navy)
 Speed 12u · Turn 45° · Hull 14 · Shields F2 P2 S2 A1 · Armour 4+ · Crew 8
@@ -128,6 +137,7 @@ Speed 14u · Turn 50° · Hull 8 · Shields F2 P1 S1 A1 · Armour 4+ · Crew 6
 | Starboard broadside | Stbd | 4 | 24u | |
 | Prow lance | Fore | 1 | 24u | Lance |
 | Dorsal turrets | All | 2 | 18u | |
+| Torpedo tube | Bow | 2d6 | 40u | 1 torpedo per battle |
 
 Model: `assets/ships/vigilant.glb` (pack file "space battleship 3d model.glb").
 
@@ -140,10 +150,11 @@ Speed 18u · Turn 60° · Hull 10 · Shields F3 P1 S1 A0 · Armour 5+ · Crew 4
 | Starboard broadside | Stbd | 5 | 24u | |
 | Talon lances | Fore | 3 | 18u | Lance |
 | Spinal turrets | All | 2 | 18u | |
+| Torpedo tubes | Bow | 2d6 | 40u | 2 torpedoes per battle |
 
 Model: `assets/ships/carrion.glb` (pack file "spacecraft battleship 3d model.glb").
 
-## 9. Campaign battles (Operation Iron Tide)
+## 10. Campaign battles (Operation Iron Tide)
 
 In the campaign the battle board loads your saved fleet and the mission readied on the Operation board, then writes the result back.
 
@@ -152,7 +163,7 @@ In the campaign the battle board loads your saved fleet and the mission readied 
 - **Asteroids** block line of fire; a ship ending its move inside one takes D3 (no saves). **Mines**: 2d6 to a ship ending within 3u, once. **Salvage beacons**: your warships recover one by ending within 5u.
 - **Gravity well** — after orders are revealed, every destination inside the well is dragged toward its centre (up to ~5u near the core).
 - **Freighters** hold course at full speed and can't be ordered. **Stations** never move, fire at the closest enemy in range, and can be boarded.
-- **Refits in battle** — heavy broadsides (+1 die, Turn −5°), long-focus lances (+6u), reinforced emitters (+1 fore shield), ablative plating (+1 save vs the first volley each turn), drives (+2u), thrusters (+10°), marines (Crew +2), veteran gun crews (re-roll 1s on broadsides), damage-control teams (repairs 4+, Fire! 3+), ram prow, ECM (−1 to hit at >24u) and point defence (lances −1 to hit). Torpedoes and tractor beams are not in the battle rules yet.
+- **Refits in battle** — heavy broadsides (+1 die, Turn −5°), long-focus lances (+6u), torpedo tubes (+2 torpedoes), reinforced emitters (+1 fore shield), ablative plating (+1 save vs the first volley each turn), drives (+2u), thrusters (+10°), marines (Crew +2), veteran gun crews (re-roll 1s on broadsides), damage-control teams (repairs 4+, Fire! 3+), ram prow, ECM (−1 to hit at >24u) and point defence (lances −1 to hit; shoots down torpedoes on 4+). Tractor beams are not in the battle rules yet.
 
 | Mission | Set-up | Win | Reward | If you fail |
 |---|---|---|---|---|
@@ -168,6 +179,6 @@ M2A and M2B are a fork: flying one skips the other. Drydocks (before M1, D1 afte
 ## Designer's notes (online build)
 
 - **Server-authoritative turns**: clients submit `{destination, specialOrder}` per ship; the server validates against the manoeuvre zone and waits for both players (or a timer). In gunnery it prompts each player for their own rolls and generates each die on the player's click, so rolls stay tamper-proof, then streams results to both clients.
-- **Balance snapshot**: `node tools/balance-sim.js` runs 1,500 AI-vs-AI duels. Current 2v2 squadrons with ramming and boarding: Concord ≈47%, Reaver ≈47%, mutual destruction ≈6%, ~7 turns per battle. The AI is a simple one-turn look-ahead, so treat this as a starting point.
+- **Balance snapshot**: `node tools/balance-sim.js` runs 1,500 AI-vs-AI duels. Current 2v2 squadrons with ramming, boarding and torpedoes: Concord ≈45%, Reaver ≈49%, mutual destruction ≈6%, ~6 turns per battle (7 before torpedoes). About 60% of AI torpedoes hit, because the AI never dodges; expect fewer against a player. The AI is a simple one-turn look-ahead, so treat this as a starting point.
 - **Campaign check**: `node tools/campaign-sim.js` plays every mission AI-vs-AI and checks the save write-back. With a scripted pilot that flies the objective, M2B is won ~74% of the time, M4 ~32% and M3 ~25% (that pilot also shoots the Hydra to pieces in about a third of runs).
 - **Open questions**: should a priority target cost something (e.g. −1 to hit when it isn't the closest enemy)?; wreck hazards; firing in mid-move tick slices vs. end of move; altitude bands.
