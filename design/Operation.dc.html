@@ -1,0 +1,385 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Gunline — Operation Iron Tide</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@500;600;700&amp;family=Inter:wght@400;500;600;700&amp;family=JetBrains+Mono:wght@500;700&amp;display=swap">
+<style>
+body{margin:0;background:#070a12}
+a{color:#5aa9ff}a:hover{color:#8cc4ff}
+button{font-family:inherit}
+button:focus-visible,a:focus-visible{outline:2px solid #ffc94d;outline-offset:2px}
+table{border-collapse:collapse;width:100%}
+th,td{text-align:left;padding:8px 10px;border-bottom:1px solid #1c2638;vertical-align:top}
+th{font-size:11px;letter-spacing:0.06em;color:#93a3bf;font-weight:600}
+</style>
+</helmet>
+<div style="width: 100%; background: #070a12; color: #d8e1f0; font-family: Inter, system-ui, sans-serif; font-size: 14px; line-height: 1.55">
+<main style="max-width: 1240px; margin: 0 auto; padding: 44px 24px 72px; display: flex; flex-direction: column; gap: 40px">
+
+  <header style="display: flex; flex-direction: column; gap: 14px">
+    <span style="font-family: 'JetBrains Mono', monospace; font-size: 12px; letter-spacing: 0.14em; color: #ffc94d">GUNLINE · CAMPAIGN · OPERATION 1 OF 3</span>
+    <h1 style="margin: 0; font-family: 'Chakra Petch', sans-serif; font-weight: 700; font-size: 48px; line-height: 1.05; letter-spacing: 0.04em; color: #eef3fb">OPERATION IRON TIDE</h1>
+    <p style="margin: 0; max-width: 780px; font-size: 16px; color: #c5d1e6">The Reaver Clans have broken through the Varn picket. Rear-Admiral, take the Resolute squadron forward, break up their raiding parties, find the lair their ships return to, and hold Station Aurel when the Maw of Ruin comes for it. Your ships, crews and captains carry every scar from one mission to the next.</p>
+    <div style="display: flex; flex-wrap: wrap; gap: 10px">
+      <div style="display: flex; flex-direction: column; padding: 10px 16px; background: #0d1220; border: 1px solid #1c2638; border-radius: 8px; min-width: 130px"><span style="font-size: 11px; letter-spacing: 0.06em; color: #93a3bf">CREDITS</span><span style="font-family: 'JetBrains Mono', monospace; font-size: 22px; font-weight: 700; color: #ffc94d">{{creditsLeft}}</span></div>
+      <div style="display: flex; flex-direction: column; padding: 10px 16px; background: #0d1220; border: 1px solid #1c2638; border-radius: 8px; min-width: 130px"><span style="font-size: 11px; letter-spacing: 0.06em; color: #93a3bf">RENOWN</span><span style="font-family: 'JetBrains Mono', monospace; font-size: 22px; font-weight: 700; color: #eef3fb">3</span></div>
+      <div style="display: flex; flex-direction: column; padding: 10px 16px; background: #0d1220; border: 1px solid #1c2638; border-radius: 8px; min-width: 130px"><span style="font-size: 11px; letter-spacing: 0.06em; color: #93a3bf">SUPPLIES</span><span style="font-family: 'JetBrains Mono', monospace; font-size: 22px; font-weight: 700; color: #eef3fb">4 jumps</span></div>
+      <div style="display: flex; flex-direction: column; padding: 10px 16px; background: #0d1220; border: 1px solid #1c2638; border-radius: 8px; min-width: 130px"><span style="font-size: 11px; letter-spacing: 0.06em; color: #93a3bf">MISSIONS</span><span style="font-family: 'JetBrains Mono', monospace; font-size: 22px; font-weight: 700; color: #eef3fb">1 / 5</span></div>
+      <div style="display: flex; flex-direction: column; padding: 10px 16px; background: #0d1220; border: 1px solid #1c2638; border-radius: 8px; min-width: 130px"><span style="font-size: 11px; letter-spacing: 0.06em; color: #93a3bf">FLEET</span><span style="font-family: 'JetBrains Mono', monospace; font-size: 22px; font-weight: 700; color: #eef3fb">3 hulls</span></div>
+    </div>
+  </header>
+
+  <section aria-label="Operation map and briefing" style="display: flex; flex-direction: column; gap: 16px">
+    <h2 style="margin: 0; font-family: 'Chakra Petch', sans-serif; font-size: 26px; color: #eef3fb">1 · Operation map</h2>
+    <div style="display: flex; flex-wrap: wrap; gap: 20px; align-items: flex-start">
+      <div style="flex: 3 1 560px; min-width: 0; display: flex; flex-direction: column; gap: 10px">
+        <div style="position: relative; width: 100%; aspect-ratio: 16 / 9; background: #04060c; border: 1px solid #1c2638; border-radius: 10px; overflow: hidden">
+          <svg viewBox="0 0 160 90" preserveAspectRatio="none" aria-hidden="true" style="position: absolute; inset: 0; width: 100%; height: 100%">
+            <path d="M14,45 L43,23 M14,45 L43,67" stroke="#7be3a4" stroke-width="0.5" fill="none"></path>
+            <path d="M43,23 L70,45 M43,67 L70,45 M70,45 L95,45 M95,45 L120,64 M120,64 L136,24 M136,24 L150,49" stroke="#33425f" stroke-width="0.5" stroke-dasharray="1.6 1.2" fill="none"></path>
+            <circle cx="40" cy="12" r="0.35" fill="#5a6a86"></circle><circle cx="88" cy="78" r="0.35" fill="#5a6a86"></circle><circle cx="120" cy="10" r="0.35" fill="#5a6a86"></circle><circle cx="20" cy="80" r="0.35" fill="#5a6a86"></circle><circle cx="66" cy="16" r="0.35" fill="#5a6a86"></circle><circle cx="148" cy="80" r="0.35" fill="#5a6a86"></circle><circle cx="104" cy="22" r="0.35" fill="#5a6a86"></circle>
+          </svg>
+          <sc-for list="{{nodes}}" as="n" hint-placeholder-count="8">
+            <button onClick="{{n.pick}}" aria-pressed="{{n.pressed}}" aria-label="{{n.aria}}" style="{{n.style}}">
+              <span style="{{n.dotStyle}}">{{n.glyph}}</span>
+              <span style="font-size: 11px; font-weight: 700; color: #eef3fb; white-space: nowrap; text-shadow: 0 0 4px #000">{{n.name}}</span>
+              <span style="font-size: 10px; color: {{n.subCol}}; white-space: nowrap">{{n.sub}}</span>
+            </button>
+          </sc-for>
+        </div>
+        <div style="display: flex; flex-wrap: wrap; gap: 14px; font-size: 12px; color: #93a3bf">
+          <span><span style="color: #7be3a4; font-weight: 700">●</span> completed</span>
+          <span><span style="color: #ffc94d; font-weight: 700">●</span> available now</span>
+          <span><span style="color: #5a6a86; font-weight: 700">●</span> locked</span>
+          <span><span style="color: #5aa9ff; font-weight: 700">◆</span> drydock: repair and refit</span>
+          <span>Missions 2A and 2B are a fork: you can only fly one of them.</span>
+        </div>
+      </div>
+
+      <article aria-label="Mission briefing" style="flex: 2 1 360px; min-width: 0; display: flex; flex-direction: column; gap: 12px; padding: 18px 20px; background: #0d1220; border: 1px solid #1c2638; border-radius: 10px">
+        <div style="display: flex; flex-wrap: wrap; gap: 8px; align-items: center">
+          <span style="font-size: 11px; font-weight: 700; letter-spacing: 0.06em; padding: 3px 8px; border-radius: 4px; background: #16243d; color: #8cc4ff">{{m.type}}</span>
+          <span style="font-size: 11px; font-weight: 700; letter-spacing: 0.06em; padding: 3px 8px; border-radius: 4px; background: {{m.stBg}}; color: {{m.stFg}}">{{m.status}}</span>
+        </div>
+        <h3 style="margin: 0; font-family: 'Chakra Petch', sans-serif; font-size: 24px; color: #eef3fb">{{m.code}} · {{m.name}}</h3>
+        <p style="margin: 0; color: #c5d1e6">{{m.brief}}</p>
+        <div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; font-size: 12px">
+          <div style="display: flex; flex-direction: column; padding: 8px 10px; background: #080c16; border-radius: 6px"><span style="color: #93a3bf">BATTLEFIELD</span><span style="color: #eef3fb">{{m.terrain}}</span></div>
+          <div style="display: flex; flex-direction: column; padding: 8px 10px; background: #080c16; border-radius: 6px"><span style="color: #93a3bf">YOUR FORCE</span><span style="color: #eef3fb">{{m.force}}</span></div>
+        </div>
+        <sc-for list="{{m.blocks}}" as="b" hint-placeholder-count="4">
+          <div style="display: flex; flex-direction: column; gap: 4px">
+            <span style="font-size: 11px; font-weight: 700; letter-spacing: 0.08em; color: {{b.col}}">{{b.title}}</span>
+            <sc-for list="{{b.items}}" as="it" hint-placeholder-count="2">
+              <div style="display: flex; gap: 8px; font-size: 13px; color: #d8e1f0"><span style="color: {{b.col}}">▸</span><span>{{it}}</span></div>
+            </sc-for>
+          </div>
+        </sc-for>
+        <sc-if value="{{m.canLaunch}}" hint-placeholder-val="{{ true }}">
+          <a href="Main.dc.html" style="display: flex; align-items: center; justify-content: center; min-height: 46px; border-radius: 6px; background: #5aa9ff; color: #070a12; font-weight: 700; text-decoration: none">Launch {{m.code}} on the battle board</a>
+        </sc-if>
+        <sc-if value="{{m.noLaunch}}" hint-placeholder-val="{{ false }}">
+          <span style="display: flex; align-items: center; justify-content: center; min-height: 46px; border-radius: 6px; background: #1a2335; color: #93a3bf; font-weight: 600; text-align: center; padding: 0 12px">{{m.lockNote}}</span>
+        </sc-if>
+      </article>
+    </div>
+  </section>
+
+  <section aria-label="Drydock refit and repair" style="display: flex; flex-direction: column; gap: 16px">
+    <div style="display: flex; flex-wrap: wrap; justify-content: space-between; align-items: baseline; gap: 10px">
+      <h2 style="margin: 0; font-family: 'Chakra Petch', sans-serif; font-size: 26px; color: #eef3fb">2 · Drydock Varn · refit &amp; repair</h2>
+      <div style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap">
+        <span style="font-size: 13px; color: #c5d1e6">Spent this visit <span style="font-family: 'JetBrains Mono', monospace; color: #ffc94d">{{spent}}</span> of 1,200 credits</span>
+        <button onClick="{{reset}}" style="min-height: 44px; padding: 0 14px; background: transparent; color: #e6edf8; border: 1px solid #33425f; border-radius: 6px; cursor: pointer; font-size: 13px; font-weight: 600">Undo all</button>
+      </div>
+    </div>
+    <p style="margin: 0; max-width: 820px; color: #c5d1e6">Damage, criticals and crew losses carry over from the last battle. Repairs and refits cost credits. A ship having more than 4 hull repaired, or a new upgrade fitted, needs dock time and <strong style="color: #eef3fb">sits out the next mission</strong>.</p>
+
+    <div role="group" aria-label="Choose a ship" style="display: flex; flex-wrap: wrap; gap: 12px">
+      <sc-for list="{{ships}}" as="s" hint-placeholder-count="3">
+        <button onClick="{{s.pick}}" aria-pressed="{{s.pressed}}" style="{{s.style}}">
+          <div style="display: flex; justify-content: space-between; align-items: baseline; gap: 8px; width: 100%">
+            <span style="font-family: 'Chakra Petch', sans-serif; font-size: 17px; font-weight: 700; color: {{s.col}}">{{s.name}}</span>
+            <span style="font-size: 11px; font-weight: 700; letter-spacing: 0.06em; padding: 2px 7px; border-radius: 4px; background: {{s.tagBg}}; color: {{s.tagFg}}">{{s.tag}}</span>
+          </div>
+          <span style="font-size: 12px; color: #93a3bf; text-align: left">{{s.cls}}</span>
+          <div style="display: flex; gap: 3px; flex-wrap: wrap"><sc-for list="{{s.pips}}" as="p" hint-placeholder-count="10"><span style="{{p}}"></span></sc-for></div>
+          <div style="display: flex; flex-wrap: wrap; gap: 4px 14px; font-size: 12px; color: #c5d1e6">
+            <span>Hull <span style="font-family: 'JetBrains Mono', monospace; color: #eef3fb">{{s.hull}}</span></span>
+            <span>Crew <span style="font-family: 'JetBrains Mono', monospace; color: #eef3fb">{{s.crew}}</span></span>
+            <span>{{s.vet}}</span>
+          </div>
+          <span style="font-size: 12px; color: #c5d1e6; text-align: left">{{s.captain}}</span>
+          <sc-if value="{{s.sitsOut}}" hint-placeholder-val="{{ false }}"><span style="font-size: 12px; font-weight: 600; color: #ffc94d">In dock: sits out the next mission</span></sc-if>
+        </button>
+      </sc-for>
+    </div>
+
+    <div style="display: flex; flex-wrap: wrap; gap: 20px; align-items: flex-start">
+      <div style="flex: 1 1 340px; min-width: 0; display: flex; flex-direction: column; gap: 12px; padding: 16px 18px; background: #0d1220; border: 1px solid #1c2638; border-radius: 10px">
+        <h3 style="margin: 0; font-family: 'Chakra Petch', sans-serif; font-size: 18px; color: #eef3fb">Repairs · {{sel.name}}</h3>
+        <sc-for list="{{sel.repairs}}" as="r" hint-placeholder-count="3">
+          <div style="display: flex; justify-content: space-between; align-items: center; gap: 12px">
+            <div style="display: flex; flex-direction: column"><span style="font-weight: 600; color: #eef3fb">{{r.label}}</span><span style="font-size: 12px; color: #93a3bf">{{r.detail}}</span></div>
+            <div style="display: flex; gap: 6px">
+              <button onClick="{{r.minus}}" disabled="{{r.minusOff}}" aria-label="{{r.minusAria}}" style="{{r.minusStyle}}">−</button>
+              <button onClick="{{r.plus}}" disabled="{{r.plusOff}}" aria-label="{{r.plusAria}}" style="{{r.plusStyle}}">+</button>
+            </div>
+          </div>
+        </sc-for>
+        <sc-if value="{{sel.hasCrits}}" hint-placeholder-val="{{ false }}">
+          <div style="display: flex; flex-wrap: wrap; gap: 6px"><sc-for list="{{sel.crits}}" as="c" hint-placeholder-count="1"><span style="{{c.style}}">{{c.name}}</span></sc-for></div>
+        </sc-if>
+      </div>
+
+      <div style="flex: 2 1 520px; min-width: 0; display: flex; flex-direction: column; gap: 12px; padding: 16px 18px; background: #0d1220; border: 1px solid #1c2638; border-radius: 10px">
+        <h3 style="margin: 0; font-family: 'Chakra Petch', sans-serif; font-size: 18px; color: #eef3fb">Refit slots · {{sel.name}}</h3>
+        <div role="group" aria-label="Upgrade slots" style="display: flex; flex-wrap: wrap; gap: 8px">
+          <sc-for list="{{sel.slots}}" as="sl" hint-placeholder-count="5">
+            <button onClick="{{sl.pick}}" aria-pressed="{{sl.pressed}}" style="{{sl.style}}">
+              <span style="font-size: 11px; font-weight: 700; letter-spacing: 0.06em; color: #93a3bf">{{sl.label}}</span>
+              <span style="font-size: 13px; font-weight: 600; color: {{sl.fitCol}}">{{sl.fit}}</span>
+            </button>
+          </sc-for>
+        </div>
+        <div style="display: flex; flex-direction: column; gap: 8px">
+          <sc-for list="{{sel.options}}" as="o" hint-placeholder-count="3">
+            <div style="{{o.style}}">
+              <div style="display: flex; flex-direction: column; gap: 2px; min-width: 0">
+                <span style="font-weight: 700; color: #eef3fb">{{o.name}}</span>
+                <span style="font-size: 12px; color: #c5d1e6">{{o.effect}}</span>
+              </div>
+              <div style="display: flex; align-items: center; gap: 10px; flex: none">
+                <span style="font-family: 'JetBrains Mono', monospace; color: #ffc94d">{{o.cost}}</span>
+                <button onClick="{{o.act}}" disabled="{{o.off}}" style="{{o.btnStyle}}">{{o.btn}}</button>
+              </div>
+            </div>
+          </sc-for>
+          <sc-if value="{{sel.noSlots}}" hint-placeholder-val="{{ false }}"><span style="font-size: 13px; color: #93a3bf">This ship has no free refit slots.</span></sc-if>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section aria-label="How the campaign works" style="display: flex; flex-direction: column; gap: 16px">
+    <h2 style="margin: 0; font-family: 'Chakra Petch', sans-serif; font-size: 26px; color: #eef3fb">3 · How the campaign works</h2>
+    <div style="display: flex; flex-wrap: wrap; gap: 12px">
+      <div style="flex: 1 1 260px; display: flex; flex-direction: column; gap: 6px; padding: 16px; background: #0d1220; border: 1px solid #1c2638; border-radius: 10px">
+        <h3 style="margin: 0; font-family: 'Chakra Petch', sans-serif; font-size: 17px; color: #eef3fb">Scars carry over</h3>
+        <p style="margin: 0; font-size: 13px; color: #c5d1e6">Hull damage, criticals and crew losses stay with a ship until repaired at a drydock. A crippled ship can still fly the next mission, or rest in dock and miss it.</p>
+      </div>
+      <div style="flex: 1 1 260px; display: flex; flex-direction: column; gap: 6px; padding: 16px; background: #0d1220; border: 1px solid #1c2638; border-radius: 10px">
+        <h3 style="margin: 0; font-family: 'Chakra Petch', sans-serif; font-size: 17px; color: #eef3fb">Lost is lost</h3>
+        <p style="margin: 0; font-size: 13px; color: #c5d1e6">Destroyed or captured ships are gone, and so are their captains, upgrades and veterancy. Disengaging off the map edge saves the ship but may fail the mission.</p>
+      </div>
+      <div style="flex: 1 1 260px; display: flex; flex-direction: column; gap: 6px; padding: 16px; background: #0d1220; border: 1px solid #1c2638; border-radius: 10px">
+        <h3 style="margin: 0; font-family: 'Chakra Petch', sans-serif; font-size: 17px; color: #eef3fb">Prizes</h3>
+        <p style="margin: 0; font-size: 13px; color: #c5d1e6">A ship you capture by boarding joins your fleet with its surviving prize crew. It needs crew and repairs before it can fight, and it only has three refit slots.</p>
+      </div>
+      <div style="flex: 1 1 260px; display: flex; flex-direction: column; gap: 6px; padding: 16px; background: #0d1220; border: 1px solid #1c2638; border-radius: 10px">
+        <h3 style="margin: 0; font-family: 'Chakra Petch', sans-serif; font-size: 17px; color: #eef3fb">Veterancy</h3>
+        <p style="margin: 0; font-size: 13px; color: #c5d1e6"><strong style="color: #eef3fb">Green</strong> → <strong style="color: #eef3fb">Trained</strong> (1 battle) → <strong style="color: #eef3fb">Veteran</strong> (3: re-roll one 1 per volley) → <strong style="color: #eef3fb">Elite</strong> (6: boarders win ties). Losing half the crew drops a ship one step.</p>
+      </div>
+    </div>
+
+    <h3 style="margin: 8px 0 0; font-family: 'Chakra Petch', sans-serif; font-size: 18px; color: #eef3fb">Captains</h3>
+    <div style="display: flex; flex-wrap: wrap; gap: 12px">
+      <sc-for list="{{captains}}" as="c" hint-placeholder-count="4">
+        <div style="flex: 1 1 240px; display: flex; flex-direction: column; gap: 4px; padding: 14px 16px; background: #0d1220; border: 1px solid #1c2638; border-radius: 10px">
+          <span style="font-weight: 700; color: #eef3fb">{{c.name}}</span>
+          <span style="font-size: 12px; font-weight: 700; color: #ffc94d">{{c.trait}}</span>
+          <span style="font-size: 13px; color: #c5d1e6">{{c.effect}}</span>
+          <span style="font-size: 12px; color: #93a3bf">{{c.where}}</span>
+        </div>
+      </sc-for>
+    </div>
+
+    <h3 style="margin: 8px 0 0; font-family: 'Chakra Petch', sans-serif; font-size: 18px; color: #eef3fb">Upgrade catalogue</h3>
+    <div style="overflow-x: auto; background: #0d1220; border: 1px solid #1c2638; border-radius: 10px">
+      <table>
+        <thead><tr><th>UPGRADE</th><th>SLOT</th><th>COST</th><th>EFFECT</th></tr></thead>
+        <tbody>
+          <sc-for list="{{catalogue}}" as="u" hint-placeholder-count="6">
+            <tr><td style="color: #eef3fb; font-weight: 600">{{u.name}}</td><td>{{u.slot}}</td><td style="font-family: 'JetBrains Mono', monospace; color: #ffc94d">{{u.cost}}</td><td>{{u.effect}}</td></tr>
+          </sc-for>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+</main>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1280,"height":3000}}'>
+class Component extends DCLogic {
+  constructor(props) {
+    super(props);
+    this.state = { mission: 'm2a', ship: 'resolute', slot: 'weapons', fit: {}, rep: {} };
+  }
+
+  data() {
+    if (this.D) return this.D;
+    const U = [
+      { id: 'heavy_bs', slot: 'weapons', name: 'Heavy broadside batteries', cost: 300, effect: '+1 die on each broadside; Turn −5° from the extra mass' },
+      { id: 'long_lance', slot: 'weapons', name: 'Long-focus lances', cost: 200, effect: 'Lance range +6u' },
+      { id: 'torpedoes', slot: 'weapons', name: 'Torpedo tubes', cost: 350, effect: 'Two torpedoes per battle: slow-moving markers, 2d6 damage each, fore arc' },
+      { id: 'pd', slot: 'defence', name: 'Point-defence grid', cost: 150, effect: 'Enemy lances and boarding torpedoes are −1 to hit this ship' },
+      { id: 'shields', slot: 'defence', name: 'Reinforced shield emitters', cost: 250, effect: '+1 shield on the facing of your choice' },
+      { id: 'plating', slot: 'defence', name: 'Ablative plating', cost: 200, effect: 'Armour saves +1 against the first volley each turn' },
+      { id: 'drives', slot: 'engines', name: 'Overcharged drives', cost: 200, effect: 'Speed +2u' },
+      { id: 'thrusters', slot: 'engines', name: 'Vectored thrusters', cost: 150, effect: 'Turn +10°' },
+      { id: 'marines', slot: 'crew', name: 'Marine detachment', cost: 120, effect: 'Crew +2; boarding parties of 4+ add a die on ties' },
+      { id: 'gunners', slot: 'crew', name: 'Veteran gun crews', cost: 250, effect: 'Re-roll 1s to hit with broadsides' },
+      { id: 'dc_teams', slot: 'crew', name: 'Damage-control teams', cost: 150, effect: 'Criticals repaired on 4+ (Fire! on 3+)' },
+      { id: 'ram', slot: 'special', name: 'Ram prow', cost: 180, effect: 'Ram damage +2; ramming shock −1' },
+      { id: 'tractor', slot: 'special', name: 'Tractor beam', cost: 300, effect: 'End of movement: pull an enemy within 8u up to 3u closer, setting up a boarding' },
+      { id: 'ecm', slot: 'special', name: 'ECM suite', cost: 220, effect: 'Enemies at long range are −1 to hit this ship' }
+    ];
+    const SH = {
+      resolute: { name: 'CNS Resolute', cls: 'Dominion-class battleship', col: '#5aa9ff', hull: 9, max: 14, crew: 6, crewMax: 8, crits: ['Gun Deck Hit (port)'], vet: 'Trained · 1 battle', captain: 'Capt. Ilse Varga · Gunnery Master', slots: ['weapons', 'defence', 'engines', 'crew', 'special'], tag: 'DAMAGED', tagBg: '#3a2208', tagFg: '#ffc94d' },
+      vigilant: { name: 'CNS Vigilant', cls: 'Valiant-class cruiser', col: '#5aa9ff', hull: 8, max: 8, crew: 6, crewMax: 6, crits: [], vet: 'Trained · 1 battle', captain: 'Capt. Tomas Rheel · Daredevil', slots: ['weapons', 'defence', 'engines', 'crew'], tag: 'READY', tagBg: '#11301f', tagFg: '#7be3a4' },
+      prize: { name: 'Gutterfang', cls: 'Harrow-class raider · prize, captured in M1', col: '#d7b8ff', hull: 4, max: 10, crew: 2, crewMax: 4, crits: ['Engines Hit', 'Steering Jammed'], vet: 'Green · prize crew', captain: 'No captain assigned', slots: ['weapons', 'engines', 'crew'], tag: 'PRIZE', tagBg: '#2a1a3a', tagFg: '#d7b8ff' }
+    };
+    const M = {
+      m1: { code: 'M1', name: 'Picket Line', type: 'FLEET ENGAGEMENT', x: 14, y: 45, state: 'done', brief: 'Your squadron met the Reaver vanguard at the Varn picket. The Maw of Ruin withdrew damaged; its raider escort was boarded and taken.', terrain: 'Open space, 160 × 110u', force: 'Resolute + Vigilant',
+        blocks: [['RESULT', '#7be3a4', ['Victory · 2 turns ahead of schedule', 'Raider Carrion Wing captured; renamed Gutterfang', '+400 credits, +1 renown']]] },
+      m2a: { code: 'M2A', name: 'Convoy Run', type: 'ESCORT', x: 43, y: 23, state: 'open', brief: 'Three ore freighters must cross the Varn shallows to the yards. Reaver raiders will come in from the north edge from turn 3.', terrain: 'Open space; freighters move 8u a turn on a fixed lane', force: 'Up to 600 points from your fleet',
+        blocks: [['ENEMY', '#ff8a8a', ['Two Harrow-class raiders arrive on turn 3', 'Maw of Ruin arrives on turn 5 if any freighter is still on the map']],
+                 ['OBJECTIVES', '#ffc94d', ['Primary: at least 2 freighters exit the west edge by turn 8', 'Secondary: no freighter lost']],
+                 ['SPECIAL RULES', '#8cc4ff', ['Freighters have Hull 4, Shields 1 all round, no weapons', 'Ships within 6u of a freighter may Brace for it instead of themselves']],
+                 ['REWARDS', '#7be3a4', ['+250 credits per freighter saved', 'Secondary: Cmdr. Ama Okafor joins as a captain']],
+                 ['IF YOU FAIL', '#ff8a8a', ['The yards cannot supply you: drydock prices +25% for the rest of the operation']]] },
+      m2b: { code: 'M2B', name: 'Salvage Field', type: 'RAID', x: 43, y: 67, state: 'open', brief: 'A wrecked Concord cruiser lies in the Tessaly asteroid belt with its lance foci intact. Recover the salvage before the Reavers strip it.', terrain: 'Asteroid field: rocks block fire and cause collisions', force: 'Up to 450 points from your fleet',
+        blocks: [['ENEMY', '#ff8a8a', ['Two Harrow-class raiders', 'Proximity mines around the wreck (2d6 to any ship ending within 3u)']],
+                 ['OBJECTIVES', '#ffc94d', ['Primary: recover 2 of 3 salvage beacons (end a move within 3u), then exit the east edge', 'Secondary: recover all 3']],
+                 ['SPECIAL RULES', '#8cc4ff', ['A ship that ends within 2u of an asteroid takes D3 (no saves)', 'Asteroids block line of fire between ships']],
+                 ['REWARDS', '#7be3a4', ['+200 credits per beacon', 'Long-focus lances unlocked at half price', 'Secondary: a free Point-defence grid']],
+                 ['IF YOU FAIL', '#ff8a8a', ['The Reavers refit with the salvage: their lances get +6u range in M3']]] },
+      d1: { code: 'D1', name: 'Drydock Varn', type: 'DRYDOCK', x: 70, y: 45, state: 'dock', brief: 'Repair, recruit and refit before pushing into Reaver space. See the drydock section below.', terrain: 'Safe harbour', force: 'Whole fleet',
+        blocks: [['SERVICES', '#8cc4ff', ['Hull 40 credits per point · criticals 60 each · crew 30 each', 'Upgrades from the catalogue (dock time applies)']]] },
+      m3: { code: 'M3', name: 'The Reaver Lair', type: 'PRIZE HUNT', x: 95, y: 45, state: 'locked', brief: 'Gutterfang’s logs point to the tender Mother Hydra, which refuels every Reaver raid. Take her intact.', terrain: 'Reaver station in a debris ring; the station guns fire at anything within 20u', force: 'Up to 700 points',
+        blocks: [['ENEMY', '#ff8a8a', ['Mother Hydra (Hull 16, Crew 10, no guns)', 'Maw of Ruin and a Harrow raider escort', 'Station turrets: 4d6 at 20u, all arcs']],
+                 ['OBJECTIVES', '#ffc94d', ['Primary: capture Mother Hydra by boarding. Destroying her fails the mission', 'Secondary: cripple the Maw of Ruin']],
+                 ['REWARDS', '#7be3a4', ['Mother Hydra joins your fleet as a support carrier', 'Tractor beam unlocked', '+500 credits']],
+                 ['IF YOU FAIL', '#ff8a8a', ['The Reavers keep their supply line: +1 Reaver raider in every later mission']]] },
+      m4: { code: 'M4', name: 'Kessel Gate', type: 'BREAKTHROUGH', x: 120, y: 64, state: 'locked', brief: 'The Reaver blockade line holds the only jump route to Station Aurel. Punch through it.', terrain: 'A gravity well in the centre bends every course 15° toward it', force: 'Up to 800 points',
+        blocks: [['ENEMY', '#ff8a8a', ['A blockade line of 3 Reaver ships across the middle of the map']],
+                 ['OBJECTIVES', '#ffc94d', ['Primary: get 2 ships off the far edge by turn 9', 'Secondary: lose no ships']],
+                 ['IF YOU FAIL', '#ff8a8a', ['Ships still in the zone after turn 9 are captured']]] },
+      d2: { code: 'D2', name: 'Forward Base Sela', type: 'DRYDOCK', x: 136, y: 24, state: 'locked', brief: 'Last chance to repair and refit before the final battle.', terrain: 'Safe harbour', force: 'Whole fleet',
+        blocks: [['SERVICES', '#8cc4ff', ['Repairs only; no new upgrades (no shipyard)']]] },
+      m5: { code: 'M5', name: 'Iron Tide', type: 'HOLD THE STATION', x: 150, y: 49, state: 'locked', brief: 'The Maw of Ruin leads the full Reaver tide against Station Aurel. Hold the station until the home fleet arrives.', terrain: 'Station Aurel in the centre (Hull 20, 6d6 at 24u)', force: 'Your whole fleet',
+        blocks: [['ENEMY', '#ff8a8a', ['Maw of Ruin as flagship (Hull 16, refitted), plus a 600-point Reaver squadron', 'Reinforcements on turns 4 and 7']],
+                 ['OBJECTIVES', '#ffc94d', ['Primary: Station Aurel survives 8 turns', 'Secondary: destroy or capture the Maw of Ruin']],
+                 ['REWARDS', '#7be3a4', ['Operation complete; unlocks Operation 2: Black Meridian', 'Every surviving captain gains a trait']]] }
+    };
+    const order = ['m1', 'm2a', 'm2b', 'd1', 'm3', 'm4', 'd2', 'm5'];
+    const caps = [
+      { name: 'Capt. Ilse Varga', trait: 'Gunnery Master', effect: 'Lock On also lets this ship re-roll its misses once per turn.', where: 'Commands CNS Resolute' },
+      { name: 'Capt. Tomas Rheel', trait: 'Daredevil', effect: 'All Ahead Full keeps its full Turn value.', where: 'Commands CNS Vigilant' },
+      { name: 'Cmdr. Ama Okafor', trait: 'Boarding Master', effect: 'Boarders win ties on the first round of every boarding action.', where: 'Joins after M2A if every freighter survives' },
+      { name: 'Capt. Davin Holt', trait: 'Steady Hand', effect: 'Brace for Impact no longer halves this ship’s dice.', where: 'Available for hire at Forward Base Sela (300 credits)' }
+    ];
+    this.D = { U: U, SH: SH, M: M, order: order, caps: caps, budget: 1200, costs: { hull: 40, crit: 60, crew: 30 } };
+    return this.D;
+  }
+
+  spentOf(st) {
+    const D = this.data(); let n = 0;
+    Object.keys(st.rep).forEach((id) => { const r = st.rep[id]; n += (r.hull || 0) * D.costs.hull + (r.crit || 0) * D.costs.crit + (r.crew || 0) * D.costs.crew; });
+    Object.keys(st.fit).forEach((id) => Object.keys(st.fit[id]).forEach((sl) => { const u = D.U.filter((x) => x.id === st.fit[id][sl])[0]; if (u) n += u.cost; }));
+    return n;
+  }
+
+  setRep(id, key, delta) {
+    const D = this.data(), sh = D.SH[id], rep = Object.assign({}, this.state.rep), r = Object.assign({ hull: 0, crit: 0, crew: 0 }, rep[id]);
+    const lim = { hull: sh.max - sh.hull, crit: sh.crits.length, crew: sh.crewMax - sh.crew }[key];
+    const next = Math.max(0, Math.min(lim, r[key] + delta));
+    const st = { rep: Object.assign(rep, { [id]: Object.assign(r, { [key]: next }) }), fit: this.state.fit };
+    if (this.spentOf(st) > D.budget) return;
+    this.setState({ rep: st.rep });
+  }
+
+  setFit(id, slot, uid) {
+    const D = this.data(), fit = Object.assign({}, this.state.fit), f = Object.assign({}, fit[id]);
+    if (uid) f[slot] = uid; else delete f[slot];
+    fit[id] = f;
+    if (this.spentOf({ rep: this.state.rep, fit: fit }) > D.budget) return;
+    this.setState({ fit: fit });
+  }
+
+  renderVals() {
+    const D = this.data(), st = this.state, spent = this.spentOf(st), left = D.budget - spent;
+    const fmt = (n) => n.toLocaleString('en-GB');
+    const stateLook = { done: ['COMPLETED', '#11301f', '#7be3a4', '#7be3a4'], open: ['AVAILABLE', '#3a2a08', '#ffc94d', '#ffc94d'], dock: ['DRYDOCK', '#16243d', '#8cc4ff', '#5aa9ff'], locked: ['LOCKED', '#1a2335', '#93a3bf', '#5a6a86'] };
+    const nodes = D.order.map((k) => {
+      const m = D.M[k], L = stateLook[m.state], on = st.mission === k, dock = m.state === 'dock' || m.type === 'DRYDOCK';
+      return {
+        name: m.code + ' · ' + m.name, sub: m.type.toLowerCase(), subCol: L[3], glyph: dock ? '' : (m.state === 'done' ? '✓' : m.code.replace('M', '')),
+        aria: m.code + ' ' + m.name + ', ' + L[0].toLowerCase(), pressed: on ? 'true' : 'false', pick: () => this.setState({ mission: k }),
+        style: 'position: absolute; left: ' + (m.x / 1.6).toFixed(2) + '%; top: ' + (m.y / 0.9).toFixed(2) + '%; transform: translate(-50%, -22px); display: flex; flex-direction: column; align-items: center; gap: 2px; padding: 0; background: transparent; border: 0; cursor: pointer; min-width: 44px; min-height: 44px;',
+        dotStyle: 'display: flex; align-items: center; justify-content: center; width: 34px; height: 34px; border-radius: ' + (dock ? '6px; transform: rotate(45deg)' : '50%') + '; font-family: JetBrains Mono, monospace; font-size: 13px; font-weight: 700; background: ' + (on ? L[3] : '#0d1220') + '; color: ' + (on ? '#070a12' : L[3]) + '; box-shadow: 0 0 0 2px ' + L[3] + (on ? ', 0 0 16px ' + L[3] : '') + ';'
+      };
+    });
+    const mm = D.M[st.mission], L = stateLook[mm.state];
+    const m = {
+      code: mm.code, name: mm.name, type: mm.type, status: L[0], stBg: L[1], stFg: L[2], brief: mm.brief, terrain: mm.terrain, force: mm.force,
+      blocks: mm.blocks.map((b) => ({ title: b[0], col: b[1], items: b[2] })),
+      canLaunch: mm.state === 'open', noLaunch: mm.state !== 'open',
+      lockNote: mm.state === 'done' ? 'Mission complete' : mm.state === 'dock' ? 'Docked: use the refit screen below' : 'Locked: complete the earlier missions first'
+    };
+    const ships = Object.keys(D.SH).map((id) => {
+      const sh = D.SH[id], r = Object.assign({ hull: 0, crit: 0, crew: 0 }, st.rep[id]), on = st.ship === id;
+      const hull = sh.hull + r.hull, newFit = Object.keys(st.fit[id] || {}).length > 0;
+      const pips = []; for (let i = 0; i < sh.max; i++) pips.push('width: 10px; height: 12px; border-radius: 2px; ' + (i < sh.hull ? 'background: ' + sh.col : i < hull ? 'background: #7be3a4' : 'background: #1a2335; box-shadow: inset 0 0 0 1px #2a3650'));
+      return {
+        name: sh.name, cls: sh.cls, col: sh.col, tag: sh.tag, tagBg: sh.tagBg, tagFg: sh.tagFg, pips: pips, hull: hull + '/' + sh.max, crew: (sh.crew + r.crew) + '/' + sh.crewMax, vet: sh.vet, captain: sh.captain,
+        sitsOut: r.hull > 4 || newFit, pressed: on ? 'true' : 'false', pick: () => this.setState({ ship: id, slot: sh.slots.indexOf(st.slot) >= 0 ? st.slot : sh.slots[0] }),
+        style: 'flex: 1 1 260px; min-width: 0; display: flex; flex-direction: column; align-items: flex-start; gap: 6px; padding: 14px 16px; border-radius: 10px; cursor: pointer; text-align: left; ' + (on ? 'background: #111c33; border: 1px solid ' + sh.col + '; box-shadow: 0 0 0 1px ' + sh.col + ';' : 'background: #0d1220; border: 1px solid #1c2638;')
+      };
+    });
+    const sid = st.ship, sh = D.SH[sid], r = Object.assign({ hull: 0, crit: 0, crew: 0 }, st.rep[sid]);
+    const sq = (dis) => 'width: 44px; height: 44px; border-radius: 6px; font-size: 18px; font-weight: 700; cursor: ' + (dis ? 'not-allowed' : 'pointer') + '; ' + (dis ? 'background: #111a2c; color: #4a5a7a; border: 1px solid #1c2638;' : 'background: #16243d; color: #e6edf8; border: 1px solid #33425f;');
+    const rep = [
+      ['hull', 'Repair hull', (sh.hull + r.hull) + '/' + sh.max + ' · ' + D.costs.hull + ' credits per point' + (r.hull > 4 ? ' · needs dock time' : ''), sh.max - sh.hull, D.costs.hull],
+      ['crit', 'Clear criticals', (sh.crits.length - r.crit) + ' left · ' + D.costs.crit + ' credits each', sh.crits.length, D.costs.crit],
+      ['crew', 'Recruit crew', (sh.crew + r.crew) + '/' + sh.crewMax + ' · ' + D.costs.crew + ' credits each', sh.crewMax - sh.crew, D.costs.crew]
+    ].map((x) => {
+      const cur = r[x[0]], minusOff = cur <= 0, plusOff = cur >= x[3] || left < x[4];
+      return { label: x[1], detail: x[2], minus: () => this.setRep(sid, x[0], -1), plus: () => this.setRep(sid, x[0], 1), minusOff: minusOff, plusOff: plusOff, minusStyle: sq(minusOff), plusStyle: sq(plusOff), minusAria: 'Less: ' + x[1], plusAria: 'More: ' + x[1] };
+    });
+    const crits = sh.crits.map((c, i) => ({ name: c + (i < r.crit ? ' · repaired' : ''), style: 'font-size: 11px; font-weight: 600; padding: 3px 8px; border-radius: 4px; ' + (i < r.crit ? 'background: #11301f; color: #7be3a4; border: 1px solid #1f5a39;' : 'background: #3a2208; color: #ffc94d; border: 1px solid #6b4310;') }));
+    const fit = st.fit[sid] || {}, slotLabel = { weapons: 'WEAPONS', defence: 'DEFENCE', engines: 'ENGINES', crew: 'CREW', special: 'SPECIAL' };
+    const slot = sh.slots.indexOf(st.slot) >= 0 ? st.slot : sh.slots[0];
+    const slots = sh.slots.map((sl) => {
+      const u = D.U.filter((x) => x.id === fit[sl])[0], on = sl === slot;
+      return { label: slotLabel[sl], fit: u ? u.name : 'Empty', fitCol: u ? '#7be3a4' : '#93a3bf', pressed: on ? 'true' : 'false', pick: () => this.setState({ slot: sl }),
+        style: 'flex: 1 1 150px; min-height: 52px; display: flex; flex-direction: column; align-items: flex-start; justify-content: center; gap: 2px; padding: 6px 10px; border-radius: 6px; cursor: pointer; text-align: left; ' + (on ? 'background: #16243d; border: 1px solid #5aa9ff;' : 'background: #0a1222; border: 1px solid #26324a;') };
+    });
+    const options = D.U.filter((u) => u.slot === slot).map((u) => {
+      const installed = fit[slot] === u.id, extra = installed ? 0 : u.cost - ((D.U.filter((x) => x.id === fit[slot])[0] || {}).cost || 0), off = !installed && extra > left;
+      return { name: u.name, effect: u.effect, cost: fmt(u.cost) + ' cr', btn: installed ? 'Remove' : off ? 'Too costly' : 'Install', off: off,
+        act: () => this.setFit(sid, slot, installed ? null : u.id),
+        style: 'display: flex; justify-content: space-between; align-items: center; gap: 14px; padding: 10px 12px; border-radius: 8px; ' + (installed ? 'background: #0f2a1c; border: 1px solid #1f5a39;' : 'background: #080c16; border: 1px solid #1c2638;'),
+        btnStyle: 'min-height: 44px; min-width: 96px; padding: 0 12px; border-radius: 6px; font-weight: 700; font-size: 13px; cursor: ' + (off ? 'not-allowed' : 'pointer') + '; ' + (installed ? 'background: transparent; color: #e6edf8; border: 1px solid #33425f;' : off ? 'background: #111a2c; color: #4a5a7a; border: 1px solid #1c2638;' : 'background: #5aa9ff; color: #070a12; border: 0;') };
+    });
+    const slotNames = { weapons: 'Weapons', defence: 'Defence', engines: 'Engines', crew: 'Crew', special: 'Special' };
+    return {
+      creditsLeft: fmt(left), spent: fmt(spent), reset: () => this.setState({ fit: {}, rep: {} }),
+      nodes: nodes, m: m, ships: ships,
+      sel: { name: sh.name, repairs: rep, crits: crits, hasCrits: crits.length > 0, slots: slots, options: options, noSlots: sh.slots.length === 0 },
+      captains: D.caps,
+      catalogue: D.U.map((u) => ({ name: u.name, slot: slotNames[u.slot], cost: fmt(u.cost), effect: u.effect }))
+    };
+  }
+}
+</script>
+</body>
+</html>

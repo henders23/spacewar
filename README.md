@@ -7,14 +7,18 @@ This first slice is a design mockup:
 
 - **Ruleset** — [`docs/rules.md`](docs/rules.md)
 - **Playable 2v2 squadron battle mockup** — `design/Main.dc.html` (three.js scene, rules engine, AI opponent,
-  hot-seat mode, manual dice tray, top-down ship inspector, priority targeting,
-  live firing preview while plotting, ramming, Risk-style boarding, arc value badges, sound and impact effects) and the rulebook page `design/Rules.dc.html`. These are the sources of the Claude Design
+  hot-seat mode, manual dice tray, projectile and explosion art, top-down ship inspector, priority targeting,
+  live firing preview while plotting, ramming, Risk-style boarding, arc value badges, sound and impact effects) and the rulebook page `design/Rules.dc.html`. `design/Operation.dc.html` is the interactive campaign board (Operation Iron Tide: mission map,
+  briefings, drydock refit and repair). These are the sources of the Claude Design
   canvas; `design/canvas.json` is its layout index.
 - **Ship models** — `assets/ships/*.glb`, two battleships and two cruisers from the asset pack reduced from ~70 MB
   (1.9M triangles, 4K textures) to ~1.1 MB each (≈38k triangles, 1K WebP textures).
 
 - **Sound effects** — `assets/sfx/*.mp4`, 15 sounds from the supplied weapon sound pack, trimmed,
   loudness-normalised and converted to mono AAC (the design canvas can't host MP3).
+
+- **Projectile & explosion art** — `assets/fx/*.webp`, 13 sprites and 4 explosion sprite sheets built from
+  the supplied projectiles/explosions pack (frames packed into grids for animation).
 
 ## Tools
 

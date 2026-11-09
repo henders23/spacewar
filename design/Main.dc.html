@@ -322,6 +322,17 @@ class Component extends DCLogic {
       W: 160, H: 110,
       IDS: ['resolute', 'vigilant', 'maw', 'carrion'],
       FACINGS: ['fore', 'port', 'stbd', 'aft'],
+      ART: {
+        p_shell_he: '/_blob/7ba92a28b77f268534636b20cef6f862', p_shell_ap: '/_blob/6f6122af88bd896abe07d948b3977170',
+        p_tracer_blue: '/_blob/2b59fa42d2edbee181f6a52e22c46739', p_plasma_red: '/_blob/a80f2714e66680f3a3ba7bc4619b7bbc',
+        p_lance_cyan: '/_blob/d45e21c01f5d9fbb30540b193adbcf37', p_lance_violet: '/_blob/d81654b54e89fa15a534ee89f2476abe',
+        p_boarding_torpedo: '/_blob/2ab41de6a3f32276f04722ca3be06867',
+        m_cannon: '/_blob/7a6fb3c79aa3630d1ec067e020c06372', m_rail: '/_blob/5242bd328f512742de9d199c5ae64ac1', m_laser: '/_blob/14dc320e1114e1e257b3df4e396124e7',
+        s_hit_cyan: '/_blob/73019e492566ed010ea32a272b09274b', s_hit_purple: '/_blob/43b399904d46bcb5419a17a6a7a01851', i_sparks_gold: '/_blob/9ce9125ee7637bd37181b6a62e10f713',
+        x_small_orange: '/_blob/7b16720d98bfdf25905f7a3c64027b77', x_breach_red: '/_blob/9cca5611880a5440bc664f988ae734f8',
+        x_capital_orange: '/_blob/76c9d2d750292cfa93d29cb2eae24fc3', x_reactor_violet: '/_blob/e088983b7a44693ca887c729c43e76bb'
+      },
+      SHEETS: { x_small_orange: [4, 4, 16], x_breach_red: [4, 4, 16], x_capital_orange: [5, 4, 20], x_reactor_violet: [5, 4, 20] },
       SFX: {
         cannon_heavy: '/_blob/e5c3a8b827ea958ba638bc5e22722f6d', cannon_boom: '/_blob/16c5ec15006567069beea64c4179d022',
         laser_cannon: '/_blob/e78f9ec3eaf751da8a32675dae687819', laser_beam: '/_blob/316165810d97127243f5e71e03335ebb',
@@ -784,7 +795,7 @@ class Component extends DCLogic {
       g.turnRolls[B.id].push({ owner: A.id, label: 'Collision with ' + A.def.name, result: (ramA ? 'Rammed: ' : '') + toB + ' damage', dice: [] });
       const ux = (B.x - A.x) / (dist || 1), uy = (B.y - A.y) / (dist || 1), push = (4 - dist) / 2;
       A.x -= ux * push; A.y -= uy * push; B.x += ux * push; B.y += uy * push;
-      this.spark(A.x, A.y, 0xffffff, 6); this.spark(B.x, B.y, 0xffffff, 6);
+      if (this.three) this.boom('x_small_orange', this.m2v((A.x + B.x) / 2, (A.y + B.y) / 2, 1.5), 4.5, 0.7);
       this.sfx('collision', 1); this.addShake(1.1); this.kick(A.id, 0.25); this.kick(B.id, -0.25);
     }
     this.placeShips();
@@ -865,6 +876,7 @@ class Component extends DCLogic {
   startGunnery() {
     const g = this.g;
     g.phase = 'firing'; g.tray = []; g.pending = null;
+    this.hitPts = {};
     this.rolling = null;
     this.seqId = (this.seqId || 0) + 1;
     this.seq = this.resolutionSeq();
@@ -946,7 +958,8 @@ class Component extends DCLogic {
     if (q.kind === 'explode') { this.explode(q.ship); return 2900; }
     if (q.kind === 'ram') {
       const A = q.A, B = q.B, mx = (A.x + B.x) / 2, my = (A.y + B.y) / 2;
-      for (let i = 0; i < 8; i++) this.spark(mx + (Math.random() - 0.5) * 4, my + (Math.random() - 0.5) * 4, i % 2 ? 0xffffff : 0xffb347, 4 + Math.random() * 5);
+      this.boom('x_breach_red', this.m2v(mx, my, 1.6), 6, 0.8);
+      for (let i = 0; i < 3; i++) this.boom('x_small_orange', this.m2v(mx + (Math.random() - 0.5) * 4, my + (Math.random() - 0.5) * 4, 1.5), 3, 0.6, 0.1 + i * 0.1);
       this.sfx('collision', 1, 0, 0.9); this.sfx('hit_big', 0.8, 0.05);
       this.addShake(2); this.kick(A.id, 0.3); this.kick(B.id, -0.35); this.slowUntil = performance.now() + 450;
       return 1100;
@@ -954,11 +967,11 @@ class Component extends DCLogic {
     if (q.kind === 'pods') {
       const T = this.three.T, A = q.A, B = q.B, SD = this.D.SIDES[A.def.side];
       for (let i = 0; i < Math.min(6, q.n); i++) {
-        const sp = new T.Sprite(new T.SpriteMaterial({ toneMapped: false, map: this.three.glowTex, color: SD.bolt, transparent: true, blending: T.AdditiveBlending, depthWrite: false }));
-        const from = this.m2v(A.x + (Math.random() - 0.5) * 3, A.y + (Math.random() - 0.5) * 3, 1.8), to = this.m2v(B.x + (Math.random() - 0.5) * 3, B.y + (Math.random() - 0.5) * 3, 1.6);
-        sp.scale.setScalar(1.1); this.three.fxg.add(sp);
+        const from = this.m2v(A.x + (Math.random() - 0.5) * 3, A.y + (Math.random() - 0.5) * 3, 1.8), to = this.hullPoint(B);
+        const sp = this.flatQuad('p_boarding_torpedo', 0.7, 1.25, false, SD.bolt); this.aim(sp, from, to); this.three.fxg.add(sp);
+        sp.material = sp.userData.mesh.material;
         const fx = { t: -i * 0.12 };
-        fx.update = (dt) => { fx.t += dt; if (fx.t < 0) { sp.position.copy(from); return true; } const k = Math.min(1, fx.t / 0.9); sp.position.copy(from).lerp(to, k * k * (3 - 2 * k)); sp.position.y += Math.sin(k * Math.PI) * 2; if (k >= 1) { this.three.fxg.remove(sp); sp.material.dispose(); this.spark(B.x, B.y, 0xffffff, 1.6); return false; } return true; };
+        fx.update = (dt) => { fx.t += dt; if (fx.t < 0) { sp.position.copy(from); return true; } const k = Math.min(1, fx.t / 0.9); sp.position.copy(from).lerp(to, k * k * (3 - 2 * k)); sp.position.y += Math.sin(k * Math.PI) * 2; if (k >= 1) { this.three.fxg.remove(sp); sp.material.dispose(); sp.userData.mesh.geometry.dispose(); this.flash('i_sparks_gold', to, 1.4, 0.25, true); return false; } return true; };
         fx.kill = () => this.three.fxg.remove(sp);
         this.fx.push(fx);
       }
@@ -967,7 +980,7 @@ class Component extends DCLogic {
     }
     if (q.kind === 'melee') {
       const B = q.B;
-      for (let i = 0; i < Math.max(2, q.n * 2); i++) { const a = Math.random() * 6.28, r = Math.random() * B.def.len * 0.35; this.spark(B.x + Math.cos(a) * r, B.y + Math.sin(a) * r, i % 2 ? 0xfff2c4 : 0x9fd0ff, 1.2 + Math.random()); }
+      for (let i = 0; i < Math.max(2, q.n * 2); i++) this.flash(i % 2 ? 'i_sparks_gold' : 'm_rail', this.hullPoint(B), 1 + Math.random() * 0.8, 0.25, true);
       this.sfx('blaster_c', 0.45, 0); this.sfx('blaster_r', 0.45, 0.12); this.sfx('hit_small', 0.35, 0.2);
       return 650;
     }
@@ -1095,6 +1108,7 @@ class Component extends DCLogic {
       const B = grp.T, r = grp.r, oB = g.orders[B.id] ? g.orders[B.id].order : 'steady';
       const facing = this.arcOf(B, A.x, A.y), narrow = facing === 'fore' || facing === 'aft';
       const hits = [];
+      let shVis = Math.max(0, (B.def.shields[facing] || 0) - pend[B.id].shield[facing]);
       for (const w of grp.ws) {
         const n = this.weaponDice(A, w, oA), tn = this.toHitTN(r, narrow, oA, A);
         const hit = (v) => v !== 1 && (v === 6 || v >= tn);
@@ -1102,7 +1116,7 @@ class Component extends DCLogic {
         const nh = dice.filter(hit).length;
         this.record({ owner: A.id, label: A.def.name + ' · ' + w.name, dice: dice.map((v) => ({ v: v, kind: hit(v) ? (v === 6 ? 'crit' : 'hit') : 'miss' })), result: nh + ' hit' + (nh === 1 ? '' : 's') + ' (need ' + tn + '+)' }, B.id);
         dice.forEach((v) => { if (hit(v)) hits.push({ v: v, lance: !!w.lance }); });
-        yield { type: 'fx', kind: 'bolts', A: A, B: B, shots: dice.map((v) => ({ w: w, hit: hit(v) })) };
+        yield { type: 'fx', kind: 'bolts', A: A, B: B, shots: dice.map((v) => { const h = hit(v), sh = h && !w.lance && shVis > 0; if (sh) shVis--; return { w: w, hit: h, onShield: sh }; }) };
       }
       if (!hits.length) continue;
       const P = pend[B.id], shield = Math.max(0, (B.def.shields[facing] || 0) - P.shield[facing]);
@@ -1318,6 +1332,9 @@ class Component extends DCLogic {
     this.three = { T: T, renderer: renderer, scene: scene, camera: camera, objs: {}, overlay: new T.Group(), hover: new T.Group(), preview: new T.Group(), fxg: new T.Group(), ray: new T.Raycaster(), plane: new T.Plane(new T.Vector3(0, 1, 0), 0) };
     scene.add(this.three.overlay); scene.add(this.three.hover); scene.add(this.three.preview); scene.add(this.three.fxg);
     this.three.glowTex = this.radialTex();
+    this.three.tex = {};
+    const tl = new T.TextureLoader();
+    Object.keys(this.D.ART).forEach((k) => tl.load(this.D.ART[k], (t) => { t.encoding = T.sRGBEncoding; this.three.tex[k] = t; }));
     this.buildBackdrop();
     this.ids().forEach((id) => { this.three.objs[id] = this.buildShipObj(this.D.SHIPS[id]); });
     this.placeShips();
@@ -1665,52 +1682,133 @@ class Component extends DCLogic {
   }
 
   /* ───────────── EFFECTS ───────────── */
+  // One shot: pack art on the battle plane. Hits strike the shield bubble (if that facing still has shields) or a real
+  // point on the hull; misses fly past the ship and on into space.
   bolt(A, B, shot, delay, i) {
     if (!this.three) return;
-    const T = this.three.T, w = shot.w;
-    const SD = this.D.SIDES[A.def.side], lance = !!w.lance, col = lance ? SD.lanceBolt : SD.bolt;
+    const w = shot.w, c = A.def.side === 'concord', lance = !!w.lance, SD = this.D.SIDES[A.def.side];
     const side = w.side === 'port' ? 1 : w.side === 'stbd' ? -1 : 0;
-    // Broadsides ripple from stern to bow along the hull; lances fire from the prow.
     const along = lance ? A.def.len * 0.48 : ((i % 6) / 5 - 0.5) * A.def.len * 0.75, beam = (A.def.halfBeamU || 1.2) + 0.2;
     const ox = A.x + Math.cos(A.h) * along + Math.cos(A.h + Math.PI / 2) * side * beam;
     const oy = A.y + Math.sin(A.h) * along + Math.sin(A.h + Math.PI / 2) * side * beam;
-    let tx = B.x + (Math.random() - 0.5) * 2.4, ty = B.y + (Math.random() - 0.5) * 2.4;
-    if (!shot.hit) { const a = Math.random() * Math.PI * 2; tx = B.x + Math.cos(a) * (5 + Math.random() * 4); ty = B.y + Math.sin(a) * (5 + Math.random() * 4); }
-    const from = this.m2v(ox, oy, 1.4), to = this.m2v(tx, ty, 1.2);
-    const mesh = new T.Mesh(new T.BoxGeometry(1, 1, 1), new T.MeshBasicMaterial({ toneMapped: false, color: col, transparent: true, opacity: 0, blending: T.AdditiveBlending, depthWrite: false }));
-    const thick = lance ? 0.5 : (w.broadside ? 0.3 : 0.16);
-    this.three.fxg.add(mesh);
-    const len = from.distanceTo(to), fly = (lance ? 0.14 : (w.broadside ? 0.42 : 0.3)) / this.speedMul();
-    const fx = { t: -delay, done: false, hitDone: false, fired: false };
+    const from = this.m2v(ox, oy, 1.4);
+    const spec = lance ? { key: c ? 'p_lance_cyan' : 'p_lance_violet', wid: 1.6, len: 0, add: true, fly: 0.14, muzzle: c ? 'm_rail' : 'm_laser', col: SD.lanceBolt }
+      : w.broadside ? (c ? { key: A.def.len >= 8 ? 'p_shell_he' : 'p_shell_ap', wid: 1.05, len: 2.1, add: false, fly: 0.5, muzzle: 'm_cannon', col: SD.bolt } : { key: 'p_plasma_red', wid: 1.6, len: 2.0, add: true, fly: 0.45, muzzle: 'm_laser', col: SD.bolt })
+      : (c ? { key: 'p_tracer_blue', wid: 0.65, len: 1.45, add: true, fly: 0.34, muzzle: 'm_rail', col: SD.bolt } : { key: 'p_plasma_red', wid: 1.0, len: 1.25, add: true, fly: 0.34, muzzle: 'm_laser', col: SD.bolt });
+    // Where it goes.
+    let to, end, kind;
+    if (shot.hit && shot.onShield) {
+      const R0 = Math.max(3.2, B.def.len * 0.6), dx = from.x - B.x, dz = from.z + B.y, dl = Math.hypot(dx, dz) || 1;
+      to = this.m2v(B.x, B.y, 1.4).add(new this.three.T.Vector3(dx / dl * R0 + (Math.random() - 0.5) * 1.2, 0, dz / dl * R0 + (Math.random() - 0.5) * 1.2)); end = to; kind = 'shield';
+    } else if (shot.hit) { to = this.hullPoint(B); end = to; kind = 'hull'; }
+    else {
+      const hp = this.m2v(B.x, B.y, 1.3), dx = hp.x - from.x, dz = hp.z - from.z, dl = Math.hypot(dx, dz) || 1, px = -dz / dl, pz = dx / dl;
+      const off = ((B.def.halfBeamU || 1.2) + 1.6 + Math.random() * 3.2) * (Math.random() < 0.5 ? -1 : 1);
+      to = hp.clone().add(new this.three.T.Vector3(px * off, 0.2, pz * off));
+      const ux = to.x - from.x, uz = to.z - from.z, ul = Math.hypot(ux, uz) || 1;
+      end = to.clone().add(new this.three.T.Vector3(ux / ul * (22 + Math.random() * 10), 0, uz / ul * (22 + Math.random() * 10))); kind = 'miss';
+    }
+    const q = this.flatQuad(spec.key, spec.wid, spec.len || 1, spec.add, spec.col);
+    q.visible = false; this.three.fxg.add(q); this.aim(q, from, end);
+    const total = from.distanceTo(end), reach = from.distanceTo(to);
+    const fly = spec.fly / this.speedMul() * (lance ? 1 : Math.max(0.6, reach / 22)), flyEnd = lance ? fly : fly * total / reach;
+    const fx = { t: -delay, hitDone: false, fired: false };
     fx.update = (dt) => {
       fx.t += dt;
       if (fx.t < 0) return true;
       if (!fx.fired) {
-        fx.fired = true;
-        this.spark(ox, oy, col, lance ? 3.6 : (w.broadside ? 2.6 : 1.4));
+        fx.fired = true; q.visible = true;
+        this.flash(spec.muzzle, from, lance ? 3.2 : (w.broadside ? 2.6 : 1.5), 0.2, true);
         this.sfx(this.weaponSfx(A, w), Math.max(0.35, (lance ? 1 : 0.85) - i * 0.07));
         if (w.broadside && i % 3 === 0) this.kick(A.id, -side * 0.035);
         if (lance) this.addShake(0.25);
       }
+      const m = q.userData.mesh;
       if (lance) {
-        const k = fx.t / fly;
-        mesh.material.opacity = k < 1 ? 1 : Math.max(0, 1 - (fx.t - fly) / 0.35);
-        mesh.scale.set(thick, thick, len); mesh.position.copy(from).lerp(to, 0.5); mesh.lookAt(to);
+        // Beam: snaps out to its end point, then fades.
+        const L = from.distanceTo(end), k = Math.min(1, fx.t / fly);
+        q.position.copy(from).lerp(end, 0.5 * k); m.scale.set(spec.wid, Math.max(0.1, L * k), 1);
+        m.material.opacity = fx.t < fly ? 1 : Math.max(0, 1 - (fx.t - fly) / 0.35);
       } else {
-        const k = Math.min(1, fx.t / fly), seg = Math.min(4, len * 0.25);
-        const head = from.clone().lerp(to, k), tail = from.clone().lerp(to, Math.max(0, k - seg / len));
-        mesh.material.opacity = k < 1 ? 1 : 0;
-        mesh.scale.set(thick, thick, Math.max(0.1, head.distanceTo(tail))); mesh.position.copy(head).lerp(tail, 0.5); mesh.lookAt(head);
+        const k = Math.min(1, fx.t / flyEnd);
+        q.position.copy(from).lerp(end, k);
+        m.material.opacity = kind === 'miss' && k > 0.7 ? Math.max(0, 1 - (k - 0.7) / 0.3) : 1;
+        if (kind !== 'miss' && fx.t >= fly) q.visible = false;
       }
-      if (fx.t >= fly && !fx.hitDone) {
+      if (!fx.hitDone && fx.t >= fly) {
         fx.hitDone = true;
-        if (shot.hit) { this.spark(tx, ty, col, lance ? 4.8 : (w.broadside ? 3.2 : 2.2)); this.sfx('hit_small', lance ? 0.6 : 0.32); this.addShake(lance ? 0.35 : 0.12); }
+        if (kind === 'shield') {
+          this.flash(B.def.side === 'concord' ? 's_hit_cyan' : 's_hit_purple', to, lance ? 4 : 2.8, 0.35, true);
+          this.shieldFlash(B.id, 0); this.sfx('shield_zap', 0.35);
+        } else if (kind === 'hull') {
+          this.boom(lance ? 'x_breach_red' : 'x_small_orange', to, lance ? 4.2 : 2.6, lance ? 0.7 : 0.55);
+          this.flash('i_sparks_gold', to, 1.6, 0.25, true);
+          (this.hitPts[B.id] = this.hitPts[B.id] || []).push(to.clone());
+          this.sfx('hit_small', lance ? 0.6 : 0.32); this.addShake(lance ? 0.35 : 0.12);
+        }
       }
-      if (fx.t > fly + 0.4) { this.three.fxg.remove(mesh); mesh.geometry.dispose(); mesh.material.dispose(); return false; }
+      const life = lance ? fly + 0.4 : flyEnd + 0.05;
+      if (fx.t > life) { this.three.fxg.remove(q); q.userData.mesh.geometry.dispose(); q.userData.mesh.material.dispose(); return false; }
       return true;
     };
-    fx.kill = () => { this.three.fxg.remove(mesh); };
+    fx.kill = () => this.three.fxg.remove(q);
     this.fx.push(fx);
+  }
+
+  /* Sprite art from the projectile/explosion pack. */
+  // A flat textured quad lying on the battle plane, its image 'up' pointing along `dir` (three-space x/z).
+  flatQuad(key, wid, len, additive, fallbackCol) {
+    const T = this.three.T, tex = this.three.tex[key];
+    const mat = new T.MeshBasicMaterial({ toneMapped: false, map: tex || null, color: tex ? 0xffffff : (fallbackCol || 0xffffff), transparent: true, depthWrite: false, side: T.DoubleSide, blending: additive ? T.AdditiveBlending : T.NormalBlending });
+    const m = new T.Mesh(new T.PlaneGeometry(1, 1), mat);
+    m.rotation.x = -Math.PI / 2; m.scale.set(wid, len, 1);
+    const grp = new T.Group(); grp.add(m); grp.userData.mesh = m;
+    return grp;
+  }
+
+  aim(grp, from, to) { grp.rotation.y = Math.atan2(-(to.x - from.x), -(to.z - from.z)); }
+
+  // One-shot camera-facing flash (muzzle flash, shield hit, sparks).
+  flash(key, pos, size, dur, additive) {
+    if (!this.three) return;
+    const T = this.three.T, tex = this.three.tex[key];
+    if (!tex) { this.spark(pos.x, -pos.z, 0xffffff, size * 0.6); return; }
+    const sp = new T.Sprite(new T.SpriteMaterial({ toneMapped: false, map: tex, transparent: true, depthWrite: false, blending: additive ? T.AdditiveBlending : T.NormalBlending }));
+    sp.position.copy(pos); sp.material.rotation = Math.random() * Math.PI * 2; this.three.fxg.add(sp);
+    const fx = { t: 0 };
+    fx.update = (dt) => { fx.t += dt; const k = fx.t / dur; sp.scale.setScalar(size * (0.7 + 0.5 * k)); sp.material.opacity = Math.max(0, 1 - k * k); if (k >= 1) { this.three.fxg.remove(sp); sp.material.dispose(); return false; } return true; };
+    fx.kill = () => this.three.fxg.remove(sp);
+    this.fx.push(fx);
+  }
+
+  // Animated explosion from a sprite sheet; fades out over its last quarter.
+  boom(key, pos, size, dur, delay) {
+    if (!this.three) return;
+    const T = this.three.T, base = this.three.tex[key], sh = this.D.SHEETS[key];
+    if (!base) { this.spark(pos.x, -pos.z, 0xffa040, size * 0.8); return; }
+    const tex = base.clone(); tex.needsUpdate = true;
+    tex.repeat.set(1 / sh[0], 1 / sh[1]);
+    const sp = new T.Sprite(new T.SpriteMaterial({ toneMapped: false, map: tex, transparent: true, depthWrite: false }));
+    sp.position.copy(pos); sp.scale.setScalar(size); sp.material.rotation = Math.random() * Math.PI * 2; sp.visible = false; sp.renderOrder = 7;
+    this.three.fxg.add(sp);
+    const fx = { t: -(delay || 0) };
+    fx.update = (dt) => {
+      fx.t += dt; if (fx.t < 0) return true;
+      sp.visible = true;
+      const k = fx.t / dur, f = Math.min(sh[2] - 1, Math.floor(k * sh[2])), cx = f % sh[0], cy = Math.floor(f / sh[0]);
+      tex.offset.set(cx / sh[0], 1 - (cy + 1) / sh[1]);
+      sp.material.opacity = k < 0.75 ? 1 : Math.max(0, 1 - (k - 0.75) / 0.25);
+      if (k >= 1) { this.three.fxg.remove(sp); sp.material.dispose(); tex.dispose(); return false; }
+      return true;
+    };
+    fx.kill = () => this.three.fxg.remove(sp);
+    this.fx.push(fx);
+  }
+
+  // A real point on a ship's hull (world space), for hits that land.
+  hullPoint(B) {
+    const al = (Math.random() - 0.5) * B.def.len * 0.8, bm = (Math.random() - 0.5) * (B.def.halfBeamU || 1.2) * 1.5;
+    return this.m2v(B.x + Math.cos(B.h) * al + Math.cos(B.h + Math.PI / 2) * bm, B.y + Math.sin(B.h) * al + Math.sin(B.h + Math.PI / 2) * bm, 1.3);
   }
 
   spark(x, y, col, size) {
@@ -1738,7 +1836,9 @@ class Component extends DCLogic {
     this.addShake(1.8); this.slowUntil = performance.now() + 1300;
     const c = this.cam;
     this.killCam = { t0: performance.now(), x: s.x, z: -s.y, saved: this.killCam ? this.killCam.saved : { tx: c.tx, tz: c.tz, dist: c.dist, tilt: c.tilt } };
-    for (let i = 0; i < 9; i++) { const fx = { t: -i * 0.12 }; const self = this; const jx = s.x + (Math.random() - 0.5) * 6, jy = s.y + (Math.random() - 0.5) * 6; fx.update = (dt) => { fx.t += dt; if (fx.t >= 0 && !fx.f) { fx.f = 1; self.spark(jx, jy, i % 2 ? 0xffc94d : 0xff6a3d, 9 + Math.random() * 6); } return !fx.f; }; this.fx.push(fx); }
+    const big = s.def.side === 'concord' ? 'x_capital_orange' : 'x_reactor_violet';
+    for (let i = 0; i < 4; i++) this.boom('x_small_orange', this.hullPoint(s), 3 + Math.random() * 2, 0.6, i * 0.1);
+    this.boom(big, this.m2v(s.x, s.y, 1.6), s.def.len * 2.6, 1.7, 0.25);
     const fx = { t: 0 };
     fx.update = (dt) => { fx.t += dt; if (fx.t > 0.6) { o.model.visible = false; o.glow.visible = false; o.ring.visible = false; return false; } return true; };
     this.fx.push(fx);
@@ -1763,10 +1863,10 @@ class Component extends DCLogic {
   // Damage landing on a ship: debris flashes, a hull-impact sound, camera shake, a jolt, and a slow-mo beat on criticals.
   impact(id, dmg, crits) {
     if (this.autoAll || !this.three) return;
-    const s = this.g.ships[id];
-    for (let i = 0; i < Math.min(7, 1 + dmg + crits); i++) {
-      const a = Math.random() * Math.PI * 2, r = Math.random() * s.def.len * 0.35;
-      this.spark(s.x + Math.cos(a) * r, s.y + Math.sin(a) * r, i % 2 ? 0xffc94d : 0xff7a3d, 3 + Math.random() * 3);
+    const s = this.g.ships[id], pts = ((this.hitPts || {})[id] || []).slice(-6);
+    for (let i = 0; i < Math.min(6, 1 + dmg + crits); i++) {
+      const pt = pts.length ? pts[i % pts.length] : this.hullPoint(s);
+      this.boom(crits && i === 0 ? 'x_breach_red' : 'x_small_orange', pt, 3.2 + Math.random() * 1.6 + (crits && i === 0 ? 1.5 : 0), 0.75, i * 0.09);
     }
     this.sfx(dmg >= 3 || crits ? 'hit_big' : 'hit_small', 0.95);
     this.addShake(0.3 + 0.14 * dmg + 0.3 * crits);
