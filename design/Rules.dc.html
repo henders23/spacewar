@@ -22,7 +22,7 @@ th{font-size:12px;letter-spacing:0.06em;color:#93a3bf;font-weight:600}
 <main style="max-width: 1080px; margin: 0 auto; padding: 56px 24px 80px; display: flex; flex-direction: column; gap: 56px">
 
   <header style="display: flex; flex-direction: column; gap: 14px; padding-bottom: 32px; border-bottom: 1px solid #1c2638">
-    <span style="font-family: 'JetBrains Mono', monospace; font-size: 12px; letter-spacing: 0.14em; color: #ffc94d">CORE RULES · DRAFT v0.5</span>
+    <span style="font-family: 'JetBrains Mono', monospace; font-size: 12px; letter-spacing: 0.14em; color: #ffc94d">CORE RULES · DRAFT v0.6</span>
     <h1 style="margin: 0; font-family: 'Chakra Petch', sans-serif; font-weight: 700; font-size: 56px; line-height: 1.05; letter-spacing: 0.06em; color: #eef3fb">GUNLINE</h1>
     <p style="margin: 0; max-width: 720px; font-size: 18px; color: #c5d1e6">A game of capital ships slugging it out in open space. Both admirals write orders in secret, every ship moves at the same moment, and then every gun fires at the same moment. Fistfuls of d6 decide who is still flying.</p>
     <div style="display: flex; flex-wrap: wrap; gap: 10px; margin-top: 6px">
@@ -267,7 +267,30 @@ th{font-size:12px;letter-spacing:0.06em;color:#93a3bf;font-weight:600}
   </section>
 
   <section style="display: flex; flex-direction: column; gap: 18px">
-    <h2 style="margin: 0; font-family: 'Chakra Petch', sans-serif; font-size: 28px; color: #eef3fb">9 · Ship profiles · starter squadrons</h2>
+    <h2 style="margin: 0; font-family: 'Chakra Petch', sans-serif; font-size: 28px; color: #eef3fb">9 · Tractor beams</h2>
+    <p style="margin: 0; max-width: 820px; color: #c5d1e6">A tractor beam drags a ship into close range and holds it there: for a broadside at 3+, a ram, or a boarding party. The Maw of Ruin carries one (its graviton maw); the Tractor Beam refit fits one to any ship with a special slot.</p>
+    <div style="display: flex; flex-wrap: wrap; gap: 12px">
+      <div style="flex: 1 1 300px; display: flex; flex-direction: column; gap: 6px; padding: 18px; background: #0d1220; border: 1px solid #1c2638; border-radius: 10px; color: #c5d1e6">
+        <h3 style="margin: 0; font-family: 'Chakra Petch', sans-serif; font-size: 18px; color: #eef3fb">Lock on</h3>
+        <p style="margin: 0; font-size: 14px">After movement and collisions, a ship with a tractor beam locks its priority target if that ship is within 8u, otherwise the nearest enemy within 8u. Stations are too massive to move. It needs no order and fires every turn.</p>
+      </div>
+      <div style="flex: 1 1 300px; display: flex; flex-direction: column; gap: 6px; padding: 18px; background: #0d1220; border: 1px solid #1c2638; border-radius: 10px; color: #c5d1e6">
+        <h3 style="margin: 0; font-family: 'Chakra Petch', sans-serif; font-size: 18px; color: #eef3fb">Roll-off</h3>
+        <p style="margin: 0; font-size: 14px">After rams and torpedoes, before the guns: the beam ship rolls 1d6 + mass and the target rolls 1d6 + mass (battleship +2, cruiser +1). <strong style="color: #eef3fb">The beam wins ties.</strong></p>
+      </div>
+      <div style="flex: 1 1 300px; display: flex; flex-direction: column; gap: 6px; padding: 18px; background: #0d1220; border: 1px solid #1c2638; border-radius: 10px; color: #c5d1e6">
+        <h3 style="margin: 0; font-family: 'Chakra Petch', sans-serif; font-size: 18px; color: #eef3fb">Pulled in &amp; held</h3>
+        <p style="margin: 0; font-size: 14px">If the beam wins, the target is dragged up to 4u straight toward the beam ship, stopping short of collision distance (4u between centres). It is also <strong style="color: #eef3fb">held</strong>: −4u Speed on its next move. If the target wins it breaks free and nothing happens.</p>
+      </div>
+      <div style="flex: 1 1 300px; display: flex; flex-direction: column; gap: 6px; padding: 18px; background: #0d1220; border: 1px solid #1c2638; border-radius: 10px; color: #c5d1e6">
+        <h3 style="margin: 0; font-family: 'Chakra Petch', sans-serif; font-size: 18px; color: #eef3fb">Using it</h3>
+        <p style="margin: 0; font-size: 14px">The pull lands before gunnery, so it changes ranges and arcs for this turn&rsquo;s fire, and boarding is checked afterwards (6u). Keep beam ships out of 8u, or make sure your own roll can win: a cruiser breaks a battleship&rsquo;s beam on only about one roll in four.</p>
+      </div>
+    </div>
+  </section>
+
+  <section style="display: flex; flex-direction: column; gap: 18px">
+    <h2 style="margin: 0; font-family: 'Chakra Petch', sans-serif; font-size: 28px; color: #eef3fb">10 · Ship profiles · starter squadrons</h2>
     <div style="display: flex; flex-wrap: wrap; gap: 16px">
       <article style="flex: 1 1 440px; min-width: 0; display: flex; flex-direction: column; gap: 14px; padding: 20px; background: #0d1220; border: 1px solid #1c2638; border-top: 4px solid #5aa9ff; border-radius: 10px">
         <div style="display: flex; flex-direction: column; gap: 2px">
@@ -314,7 +337,7 @@ th{font-size:12px;letter-spacing:0.06em;color:#93a3bf;font-weight:600}
               <tr><td style="color: #eef3fb">Port broadside</td><td>Port</td><td>6</td><td>24u</td><td>—</td></tr>
               <tr><td style="color: #eef3fb">Starboard broadside</td><td>Stbd</td><td>6</td><td>24u</td><td>—</td></tr>
               <tr><td style="color: #eef3fb">Graviton maw</td><td>Fore</td><td>4</td><td>18u</td><td>Lance</td></tr>
-              <tr><td style="color: #eef3fb">Spinal turrets</td><td>All</td><td>2</td><td>18u</td><td>—</td></tr>
+              <tr><td style="color: #eef3fb">Spinal turrets</td><td>All</td><td>2</td><td>18u</td><td>—</td></tr><tr><td style="color: #eef3fb">Tractor beam</td><td>All</td><td>—</td><td>8u</td><td>Pulls 4u and holds (−4u Speed)</td></tr>
               <tr><td style="color: #eef3fb">Ram prow</td><td>Fore</td><td>—</td><td>—</td><td>Collisions deal D6</td></tr>
             </tbody>
           </table>
@@ -352,7 +375,7 @@ th{font-size:12px;letter-spacing:0.06em;color:#93a3bf;font-weight:600}
   </section>
 
   <section style="display: flex; flex-direction: column; gap: 18px">
-    <h2 style="margin: 0; font-family: 'Chakra Petch', sans-serif; font-size: 28px; color: #eef3fb">10 · Campaign battles</h2>
+    <h2 style="margin: 0; font-family: 'Chakra Petch', sans-serif; font-size: 28px; color: #eef3fb">11 · Campaign battles</h2>
     <p style="margin: 0; max-width: 820px; color: #c5d1e6">In Operation Iron Tide the battle board loads your saved fleet and the mission you readied. These rules add to the core rules for those battles.</p>
     <div style="display: flex; flex-wrap: wrap; gap: 12px">
       <div style="flex: 1 1 300px; display: flex; flex-direction: column; gap: 6px; padding: 18px; background: #0d1220; border: 1px solid #1c2638; border-radius: 10px; color: #c5d1e6">
@@ -377,7 +400,7 @@ th{font-size:12px;letter-spacing:0.06em;color:#93a3bf;font-weight:600}
       </div>
       <div style="flex: 1 1 300px; display: flex; flex-direction: column; gap: 6px; padding: 18px; background: #0d1220; border: 1px solid #1c2638; border-radius: 10px; color: #c5d1e6">
         <h3 style="margin: 0; font-family: 'Chakra Petch', sans-serif; font-size: 18px; color: #eef3fb">Refits in battle</h3>
-        <p style="margin: 0; font-size: 14px">Heavy broadsides, long-focus lances, torpedo tubes (+2 torpedoes), fore shields, ablative plating, drives, thrusters, marines, veteran gun crews, damage-control teams, ram prows, ECM and point defence all apply. Tractor beams are not in the battle rules yet.</p>
+        <p style="margin: 0; font-size: 14px">Every refit applies in battle: heavy broadsides, long-focus lances, torpedo tubes (+2 torpedoes), fore shields, ablative plating, drives, thrusters, marines, veteran gun crews, damage-control teams, ram prows, tractor beams, ECM and point defence.</p>
       </div>
     </div>
   </section>

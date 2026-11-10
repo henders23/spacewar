@@ -250,7 +250,7 @@ button:focus-visible{outline:2px solid #ffc94d;outline-offset:2px}
         <sc-if value="{{insp.hasCrits}}" hint-placeholder-val="{{ false }}">
           <div style="display: flex; flex-wrap: wrap; gap: 6px; align-items: center">
             <sc-for list="{{insp.crits}}" as="c" hint-placeholder-count="1">
-              <span style="font-size: 11px; font-weight: 600; padding: 3px 8px; border-radius: 4px; background: #3a2208; color: #ffc94d; border: 1px solid #6b4310">{{c}}</span>
+              <span style="font-size: 11px; font-weight: 600; padding: 3px 8px; border-radius: 4px; {{c.style}}">{{c.text}}</span>
             </sc-for>
           </div>
         </sc-if>
@@ -420,7 +420,7 @@ class Component extends DCLogic {
         },
         maw: {
           id: 'maw', side: 'reaver', len: 8, beam: 1.5, name: 'Maw of Ruin', cls: 'Ravager-class battleship · Reaver Clans', color: '#ff6a3d', hex: 0xff6a3d,
-          speed: 16, turn: 60, hull: 13, shields: { fore: 3, port: 2, stbd: 2, aft: 1 }, armour: 5, crew: 7, ram: true,
+          speed: 16, turn: 60, hull: 13, shields: { fore: 3, port: 2, stbd: 2, aft: 1 }, armour: 5, crew: 7, ram: true, tractor: 8,
           start: { x: 44, y: 14, h: Math.PI },
           weapons: [
             { id: 'port', name: 'Port broadside', dice: 6, range: 24, arcs: ['port'], broadside: true, side: 'port' },
@@ -502,7 +502,7 @@ class Component extends DCLogic {
     const c = def.carry || {};
     return { def: def, id: def.id, x: def.start.x, y: def.start.y, h: def.start.h,
       hull: c.hull != null ? Math.max(1, Math.min(def.hull, c.hull)) : def.hull, crew: c.crew != null ? Math.min(def.crew, c.crew) : def.crew,
-      crits: (c.crits || []).map((k) => Object.assign({}, k)), torps: def.torps || 0, dead: false, fled: false, captured: false, escaped: false, away: (def.spawn || 0) > 1 };
+      crits: (c.crits || []).map((k) => Object.assign({}, k)), torps: def.torps || 0, heldTurn: 0, dead: false, fled: false, captured: false, escaped: false, away: (def.spawn || 0) > 1 };
   }
 
   skirmishRoster() { return ['resolute', 'vigilant', 'maw', 'carrion'].map((k) => ({ id: k, cls: k })); }
@@ -537,6 +537,7 @@ class Component extends DCLogic {
     if (has('marines')) d.crew = d.crew + 2;
     if (has('ram')) d.ram = true;
     if (has('torpedoes')) d.torps = (d.torps || 0) + 2;
+    if (has('tractor')) d.tractor = 8;
     d.gunners = has('gunners'); d.dcTeams = has('dc_teams'); d.plating = has('plating'); d.ecm = has('ecm'); d.pd = has('pd');
   }
 
@@ -804,7 +805,8 @@ class Component extends DCLogic {
   }
 
   env(s, order) {
-    const speed = Math.max(4, s.def.speed - 4 * this.count(s, 'engines'));
+    const held = s.heldTurn && this.g && s.heldTurn === this.g.turn ? 4 : 0;
+    const speed = Math.max(4, s.def.speed - 4 * this.count(s, 'engines') - held);
     let turn = Math.max(15, s.def.turn - 15 * this.count(s, 'steering'));
     let minMove = speed / 2, maxMove = speed;
     if (order === 'aaf' || order === 'ram') { minMove = speed; maxMove = speed * 1.5; turn = turn / 2; }
@@ -1278,6 +1280,17 @@ class Component extends DCLogic {
       if (this.three) this.boom('x_small_orange', this.m2v((A.x + B.x) / 2, (A.y + B.y) / 2, 1.5), 4.5, 0.7);
       this.sfx('collision', 1); this.addShake(1.1); this.kick(A.id, 0.25); this.kick(B.id, -0.25);
     }
+    // Tractor beams lock on once ships have settled: the priority target within range, otherwise the nearest enemy.
+    g.tractors = [];
+    this.ids().forEach((id) => {
+      const A = g.ships[id], R0 = A.def.tractor;
+      if (!R0 || !this.active(A)) return;
+      const dist = (B) => Math.hypot(B.x - A.x, B.y - A.y);
+      const c = this.sideShips(this.enemySide(A.def.side)).map((k) => g.ships[k]).filter((B) => !B.def.static && dist(B) <= R0);
+      if (!c.length) return;
+      const pt = g.orders[id] && g.orders[id].target, B = c.filter((b) => b.id === pt)[0] || c.sort((a, b) => dist(a) - dist(b))[0];
+      g.tractors.push({ a: id, b: B.id });
+    });
     this.placeShips();
     this.startGunnery();
   }
@@ -1471,6 +1484,29 @@ class Component extends DCLogic {
       this.addShake(1.6); this.kick(B.id, 0.3); this.slowUntil = performance.now() + 350;
       return 1000;
     }
+    if (q.kind === 'tractor') {
+      const t3 = this.three, T = t3.T, A = q.A, B = q.B, o = t3.objs[B.id], to = { x: B.x, y: B.y }, dur = 1.1 / this.speedMul();
+      const beam = this.flatQuad('p_lance_violet', 1.6, 1, true, 0xb59bff), core = this.flatQuad('none', 0.35, 1, false, 0xe9e0ff), halo = this.flatQuad('none', 2.2, 1, false, 0x8a6cff);
+      [beam, core, halo].forEach((q2) => { q2.userData.mesh.material.depthTest = false; q2.userData.mesh.renderOrder = 5; t3.fxg.add(q2); });
+      const glow = new T.Sprite(new T.SpriteMaterial({ toneMapped: false, map: t3.glowTex, color: 0xb59bff, transparent: true, blending: T.AdditiveBlending, depthWrite: false, depthTest: false })); glow.scale.setScalar(5); glow.renderOrder = 5; t3.fxg.add(glow);
+      const fx = { t: 0 };
+      fx.update = (dt) => {
+        fx.t += dt; const k = Math.min(1, fx.t / dur), e = k * k * (3 - 2 * k);
+        const bx = q.won ? q.from.x + (to.x - q.from.x) * e : q.from.x, by = q.won ? q.from.y + (to.y - q.from.y) * e : q.from.y;
+        if (o) o.root.position.set(bx, 0, -by);
+        const hy = Math.max(A.def.deckY || 2, B.def.deckY || 2) + 1.2, p0 = this.m2v(A.x, A.y, hy), p1 = this.m2v(bx, by, hy), len = p0.distanceTo(p1);
+        const op = (q.won ? 1 : 1 - k) * (k > 0.85 && q.won ? (1 - k) / 0.15 : 1), pulse = Math.sin(fx.t * 30);
+        [[beam, 1.4 + 0.5 * pulse, 0.9], [core, 0.5 + 0.12 * pulse, 1], [halo, 1.7 + 0.4 * pulse, 0.6]].forEach((a) => { a[0].position.copy(p0).lerp(p1, 0.5); this.aim(a[0], p0, p1); a[0].userData.mesh.scale.set(a[1], len, 1); a[0].userData.mesh.material.opacity = a[2] * op; });
+        glow.position.copy(p1); glow.material.opacity = 0.8 * (1 - k * 0.5);
+        if (k >= 1) { [beam, core, halo].forEach((q2) => { t3.fxg.remove(q2); q2.userData.mesh.material.dispose(); }); t3.fxg.remove(glow); glow.material.dispose(); return false; }
+        return true;
+      };
+      fx.kill = () => { [beam, core, halo, glow].forEach((q2) => t3.fxg.remove(q2)); };
+      this.fx.push(fx);
+      this.sfx('grav_lance', 0.6, 0, 0.6);
+      if (!q.won) this.flash('s_hit_purple', this.m2v(q.from.x, q.from.y, 1.5), 3, 0.35, true);
+      return dur * 1000 + 150;
+    }
     if (q.kind === 'torpKill') { this.flash('i_sparks_gold', this.m2v(q.t.x, q.t.y, 1.4), 3, 0.4, true); this.boom('x_small_orange', this.m2v(q.t.x, q.t.y, 1.4), 2.5, 0.5); this.sfx('blaster_c', 0.5); return 600; }
     if (q.kind === 'captured') {
       const o = this.three.objs[q.B.id];
@@ -1508,6 +1544,7 @@ class Component extends DCLogic {
     for (const rm of (g.rams || [])) yield* this.ramSeq(g.ships[rm.a], g.ships[rm.b]);
     for (const t of (g.torpHits || [])) yield* this.torpSeq(t);
     g.torps = (g.torps || []).filter((t) => !t.gone); this.syncTorps();
+    for (const tr of (g.tractors || [])) yield* this.tractorSeq(g.ships[tr.a], g.ships[tr.b]);
     for (const id of this.ids()) {
       const A = g.ships[id];
       if (!this.active(A)) continue;
@@ -1675,6 +1712,27 @@ class Component extends DCLogic {
     this.inspDirty = true;
     yield* this.structural(B, bB);
     if (B.hull <= 0 && !B.dead) { B.dead = true; B.deadAt = performance.now(); this.record({ owner: B.id, label: B.def.name + ' is destroyed!', result: '', dice: [] }, B.id); yield { type: 'fx', kind: 'explode', ship: B }; }
+  }
+
+  // Tractor beam: a roll-off, each side d6 + mass (battleship 2, cruiser 1); the beam wins ties. A win drags the
+  // target 4u toward the beam ship (never inside collision distance) and holds it: −4u Speed on its next move.
+  *tractorSeq(A, B) {
+    const g = this.g;
+    if (!this.active(A) || !this.active(B) || A.hull <= 0 || B.hull <= 0) return;
+    const mass = (s) => (s.def.len >= 8 ? 2 : 1), mA = mass(A), mB = mass(B);
+    const a = (yield { type: 'roll', owner: A.id, n: 1, label: A.def.name + ' · TRACTOR BEAM → ' + B.def.name, sub: '1d6 + ' + mA + ' (mass) · beats the target’s roll or ties to pull it in' })[0];
+    const b = (yield { type: 'roll', owner: B.id, n: 1, label: B.def.name + ' · break the tractor lock', sub: '1d6 + ' + mB + ' (mass) · must beat ' + (a + mA) })[0];
+    const won = a + mA >= b + mB;
+    this.record({ owner: A.id, label: A.def.name + ' · tractor beam on ' + B.def.name, dice: [{ v: a, kind: won ? 'hit' : 'miss' }, { v: b, kind: won ? 'fail' : 'save' }], result: won ? (a + mA) + ' vs ' + (b + mB) + ': pulled in and held' : (a + mA) + ' vs ' + (b + mB) + ': breaks free' }, B.id);
+    const from = { x: B.x, y: B.y };
+    if (won) {
+      const dx = A.x - B.x, dy = A.y - B.y, d = Math.hypot(dx, dy) || 1, pull = Math.max(0, Math.min(4, d - 4.2));
+      B.x += dx / d * pull; B.y += dy / d * pull; B.heldTurn = g.turn + 1;
+      this.floater(B.id, 'word', 'Tractor lock', 0);
+    } else this.floater(B.id, 'word', 'Breaks free', 0);
+    yield { type: 'fx', kind: 'tractor', A: A, B: B, from: from, won: won };
+    this.placeShips();
+    this.inspDirty = true;
   }
 
   // Ram: rammer rolls 1d6 + mass (+2 ram prow) against the target, ignoring shields and armour; rammer takes half a d6 (−1 with a ram prow).
@@ -2313,6 +2371,7 @@ class Component extends DCLogic {
     (g.torps || []).forEach((t) => { const T2 = g.ships[t.target]; if (!t.gone && this.active(T2)) ov.add(this.torpLine(t.x, t.y, T2.x, T2.y, t.side === g.side ? 0.55 : 0.8)); });
     if (this.ui.torp) { const tg = this.torpTarget(me, this.ui.target); if (tg) { const bow = me.def.len * 0.55; ov.add(this.torpLine(me.x + Math.cos(me.h) * bow, me.y + Math.sin(me.h) * bow, tg.x, tg.y, 0.95)); ov.add(this.reticle(tg, 0.6)); } }
     if (this.ui.enemyArcs) this.sideShips(this.enemySide(g.side)).forEach((id) => { const f = g.ships[id]; this.arcsFor(ov, f.def, f.x, f.y, f.h, 0.05); });
+    if (me.def.tractor) { const at = g.dest ? this.path(me, g.dest).at(1) : me; ov.add(this.circle(at.x, at.y, me.def.tractor, 0xb59bff, 0.55)); }
     if (g.dest) {
       const end = this.path(me, g.dest).at(1);
       ov.add(this.pathLine(me, g.dest, me.def.hex, 0.95));
@@ -2779,6 +2838,11 @@ class Component extends DCLogic {
       const v = def.shields[f[0]] || 0;
       return { lab: f[1], v: v, style: 'display: flex; align-items: baseline; gap: 4px; padding: 3px 7px; border-radius: 4px; font-size: 11px; ' + (v ? 'color: #e6edf8; box-shadow: inset 0 0 0 1px ' + def.color + ';' : 'color: #6f7f9c; box-shadow: inset 0 0 0 1px #26324a;') };
     });
+    const gold = 'background: #3a2208; color: #ffc94d; border: 1px solid #6b4310;', violet = 'background: #221a3a; color: #d7c8ff; border: 1px solid #4a3a7a;';
+    const chips = s.crits.map((c) => ({ text: this.critName(c), style: gold }));
+    if (def.tractor) chips.unshift({ text: 'Tractor beam · ' + def.tractor + 'u', style: violet });
+    const g0 = this.g, heldNext = s.heldTurn && (s.heldTurn === g0.turn + 1 || (s.heldTurn === g0.turn && (g0.phase === 'orders' || g0.phase === 'handoff')));
+    if (heldNext && !s.dead) chips.push({ text: 'Held: −4u next move', style: violet });
     let status = 'OPERATIONAL', bg = '#11301f', fg = '#7be3a4';
     if (s.dead) { status = 'DESTROYED'; bg = '#3a0f12'; fg = '#ff8a8a'; }
     else if (s.captured) { status = 'CAPTURED'; bg = '#2a1a3a'; fg = '#d7b8ff'; }
@@ -2789,7 +2853,7 @@ class Component extends DCLogic {
       weapons: weapons, rings: rings, dmg: dmg, pips: pips, shieldFacings: shieldFacings, arcBadges: arcBadges,
       hullText: s.hull + '/' + def.hull,
       speed: e.speed + 'u', turnTxt: e.turn + '°', armour: def.armour + '+', crew: s.crew + '/' + def.crew, torps: def.torps ? (s.torps || 0) + '/' + def.torps : '—',
-      crits: s.crits.map((c) => this.critName(c)), hasCrits: s.crits.length > 0,
+      crits: chips, hasCrits: chips.length > 0,
       aria: 'Top-down view of ' + def.name + ': hull ' + s.hull + ' of ' + def.hull + ', shields fore ' + def.shields.fore + ' port ' + def.shields.port + ' starboard ' + def.shields.stbd + ' aft ' + def.shields.aft + ', weapons: ' + weapons.map((w) => w.name + ' ' + w.stats).join('; ')
     };
   }

@@ -8,7 +8,7 @@ This first slice is a design mockup:
 - **Ruleset** — [`docs/rules.md`](docs/rules.md)
 - **Playable 2v2 squadron battle mockup** — `design/Main.dc.html` (three.js scene, rules engine, AI opponent,
   hot-seat mode, manual dice tray, projectile and explosion art, top-down ship inspector, priority targeting,
-  live firing preview while plotting, ramming, torpedoes, Risk-style boarding, arc value badges, sound and impact effects) and the rulebook page `design/Rules.dc.html`. `design/Operation.dc.html` is the campaign board (Operation Iron Tide: mission map,
+  live firing preview while plotting, ramming, torpedoes, tractor beams, Risk-style boarding, arc value badges, sound and impact effects) and the rulebook page `design/Rules.dc.html`. `design/Operation.dc.html` is the campaign board (Operation Iron Tide: mission map,
   briefings, drydock refit and repair). Both boards share one campaign save (the canvas database, falling back to
   browser storage): ready a mission on the Operation board, fight it on the battle board with your saved fleet, and the
   debrief writes damage, losses, prizes, credits and renown back. These are the sources of the Claude Design
