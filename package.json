@@ -1,0 +1,10 @@
+{
+  "name": "gunline",
+  "private": true,
+  "description": "Gunline: capital-ship squadron battles with sealed orders and d6 gunnery (Claude Design canvas mockup).",
+  "scripts": {
+    "build": "node tools/build.mjs",
+    "test": "node --test \"tests/*.test.mjs\"",
+    "sim": "node tools/balance-sim.js"
+  }
+}

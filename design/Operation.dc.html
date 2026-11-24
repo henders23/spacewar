@@ -270,21 +270,30 @@ th{font-size:11px;letter-spacing:0.06em;color:#93a3bf;font-weight:600}
 </div>
 </x-dc>
 <script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1280,"height":3000}}'>
-class Component extends DCLogic {
-  constructor(props) {
-    super(props);
-    this.state = { mission: null, ship: null, slot: 'weapons', fit: {}, rep: {}, sv: null, mode: 'loading', confirmReset: false };
-    this.storeInit((sv) => this.onSave(sv));
-  }
+// Built from src/ by tools/build.mjs — edit the sources, not this file.
+// Gunline · copies module methods onto a board class. A board's own methods always win, so a module only
+// fills in what the board does not define (that is how src/engine/hooks.js supplies headless defaults).
+function glInstall(proto, modules) {
+  modules.forEach((M) => {
+    Object.getOwnPropertyNames(M.prototype).forEach((k) => {
+      if (k === 'constructor' || Object.prototype.hasOwnProperty.call(proto, k)) return;
+      Object.defineProperty(proto, k, Object.getOwnPropertyDescriptor(M.prototype, k));
+    });
+  });
+  return proto;
+}
 
-  /* ───────────── CAMPAIGN SAVE ─────────────
-     Shared with the battle board: one private record per player in the artifact's database,
-     falling back to this browser's storage, then to this view only. */
+// Gunline · Campaign save storage shared by both boards: canvas database, then browser storage, then memory.
+// Methods are copied onto each board's Component (see src/shared/install.js); `this` is the game.
+class GLStore {
+  /* ───────────── CAMPAIGN ─────────────
+     The campaign save is shared with the Operation board: one private record per player in the artifact's
+     database, falling back to this browser's storage, then to this session only. */
   storeInit(cb0) {
     if (typeof window === 'undefined') return;
     const cb = (v) => setTimeout(() => cb0(v), 0);
     const LS = 'gunline.campaign.v1';
-    this.store = { mode: 'memory', ref: null };
+    this.store = { mode: 'memory', ref: null, mem: null };
     const lsGet = () => { try { const t = window.localStorage.getItem(LS); return t ? JSON.parse(t) : null; } catch (e) { return undefined; } };
     const useLocal = () => {
       const v = lsGet();
@@ -313,9 +322,21 @@ class Component extends DCLogic {
 
   storeSave(obj) {
     const data = JSON.parse(JSON.stringify(obj));
-    if (this.store && this.store.mode === 'db' && this.store.ref) this.store.ref.set(data).catch(() => { this.store.mode = 'local'; try { if (this.store.unsub) this.store.unsub(); } catch (e) { /* ignore */ } this.setState({ mode: 'local' }); });
-    try { window.localStorage.setItem('gunline.campaign.v1', JSON.stringify(data)); } catch (e) { /* memory only */ }
+    if (this.store && this.store.mode === 'db' && this.store.ref) this.store.ref.set(data).catch(() => { this.store.mode = 'local'; try { if (this.store.unsub) this.store.unsub(); } catch (e) { /* ignore */ } if (this.onStoreMode) this.onStoreMode('local'); });
+    try { window.localStorage.setItem('gunline.campaign.v1', JSON.stringify(data)); } catch (e) { if (this.store) this.store.mem = data; }
   }
+}
+
+// Gunline · Operation board: campaign map, briefings, drydock, captains. Save storage: src/shared/store.js.
+class Component extends DCLogic {
+  constructor(props) {
+    super(props);
+    this.state = { mission: null, ship: null, slot: 'weapons', fit: {}, rep: {}, sv: null, mode: 'loading', confirmReset: false };
+    this.storeInit((sv) => this.onSave(sv));
+  }
+
+  // The campaign save itself is read and written by src/shared/store.js (storeInit / storeSave).
+  onStoreMode(mode) { this.setState({ mode: mode }); }
 
   onSave(sv) {
     const mode = this.store ? this.store.mode : 'memory';
@@ -635,6 +656,8 @@ class Component extends DCLogic {
     };
   }
 }
+
+glInstall(Component.prototype, [GLStore]);
 </script>
 </body>
 </html>

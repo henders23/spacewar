@@ -1,0 +1,305 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Gunline — Battle</title>
+<script src="./support.js"></script>
+<script src="/_blob/76572be99572cd8ed8ed4272d2870a10"></script>
+<script src="/_blob/7051b159a61afe5ce88c4ad5afc962da"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@500;600;700&amp;family=Inter:wght@400;500;600&amp;family=JetBrains+Mono:wght@500;700&amp;display=swap">
+<style>
+body{margin:0;background:#070a12}
+a{color:#5aa9ff}a:hover{color:#8cc4ff}
+button{font-family:inherit}
+button:focus-visible{outline:2px solid #ffc94d;outline-offset:2px}
+@media (max-width: 1023px){[data-bs-root]{height:auto!important;overflow:visible!important}[data-bs-side]{overflow:visible!important}}
+@media (max-width: 640px){[data-bs-legend]{display:none!important}}
+@keyframes so-float{0%{opacity:0;transform:translateY(10px) scale(0.7)}12%{opacity:1;transform:translateY(0) scale(1.2)}24%{transform:translateY(0) scale(1)}75%{opacity:1}100%{opacity:0;transform:translateY(-28px) scale(1)}}
+@media (prefers-reduced-motion: reduce){[data-so-float]{animation-name:none!important}}
+</style>
+</helmet>
+<div data-bs-root="1" style="height: 100vh; min-height: 640px; overflow: hidden; display: flex; flex-direction: column; background: #070a12; color: #d8e1f0; font-family: Inter, system-ui, sans-serif; font-size: 14px">
+
+  <header style="display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 12px; padding: 12px 20px; border-bottom: 1px solid #1c2638; background: #0a0f1a">
+    <div style="display: flex; align-items: baseline; gap: 14px; flex-wrap: wrap">
+      <h1 style="margin: 0; font-family: 'Chakra Petch', sans-serif; font-weight: 700; font-size: 22px; letter-spacing: 0.12em; color: #eef3fb">GUNLINE</h1>
+    </div>
+    <div style="display: flex; align-items: center; gap: 16px; flex-wrap: wrap">
+      <span style="font-family: 'JetBrains Mono', monospace; font-size: 13px; color: #c5d1e6">TURN {{turn}}{{turnMax}} · {{phaseLabel}}</span>
+      <span style="font-size: 12px; color: #93a3bf; padding: 4px 10px; border: 1px solid #26324a; border-radius: 999px">{{modeLabel}}</span>
+      <button onClick="{{restart}}" style="min-height: 44px; padding: 0 16px; background: transparent; color: #d8e1f0; border: 1px solid #33425f; border-radius: 6px; cursor: pointer; font-size: 13px; font-weight: 600">{{restartLabel}}</button>
+    </div>
+  </header>
+
+  <div style="flex: 1; display: flex; flex-wrap: wrap; min-height: 0">
+
+    <section aria-label="Battle map" style="flex: 999 1 640px; min-width: 0; min-height: 560px; height: 100%; position: relative; background: #000000; overflow: hidden">
+      <canvas ref="{{setCanvas}}" data-broadside-canvas="1" onPointerDown="{{onDown}}" onPointerMove="{{onMove}}" onPointerUp="{{onUp}}" onPointerLeave="{{onLeave}}" onWheel="{{onWheel}}" onDoubleClick="{{onDbl}}" onContextMenu="{{noMenu}}" style="position: absolute; inset: 0; width: 100%; height: 100%; display: block; touch-action: none; cursor: {{cursor}}" aria-label="3D tactical map. Click inside your manoeuvre zone to set a destination, double-click to set it and commit; click a ship to inspect it; drag to rotate the view; right-drag or shift-drag to pan; scroll to zoom toward the cursor." role="img"></canvas>
+
+
+      <sc-for list="{{badges}}" as="b" hint-placeholder-count="0">
+        <div ref="{{b.ref}}" aria-hidden="true" style="position: absolute; left: 0; top: 0; transform: translate(-9999px, 0); pointer-events: none; display: flex; gap: 4px; padding: 1px 5px; border-radius: 4px; background: rgba(0,0,0,0.7); font-family: 'JetBrains Mono', monospace; font-size: 11px; font-weight: 700; line-height: 1.35"><span style="color: #5aa9ff">{{b.sh}}</span><span style="color: #ff5c5c">{{b.dice}}</span></div>
+      </sc-for>
+      <sc-for list="{{labels}}" as="l" hint-placeholder-count="0">
+        <div ref="{{l.ref}}" style="position: absolute; left: 0; top: 0; transform: translate(-9999px, 0); pointer-events: none; display: flex; align-items: center; gap: 6px; padding: 2px 8px; border-radius: 4px; background: rgba(0,0,0,0.65); border: 1px solid {{l.border}}; color: {{l.fg}}; font-size: 12px; font-weight: 600; white-space: nowrap">
+          <div aria-hidden="true" style="position: absolute; bottom: calc(100% + 6px); left: 50%; transform: translateX(-50%); display: flex; flex-direction: column; align-items: center; gap: 2px; pointer-events: none"><sc-for list="{{l.floats}}" as="f" hint-placeholder-count="0"><div data-so-float="1" style="{{f.style}}"><sc-if value="{{f.fire}}" hint-placeholder-val="{{ false }}"><svg width="16" height="16" viewBox="0 0 24 24" fill="#ff7a1a" aria-hidden="true"><path d="M12 2c1 3.5-1.5 5-1.5 7.5 0 1.4 1 2.5 2.3 2.5 1.8 0 2.7-1.6 2.2-3.7C17.5 10.5 19 13 19 15.5 19 19.6 15.9 22 12 22s-7-2.4-7-6.3C5 11 9.5 8.5 12 2z"></path></svg></sc-if><span>{{f.text}}</span></div></sc-for></div>
+          <span>{{l.name}}</span>
+          <sc-if value="{{l.tagShow}}" hint-placeholder-val="{{ false }}"><span tabIndex="0" role="button" aria-label="Show the dice rolled against this ship last turn" onMouseEnter="{{l.tipOn}}" onMouseLeave="{{tipOff}}" onFocus="{{l.tipOn}}" onBlur="{{tipOff}}" style="pointer-events: auto; cursor: help; padding: 0 5px; border-radius: 3px; background: {{l.tagBg}}; color: {{l.tagFg}}; font-family: 'JetBrains Mono', monospace">{{l.dmg}}</span></sc-if>
+          <sc-if value="{{l.tipShow}}" hint-placeholder-val="{{ false }}">
+            <div style="position: absolute; {{l.tipPos}} left: 50%; transform: translateX(-50%); width: 320px; max-height: 340px; overflow: hidden; display: flex; flex-direction: column; gap: 8px; padding: 10px 12px; background: rgba(4,6,12,0.96); border: 1px solid #33425f; border-radius: 8px; color: #d8e1f0; font-weight: 400; white-space: normal; z-index: 5">
+              <span style="font-size: 11px; font-weight: 700; letter-spacing: 0.08em; color: #93a3bf">{{l.tipHead}}</span>
+              <sc-for list="{{l.tipRows}}" as="t" hint-placeholder-count="3">
+                <div style="display: flex; flex-direction: column; gap: 4px; padding-left: 8px; box-shadow: inset 2px 0 0 {{t.color}}">
+                  <div style="display: flex; justify-content: space-between; gap: 8px; font-size: 12px"><span>{{t.label}}</span><span style="color: #ffc94d; font-weight: 600; text-align: right">{{t.result}}</span></div>
+                  <sc-if value="{{t.hasDice}}" hint-placeholder-val="{{ true }}"><div style="display: flex; flex-wrap: wrap; gap: 3px"><sc-for list="{{t.dice}}" as="d" hint-placeholder-count="4"><span style="{{d.style}}">{{d.v}}</span></sc-for></div></sc-if>
+                </div>
+              </sc-for>
+            </div>
+          </sc-if>
+        </div>
+      </sc-for>
+
+      <sc-if value="{{tray.show}}" hint-placeholder-val="{{ false }}">
+        <div role="region" aria-label="Dice tray" aria-live="polite" style="position: absolute; z-index: 40; left: 50%; bottom: 14px; transform: translateX(-50%); width: min(820px, calc(100% - 28px)); box-sizing: border-box; display: flex; flex-direction: column; gap: 10px; padding: 12px 14px; background: rgba(0,0,0,0.9); border: 1px solid #26324a; border-radius: 10px">
+          <span style="font-size: 11px; font-weight: 700; letter-spacing: 0.1em; color: #93a3bf">DICE TRAY · TURN {{turn}} GUNNERY</span>
+          <sc-if value="{{tray.boarding.show}}" hint-placeholder-val="{{ false }}">
+            <div style="display: flex; flex-direction: column; gap: 8px; padding: 10px 12px; border-radius: 8px; background: #120a1c; box-shadow: inset 0 0 0 1px #4a2f6b">
+              <span style="font-family: 'Chakra Petch', sans-serif; font-size: 15px; font-weight: 700; color: #d7b8ff">BOARDING ACTION · {{tray.boarding.title}}</span>
+              <div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px">
+                <div style="display: flex; flex-direction: column; gap: 5px"><span style="font-size: 12px; color: #c5d1e6">{{tray.boarding.atkName}}</span><div style="display: flex; flex-wrap: wrap; gap: 4px"><sc-for list="{{tray.boarding.atk}}" as="p" hint-placeholder-count="4"><span style="{{p}}"></span></sc-for></div></div>
+                <div style="display: flex; flex-direction: column; gap: 5px"><span style="font-size: 12px; color: #c5d1e6">{{tray.boarding.defName}}</span><div style="display: flex; flex-wrap: wrap; gap: 4px"><sc-for list="{{tray.boarding.def}}" as="p" hint-placeholder-count="4"><span style="{{p}}"></span></sc-for></div></div>
+              </div>
+              <sc-if value="{{tray.boarding.hasLast}}" hint-placeholder-val="{{ false }}">
+                <div style="display: flex; flex-wrap: wrap; gap: 6px 14px; font-size: 12px">
+                  <sc-for list="{{tray.boarding.pairs}}" as="x" hint-placeholder-count="2"><span style="font-family: 'JetBrains Mono', monospace; color: {{x.col}}">{{x.a}} vs {{x.d}} · {{x.res}}</span></sc-for>
+                </div>
+              </sc-if>
+              <span style="font-size: 12px; color: #ffc94d">{{tray.boarding.odds}}</span>
+            </div>
+          </sc-if>
+          <sc-for list="{{tray.history}}" as="h" hint-placeholder-count="2">
+            <div style="display: flex; flex-direction: column; gap: 5px; padding-left: 10px; box-shadow: inset 2px 0 0 {{h.color}}; opacity: {{h.op}}">
+              <div style="display: flex; justify-content: space-between; gap: 10px; font-size: 12px"><span style="font-weight: 600; color: #e6edf8">{{h.label}}</span><span style="color: #ffc94d; font-weight: 600; text-align: right">{{h.result}}</span></div>
+              <sc-if value="{{h.hasDice}}" hint-placeholder-val="{{ true }}"><div style="display: flex; flex-wrap: wrap; gap: 4px"><sc-for list="{{h.dice}}" as="d" hint-placeholder-count="4"><span style="{{d.style}}">{{d.v}}</span></sc-for></div></sc-if>
+            </div>
+          </sc-for>
+          <sc-if value="{{tray.active}}" hint-placeholder-val="{{ false }}">
+            <div style="display: flex; flex-direction: column; gap: 8px; padding-top: 10px; border-top: 1px solid #1c2638">
+              <span style="font-size: 13px; font-weight: 700; color: {{tray.color}}">{{tray.label}}</span>
+              <span style="font-size: 12px; color: #b9c6dc">{{tray.sub}}</span>
+              <sc-if value="{{tray.hasFaces}}" hint-placeholder-val="{{ false }}"><div style="display: flex; flex-wrap: wrap; gap: 5px"><sc-for list="{{tray.faces}}" as="d" hint-placeholder-count="4"><span style="{{d.style}}">{{d.v}}</span></sc-for></div></sc-if>
+              <sc-if value="{{tray.canRoll}}" hint-placeholder-val="{{ false }}"><button onClick="{{rollClick}}" style="{{tray.btnStyle}}">{{tray.btn}}</button></sc-if>
+              <sc-if value="{{tray.isChoice}}" hint-placeholder-val="{{ false }}"><div style="display: flex; flex-wrap: wrap; gap: 8px"><sc-for list="{{tray.choices}}" as="c" hint-placeholder-count="2"><button onClick="{{c.pick}}" style="{{c.style}}">{{c.label}}</button></sc-for></div></sc-if>
+              <sc-if value="{{tray.waiting}}" hint-placeholder-val="{{ false }}"><span style="font-size: 12px; color: #93a3bf">{{tray.waitText}}</span></sc-if>
+            </div>
+          </sc-if>
+        </div>
+      </sc-if>
+
+
+      <div style="position: absolute; z-index: 40; left: 14px; top: 14px; display: flex; flex-direction: column; gap: 8px; width: 300px; max-width: calc(100% - 120px)">
+      <sc-if value="{{mis.show}}" hint-placeholder-val="{{ false }}">
+        <div role="region" aria-label="Mission objectives" style="display: flex; flex-direction: column; gap: 6px; padding: 10px 12px; background: rgba(0,0,0,0.86); border: 1px solid #4a3a12; border-left: 3px solid #ffc94d; border-radius: 8px; font-size: 12px; color: #d8e1f0">
+          <div style="display: flex; justify-content: space-between; gap: 8px"><span style="font-size: 11px; font-weight: 700; letter-spacing: 0.08em; color: #ffc94d">{{mis.type}}</span><span style="font-family: 'JetBrains Mono', monospace; color: #c5d1e6">{{mis.turnTxt}}</span></div>
+          <span style="font-family: 'Chakra Petch', sans-serif; font-size: 15px; font-weight: 700; color: #eef3fb">{{mis.title}}</span>
+          <sc-for list="{{mis.lines}}" as="l" hint-placeholder-count="2"><div style="display: flex; gap: 6px"><span style="color: {{l.col}}; font-weight: 700">{{l.mark}}</span><span style="color: {{l.col}}">{{l.text}}</span></div></sc-for>
+          <sc-if value="{{mis.hasNotes}}" hint-placeholder-val="{{ false }}"><sc-for list="{{mis.notes}}" as="n" hint-placeholder-count="1"><span style="font-size: 11px; color: #93a3bf">▸ {{n}}</span></sc-for></sc-if>
+        </div>
+      </sc-if>
+      <sc-if value="{{mis.ready}}" hint-placeholder-val="{{ false }}">
+        <div role="region" aria-label="Campaign mission ready" style="display: flex; flex-direction: column; gap: 8px; padding: 10px 12px; background: rgba(0,0,0,0.86); border: 1px solid #4a3a12; border-left: 3px solid #ffc94d; border-radius: 8px; font-size: 12px; color: #d8e1f0">
+          <span>{{mis.readyText}}</span>
+          <button onClick="{{startMissionClick}}" style="min-height: 44px; border: 0; border-radius: 6px; background: #ffc94d; color: #1a1204; font-weight: 700; font-size: 13px; cursor: pointer">Start the mission</button>
+        </div>
+      </sc-if>
+      <sc-if value="{{pv.show}}" hint-placeholder-val="{{ false }}">
+        <div role="region" aria-label="Firing preview" aria-live="polite" style="width: 100%; box-sizing: border-box; display: flex; flex-direction: column; gap: 8px; padding: 10px 12px; background: rgba(0,0,0,0.86); border: 1px solid #26324a; border-radius: 8px; font-size: 12px; color: #d8e1f0; pointer-events: none">
+          <span style="font-size: 11px; font-weight: 700; letter-spacing: 0.08em; color: #93a3bf">FIRING PREVIEW · {{pv.ship}}</span>
+          <sc-if value="{{pv.empty}}" hint-placeholder-val="{{ true }}"><span style="color: #b9c6dc">Hover inside the manoeuvre zone to see expected damage from that position.</span></sc-if>
+          <sc-if value="{{pv.full}}" hint-placeholder-val="{{ false }}">
+            <div style="display: flex; flex-direction: column; gap: 8px">
+              <span style="font-size: 11px; color: #93a3bf">{{pv.where}}</span>
+              <div style="display: flex; flex-direction: column; gap: 3px">
+                <div style="display: flex; justify-content: space-between; align-items: baseline"><span style="font-weight: 700; color: #ffc94d">YOU DEAL</span><span style="font-family: 'JetBrains Mono', monospace; font-size: 18px; font-weight: 700; color: #ffc94d">≈ {{pv.dealTotal}}</span></div>
+                <sc-for list="{{pv.deal}}" as="d" hint-placeholder-count="1">
+                  <div style="display: flex; flex-direction: column; padding-left: 8px; box-shadow: inset 2px 0 0 #ffc94d"><div style="display: flex; justify-content: space-between"><span>{{d.name}}</span><span style="font-family: 'JetBrains Mono', monospace; color: #ffc94d">{{d.dmg}}</span></div><span style="font-size: 11px; color: #93a3bf">{{d.detail}}</span></div>
+                </sc-for>
+                <sc-if value="{{pv.noDeal}}" hint-placeholder-val="{{ false }}"><span style="font-size: 11px; color: #93a3bf">No weapons would bear from here.</span></sc-if>
+              </div>
+              <div style="display: flex; flex-direction: column; gap: 3px">
+                <div style="display: flex; justify-content: space-between; align-items: baseline"><span style="font-weight: 700; color: #ff8a8a">YOU TAKE</span><span style="font-family: 'JetBrains Mono', monospace; font-size: 18px; font-weight: 700; color: #ff8a8a">≈ {{pv.takeTotal}}</span></div>
+                <sc-for list="{{pv.take}}" as="d" hint-placeholder-count="1">
+                  <div style="display: flex; flex-direction: column; padding-left: 8px; box-shadow: inset 2px 0 0 #ff8a8a"><div style="display: flex; justify-content: space-between"><span>{{d.name}}</span><span style="font-family: 'JetBrains Mono', monospace; color: #ff8a8a">{{d.dmg}}</span></div><span style="font-size: 11px; color: #93a3bf">{{d.detail}}</span></div>
+                </sc-for>
+                <sc-if value="{{pv.noTake}}" hint-placeholder-val="{{ false }}"><span style="font-size: 11px; color: #93a3bf">Nothing would bear on you here.</span></sc-if>
+              </div>
+              <span style="font-size: 11px; color: #6f7f9c">Expected hull damage per volley; criticals not included.</span>
+            </div>
+          </sc-if>
+        </div>
+      </sc-if>
+
+      </div>
+
+      <div style="position: absolute; z-index: 40; right: 14px; top: 14px; display: flex; flex-direction: column; align-items: flex-end; gap: 8px">
+        <button onClick="{{toggleSound}}" aria-pressed="{{soundPressed}}" aria-label="{{soundLabel}}" title="{{soundLabel}}" style="width: 44px; height: 44px; background: rgba(8,12,22,0.86); color: #e6edf8; border: 1px solid #33425f; border-radius: 6px; cursor: pointer; display: flex; align-items: center; justify-content: center"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M11 5 6 9H3v6h3l5 4V5z"></path><sc-if value="{{soundOn}}" hint-placeholder-val="{{ true }}"><path d="M15.5 8.5a5 5 0 0 1 0 7M18.5 5.5a9 9 0 0 1 0 13"></path></sc-if><sc-if value="{{soundOff}}" hint-placeholder-val="{{ false }}"><path d="m16 9 5 6M21 9l-5 6"></path></sc-if></svg></button>
+        <button onClick="{{toggleBadges}}" aria-pressed="{{badgesPressed}}" style="min-height: 44px; padding: 0 14px; background: {{badgesBg}}; color: #e6edf8; border: 1px solid #33425f; border-radius: 6px; cursor: pointer; font-size: 12px; font-weight: 600">Arc values</button>
+        <button onClick="{{toggleEnemyArcs}}" aria-pressed="{{enemyArcsPressed}}" style="min-height: 44px; padding: 0 14px; background: {{enemyArcsBg}}; color: #e6edf8; border: 1px solid #33425f; border-radius: 6px; cursor: pointer; font-size: 12px; font-weight: 600">Enemy arcs</button>
+        <button onClick="{{zoomIn}}" aria-label="Zoom in" style="width: 44px; height: 44px; background: rgba(8,12,22,0.86); color: #e6edf8; border: 1px solid #33425f; border-radius: 6px; cursor: pointer; display: flex; align-items: center; justify-content: center"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14"></path></svg></button>
+        <button onClick="{{zoomOut}}" aria-label="Zoom out" style="width: 44px; height: 44px; background: rgba(8,12,22,0.86); color: #e6edf8; border: 1px solid #33425f; border-radius: 6px; cursor: pointer; display: flex; align-items: center; justify-content: center"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M5 12h14"></path></svg></button>
+        <button onClick="{{recenter}}" aria-label="Recenter camera" style="width: 44px; height: 44px; background: rgba(8,12,22,0.86); color: #e6edf8; border: 1px solid #33425f; border-radius: 6px; cursor: pointer; display: flex; align-items: center; justify-content: center"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="3"></circle><path d="M12 2v4M12 18v4M2 12h4M18 12h4"></path></svg></button>
+      </div>
+
+      <sc-if value="{{loading}}" hint-placeholder-val="{{ false }}">
+        <div style="position: absolute; inset: 0; z-index: 60; display: flex; align-items: center; justify-content: center; background: rgba(4,6,11,0.7); color: #c5d1e6; font-size: 14px">{{loadNote}}</div>
+      </sc-if>
+
+      <sc-if value="{{showHandoff}}" hint-placeholder-val="{{ false }}">
+        <div style="position: absolute; inset: 0; z-index: 60; display: flex; align-items: center; justify-content: center; background: rgba(4,6,11,0.94)">
+          <div style="display: flex; flex-direction: column; align-items: center; gap: 16px; padding: 32px; max-width: 420px; text-align: center">
+            <h2 style="margin: 0; font-family: 'Chakra Petch', sans-serif; font-size: 26px; color: #ff6a3d">Reaver commander</h2>
+            <p style="margin: 0; color: #c5d1e6; line-height: 1.5">The Concord's orders are sealed. Pass the device to the Reaver player, then plot a course for each Reaver ship.</p>
+            <button onClick="{{takeOver}}" style="min-height: 44px; padding: 0 22px; background: #ff6a3d; color: #1a0a04; border: 0; border-radius: 6px; cursor: pointer; font-weight: 700; font-size: 14px">I'm the Reaver — show my ships</button>
+          </div>
+        </div>
+      </sc-if>
+
+      <sc-if value="{{showDebrief}}" hint-placeholder-val="{{ false }}">
+        <div style="position: absolute; inset: 0; z-index: 60; display: flex; align-items: center; justify-content: center; background: rgba(4,6,11,0.78)">
+          <div role="dialog" aria-label="Mission debrief" style="display: flex; flex-direction: column; gap: 12px; padding: 26px 30px; background: #0d1220; border: 1px solid #33425f; border-top: 3px solid {{db.col}}; border-radius: 10px; width: min(520px, calc(100% - 40px)); box-sizing: border-box">
+            <span style="font-size: 11px; font-weight: 700; letter-spacing: 0.1em; color: #93a3bf">DEBRIEF · {{db.name}}</span>
+            <h2 style="margin: 0; font-family: 'Chakra Petch', sans-serif; font-size: 30px; color: {{db.col}}">{{db.title}}</h2>
+            <sc-for list="{{db.lines}}" as="l" hint-placeholder-count="2"><div style="display: flex; gap: 8px; font-size: 14px"><span style="color: {{l.col}}; font-weight: 700">{{l.mark}}</span><span style="color: #d8e1f0">{{l.text}}</span></div></sc-for>
+            <span style="font-family: 'JetBrains Mono', monospace; color: #ffc94d">{{db.rewards}}</span>
+            <span style="font-size: 13px; color: #c5d1e6">{{db.lost}}</span>
+            <sc-if value="{{db.hasPrizes}}" hint-placeholder-val="{{ false }}"><span style="font-size: 13px; color: #d7b8ff">{{db.prizes}}</span></sc-if>
+            <span style="font-size: 12px; color: #93a3bf">Damage, crew losses and criticals carry over to your fleet. {{db.saved}}</span>
+            <div style="display: flex; flex-wrap: wrap; gap: 10px">
+              <a href="Operation.dc.html" style="display: flex; align-items: center; justify-content: center; min-height: 46px; padding: 0 18px; border-radius: 6px; background: #5aa9ff; color: #070a12; font-weight: 700; text-decoration: none">Return to Operation Iron Tide</a>
+              <button onClick="{{skirmish}}" style="min-height: 46px; padding: 0 16px; border-radius: 6px; background: transparent; color: #e6edf8; border: 1px solid #33425f; font-weight: 600; cursor: pointer">Fight a skirmish</button>
+            </div>
+          </div>
+        </div>
+      </sc-if>
+
+      <sc-if value="{{showOver}}" hint-placeholder-val="{{ false }}">
+        <div style="position: absolute; inset: 0; z-index: 60; display: flex; align-items: center; justify-content: center; background: rgba(4,6,11,0.72)">
+          <div style="display: flex; flex-direction: column; align-items: center; gap: 14px; padding: 32px 40px; background: #0d1220; border: 1px solid {{overBorder}}; border-radius: 10px; max-width: 460px; text-align: center">
+            <h2 style="margin: 0; font-family: 'Chakra Petch', sans-serif; font-size: 30px; color: {{overColor}}">{{overTitle}}</h2>
+            <p style="margin: 0; color: #c5d1e6; line-height: 1.5">{{overText}}</p>
+            <button onClick="{{restart}}" style="min-height: 44px; padding: 0 22px; background: #d8e1f0; color: #070a12; border: 0; border-radius: 6px; cursor: pointer; font-weight: 700; font-size: 14px">Fight again</button>
+          </div>
+        </div>
+      </sc-if>
+    </section>
+
+    <aside data-bs-side="1" aria-label="Ship inspector and orders" style="flex: 1 1 360px; min-width: 0; height: 100%; box-sizing: border-box; overflow-y: auto; display: flex; flex-direction: column; gap: 8px; padding: 10px 14px; background: #0a0f1a; border-left: 1px solid #1c2638">
+
+      <section aria-label="Ship inspector" style="display: flex; flex-direction: column; gap: 8px; padding: 10px 14px; background: #0d1220; border: 1px solid #1c2638; border-radius: 8px">
+        <div style="display: flex; justify-content: space-between; align-items: center; gap: 8px">
+          <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap; min-width: 0">
+            <h2 title="{{insp.cls}}" style="margin: 0; font-family: 'Chakra Petch', sans-serif; font-size: 17px; font-weight: 700; color: #eef3fb">{{insp.name}}</h2>
+            <span style="font-size: 11px; font-weight: 700; letter-spacing: 0.06em; padding: 3px 8px; border-radius: 4px; background: {{insp.statusBg}}; color: {{insp.statusFg}}">{{insp.status}}</span>
+          </div>
+          <button onClick="{{nextShip}}" aria-label="Inspect the next ship" style="min-height: 44px; padding: 0 12px; white-space: nowrap; flex: none; background: transparent; color: #c5d1e6; border: 1px solid #33425f; border-radius: 6px; cursor: pointer; font-size: 12px; font-weight: 600">Next ship</button>
+        </div>
+        <div style="position: relative; width: 100%; max-width: 215px; aspect-ratio: 1 / 1; align-self: center; background: #000000; border: 1px solid #1c2638; border-radius: 6px; overflow: hidden">
+          <canvas ref="{{setInspect}}" data-bs-inspect="1" aria-hidden="true" style="position: absolute; inset: 0; width: 100%; height: 100%; display: block"></canvas>
+          <svg viewBox="0 0 300 300" role="img" aria-label="{{insp.aria}}" style="position: absolute; inset: 0; width: 100%; height: 100%">
+            <sc-for list="{{insp.weapons}}" as="w" hint-placeholder-count="4">
+              <path d="{{w.wedge}}" fill="{{w.fill}}" stroke="{{w.stroke}}" stroke-width="1.2" stroke-dasharray="{{w.dash}}"></path>
+            </sc-for>
+            <sc-for list="{{insp.rings}}" as="r" hint-placeholder-count="8">
+              <path d="{{r.d}}" fill="none" stroke="{{insp.color}}" stroke-opacity="{{r.op}}" stroke-width="2.5" stroke-linecap="round"></path>
+            </sc-for>
+            <sc-for list="{{insp.dmg}}" as="d" hint-placeholder-count="0">
+              <circle cx="{{d.x}}" cy="{{d.y}}" r="4.5" fill="#ff4d4d" fill-opacity="0.9" stroke="#2a0505" stroke-width="1.5"></circle>
+            </sc-for>
+            <sc-for list="{{insp.weapons}}" as="w" hint-placeholder-count="4">
+              <circle cx="{{w.hx}}" cy="{{w.hy}}" r="3.5" fill="{{w.stroke}}"></circle>
+            </sc-for>
+          </svg>
+          <sc-for list="{{insp.arcBadges}}" as="b" hint-placeholder-count="4"><div style="{{b.style}}"><span style="color: #5aa9ff">{{b.sh}}</span><span style="color: #ff5c5c">{{b.dice}}</span></div></sc-for>
+          <sc-for list="{{insp.weapons}}" as="w" hint-placeholder-count="4">
+            <div style="{{w.labelStyle}}">
+              <div style="font-size: 10px; font-weight: 700; letter-spacing: 0.06em; color: #eef3fb">{{w.name}}</div>
+              <div style="font-family: 'JetBrains Mono', monospace; font-size: 10px; color: {{w.statColor}}">{{w.stats}}</div>
+            </div>
+          </sc-for>
+        </div>
+        <div style="display: flex; align-items: center; gap: 10px">
+          <span style="font-size: 11px; color: #93a3bf; width: 54px">HULL</span>
+          <div style="display: flex; gap: 3px; flex-wrap: wrap; flex: 1">
+            <sc-for list="{{insp.pips}}" as="p" hint-placeholder-count="12"><span style="{{p}}"></span></sc-for>
+          </div>
+          <span style="font-family: 'JetBrains Mono', monospace; font-size: 12px; color: #d8e1f0">{{insp.hullText}}</span>
+        </div>
+        <div style="font-size: 11px; color: #93a3bf; white-space: nowrap; overflow: hidden; text-overflow: ellipsis" title="On each side of the ship: blue = shields left on that facing this turn; red = dice that can fire in that direction"><span style="color: #5aa9ff; font-weight: 700">Blue</span> shields · <span style="color: #ff5c5c; font-weight: 700">red</span> dice, per side</div>
+        <div style="display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 6px; font-size: 11px; color: #93a3bf">
+          <div style="display: flex; flex-direction: column; gap: 2px"><span>CREW</span><span style="font-family: 'JetBrains Mono', monospace; font-size: 13px; color: #e6edf8">{{insp.crew}}</span></div>
+          <div style="display: flex; flex-direction: column; gap: 2px"><span>SPEED</span><span style="font-family: 'JetBrains Mono', monospace; font-size: 13px; color: #e6edf8">{{insp.speed}}</span></div>
+          <div style="display: flex; flex-direction: column; gap: 2px"><span>TURN</span><span style="font-family: 'JetBrains Mono', monospace; font-size: 13px; color: #e6edf8">{{insp.turnTxt}}</span></div>
+          <div style="display: flex; flex-direction: column; gap: 2px"><span>ARMOUR</span><span style="font-family: 'JetBrains Mono', monospace; font-size: 13px; color: #e6edf8">{{insp.armour}}</span></div>
+          <div style="display: flex; flex-direction: column; gap: 2px"><span>TORPS</span><span style="font-family: 'JetBrains Mono', monospace; font-size: 13px; color: #ffcf9a">{{insp.torps}}</span></div>
+        </div>
+        <sc-if value="{{insp.hasCrits}}" hint-placeholder-val="{{ false }}">
+          <div style="display: flex; flex-wrap: wrap; gap: 6px; align-items: center">
+            <sc-for list="{{insp.crits}}" as="c" hint-placeholder-count="1">
+              <span title="{{c.title}}" style="font-size: 11px; font-weight: 600; padding: 3px 8px; border-radius: 4px; {{c.style}}">{{c.text}}</span>
+            </sc-for>
+          </div>
+        </sc-if>
+      </section>
+
+      <section aria-label="Orders" style="display: flex; flex-direction: column; gap: 8px; padding: 10px 14px; background: #0d1220; border: 1px solid #1c2638; border-radius: 8px">
+        <h2 style="margin: 0; font-family: 'Chakra Petch', sans-serif; font-size: 15px; letter-spacing: 0.06em; color: #eef3fb">ORDERS · <span style="color: {{plotColor}}">{{plotName}}</span></h2>
+        <sc-if value="{{canOrder}}" hint-placeholder-val="{{ true }}">
+          <div role="group" aria-label="Choose which ship to plot" style="display: flex; flex-wrap: wrap; gap: 6px">
+            <sc-for list="{{fleet}}" as="c" hint-placeholder-count="2">
+              <button onClick="{{c.pick}}" aria-pressed="{{c.pressed}}" style="{{c.style}}"><span style="font-size: 12px; font-weight: 700">{{c.name}}</span><span style="{{c.markStyle}}">{{c.mark}}</span></button>
+            </sc-for>
+          </div>
+          <div role="group" aria-label="Priority target" style="display: flex; align-items: center; gap: 6px">
+            <span style="font-size: 11px; font-weight: 700; letter-spacing: 0.06em; color: #93a3bf">TARGET</span>
+            <sc-for list="{{targets}}" as="t" hint-placeholder-count="3">
+              <button onClick="{{t.pick}}" aria-pressed="{{t.pressed}}" style="{{t.style}}">{{t.name}}</button>
+            </sc-for>
+          </div>
+          <div style="display: flex; flex-wrap: wrap; gap: 6px">
+            <sc-for list="{{orderOpts}}" as="o" hint-placeholder-count="5">
+              <button onClick="{{o.pick}}" disabled="{{o.disabled}}" aria-pressed="{{o.pressed}}" title="{{o.desc}}" style="{{o.style}}">
+                <span style="display: block; font-weight: 700; font-size: 12px">{{o.label}}</span>
+                <span style="display: block; font-size: 11px; opacity: 0.85; margin-top: 2px">{{o.short}}</span>
+              </button>
+            </sc-for>
+          </div>
+          <sc-if value="{{torp.show}}" hint-placeholder-val="{{ false }}">
+            <button onClick="{{torpClick}}" disabled="{{torp.disabled}}" aria-pressed="{{torp.pressed}}" style="{{torp.style}}">
+              <span style="font-weight: 700; font-size: 12px">{{torp.label}}</span>
+              <span style="font-size: 11px; opacity: 0.85">{{torp.sub}}</span>
+            </button>
+          </sc-if>
+          <div style="display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 6px; font-size: 11px; color: #93a3bf; padding: 8px 10px; background: #080c16; border-radius: 6px">
+            <div style="display: flex; flex-direction: column; gap: 1px"><span>MOVE</span><span style="font-family: 'JetBrains Mono', monospace; font-size: 13px; color: #e6edf8">{{destDist}}</span></div>
+            <div style="display: flex; flex-direction: column; gap: 1px"><span>BEARING</span><span style="font-family: 'JetBrains Mono', monospace; font-size: 13px; color: #e6edf8">{{destBearing}}</span></div>
+            <div style="display: flex; flex-direction: column; gap: 1px"><span>NEW HEADING</span><span style="font-family: 'JetBrains Mono', monospace; font-size: 13px; color: #e6edf8">{{destTurn}}</span></div>
+          </div>
+        </sc-if>
+        <button onClick="{{commit}}" disabled="{{commitDisabled}}" style="{{commitStyle}}">{{commitLabel}}</button>
+      </section>
+
+
+    </aside>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"mode":{"editor":"enum","options":["Versus AI","Hot-seat"],"default":"Versus AI"},"animSpeed":{"editor":"range","min":0.5,"max":2,"step":0.25,"default":1,"unit":"x"},"$preview":{"width":1440,"height":900}}'>
+@@SCRIPT@@
+</script>
+</body>
+</html>
