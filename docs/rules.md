@@ -1,4 +1,4 @@
-# Gunline — Core Rules (draft v0.7)
+# Gunline — Core Rules (draft v0.8)
 
 Capital ships slugging it out in open space. Both admirals write orders in secret,
 every ship moves at the same moment, and then every gun fires at the same moment.
@@ -197,11 +197,35 @@ In the campaign the battle board loads your saved fleet and the mission readied 
 | M4 Kessel Gate | Gravity well; the Maw + 2 raiders | 2 ships off the east edge by turn 10 | +600 cr | Ships left in the zone are captured |
 | M5 Iron Tide | Station Aurel (Hull 20, 6d6 at 24u); Maw (Hull 16) + raider; reinforcements turns 4 and 7 | Station survives 8 turns | +800 cr, +3 renown | Operation lost |
 
+- **Veterancy** — every battle a ship survives counts: **Trained** at 1, **Veteran** at 3 (each volley may re-roll one die showing 1), **Elite** at 6 (also: its boarders win every tie). Losing half the crew in a battle drops a ship one step.
+- **Shipyards** — the yard before each operation's first mission, D1 Drydock Varn and D3 Meridian Anchorage commission new hulls: a Valiant-class cruiser for 650 credits or a Dominion-class battleship for 1,300, green and without a captain. A fleet holds at most four hulls.
+
 M2A and M2B are a fork: flying one skips the other. Drydocks (before M1, D1 after the fork, D2 after M4) sell repairs (hull 40, criticals 60, crew 30 credits) and upgrades (D2: repairs only); a ship with more than 4 hull repaired or a new upgrade sits out the next mission.
+
+### Operation 2 · Black Meridian
+
+Once Iron Tide's last mission is flown, the same fleet (scars, veterancy, captains, credits) follows the Reavers into the Meridian Rift.
+
+- **Nebulae** — no ship may fire into or out of a nebula cloud at a target more than 12u away; inside 12u fire as normal. Torpedoes, rams and tractor beams are unaffected.
+
+| Mission | Set-up | Win | Reward | If you fail |
+|---|---|---|---|---|
+| B1 Into the Rift | Nebulae; 3 Lancers, a 4th on turn 3 | Destroy, capture or drive off the pack | +500 cr, +1 renown | — |
+| B2A Ghost Signal | Crippled CNS Halcyon (Hull 6, static, point defence) at the centre; Lancers, a raider turn 3, a Lancer turn 4 | Halcyon survives uncaptured to the end of turn 7 | Halcyon joins the fleet, +300 cr, +1 renown | Halcyon lost |
+| B2B Burn the Depots | 3 fuel depots (Hull 6, no guns), mines, 2 Lancers | Destroy all three by turn 10 | +700 cr, +1 renown (+1 no losses) | Gravemind +4 Hull, +1 shield all round |
+| D3 Meridian Anchorage | Drydock: shipyard; Capt. Holt for hire | — | — | — |
+| B3 The Gravemind | Nebulae; the Gravemind and 2 Lancers | Destroy or capture the Gravemind by turn 12 | +1,200 cr, +3 renown (+1 no losses) | — |
+
+**Lancer-class strike craft** (Reaver) — Speed 20u · Turn 70° · Hull 6 · Shields F2 P1 S1 A0 · Armour 5+ · Crew 3 · Talon lance 2d6 18u fore (lance) · Point turrets 2d6 15u all arcs · 1 torpedo.
+
+**Gravemind** (Reaver dreadnought, Matriarch Sorn · Steady Hand) — Speed 10u · Turn 35° · Hull 22 · Shields F3 P3 S3 A2 · Armour 4+ · Crew 10 · Broadsides 8d6 26u · Graviton maw 4d6 20u fore (lance) · Spinal turrets 3d6 18u all arcs · Ram prow · Tractor beam 10u · 2 torpedoes.
+
+**Fuel depot** (Reaver) — static · Hull 6 · Shields 1 all round · Armour 5+ · no guns.
 
 ## Designer's notes (online build)
 
 - **Server-authoritative turns**: clients submit `{destination, specialOrder}` per ship; the server validates against the manoeuvre zone and waits for both players (or a timer). In gunnery it prompts each player for their own rolls and generates each die on the player's click, so rolls stay tamper-proof, then streams results to both clients.
 - **Balance snapshot**: `node tools/balance-sim.js` runs 1,500 AI-vs-AI duels. Current 2v2 squadrons with ramming, boarding, torpedoes, the Maw's tractor beam and captains on all four ships: Concord ≈49%, Reaver ≈45%, mutual destruction ≈6%, ~6 turns per battle (7 before torpedoes). About 60% of AI torpedoes hit, because the AI never dodges; expect fewer against a player. The AI is a simple one-turn look-ahead, so treat this as a starting point.
+- **Engine and tests**: the rules live in `src/engine/` and run headless; `npm test` covers geometry, the firing preview against simulated volleys, boarding odds, torpedoes, tractor beams, captains, veterancy, nebulae, every mission of both operations and the Operation board's logic.
 - **Campaign check**: `node tools/campaign-sim.js` plays every mission AI-vs-AI and checks the save write-back. With a scripted pilot that flies the objective, M2B is won ~74% of the time, M4 ~32% and M3 ~25% (that pilot also shoots the Hydra to pieces in about a third of runs).
 - **Open questions**: should a priority target cost something (e.g. −1 to hit when it isn't the closest enemy)?; wreck hazards; firing in mid-move tick slices vs. end of move; altitude bands.

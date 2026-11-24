@@ -33,16 +33,25 @@ class Component extends DCLogic {
     this.tipOff = () => { this.ui.tip = null; this.bump(); };
     // Double-click: plot this ship here, then move on to the next unplotted ship; on the last one, commit the fleet.
     this.onDbl = (e) => {
-      if (!this.g || this.g.phase !== 'orders') return;
+      if (!this.g || this.g.phase !== 'orders' || this.replaying) return;
       const p = this.pickMap(e); if (!p || this.shipAt(p)) return;
       this.setDest(p.x, p.y);
       const next = this.nextUndrafted();
       if (next) this.switchPlot(next); else this.commitOrders();
     };
+    // How to play: a guided first battle. Steps advance on their own when the player does the thing asked.
+    this.tut = { step: -1 };
+    this.howTo = () => this.tutStart();
+    this.tutNextClick = () => this.tutNext();
+    this.tutSkipClick = () => this.tutEnd();
+    this.replayClick = () => this.replayTurn();
+    this.clearClick = () => this.clearPlot();
+    this.ptrs = {};
+    this.onKey = (e) => this.keyDown(e);
     this.onDown = (e) => this.pointerDown(e);
     this.onMove = (e) => this.pointerMove(e);
     this.onUp = (e) => this.pointerUp(e);
-    this.onLeave = () => { this.ui.hover = null; this.drag = null; this.refreshHover(); };
+    this.onLeave = (e) => { this.ui.hover = null; this.drag = null; if (e && this.ptrs) delete this.ptrs[e.pointerId]; if (this.ptrs && Object.keys(this.ptrs).length < 2) this.pinch = null; this.refreshHover(); };
     this.onWheel = (e) => this.wheelZoom(e);
     this.noMenu = (e) => e.preventDefault();
     // A mission in progress restarts from the saved fleet; once its result is written, the button starts a skirmish instead.
@@ -259,6 +268,13 @@ class Component extends DCLogic {
   /* ───────────── THREE.JS SCENE ───────────── */
   componentDidMount() {
     this.alive = true;
+    try { window.addEventListener('keydown', this.onKey); } catch (e) { /* ignore */ }
+    // First visit: start the guided battle (not when a campaign mission is about to load).
+    setTimeout(() => {
+      if (!this.alive || this.mission || (this.save && this.save.current)) return;
+      let seen = false; try { seen = window.localStorage.getItem('gunline.tutorial.v1') === 'done'; } catch (e) { seen = true; }
+      if (!seen) this.tutStart();
+    }, 1200);
     let tries = 0;
     const wait = () => {
       if (!this.alive) return;
@@ -272,6 +288,7 @@ class Component extends DCLogic {
   }
 
   componentWillUnmount() {
+    try { window.removeEventListener('keydown', this.onKey); } catch (e) { /* ignore */ }
     this.alive = false;
     if (this.raf) cancelAnimationFrame(this.raf);
     if (this.ro) this.ro.disconnect();
@@ -455,7 +472,7 @@ class Component extends DCLogic {
     (F.nebula || []).forEach((n, i) => {
       for (let k = 0; k < 7; k++) {
         const a = k * 0.9 + i, rr = k === 0 ? 0 : n.r * 0.55;
-        const sp = new T.Sprite(new T.SpriteMaterial({ toneMapped: false, map: t3.glowTex, color: k % 2 ? 0x6a4fb8 : 0x3f5fa8, transparent: true, opacity: 0.32, depthWrite: false }));
+        const sp = new T.Sprite(new T.SpriteMaterial({ toneMapped: false, map: t3.glowTex, color: k % 2 ? 0x7a3fd0 : 0x4a3cb0, transparent: true, opacity: 0.26, blending: T.AdditiveBlending, depthWrite: false }));
         sp.position.set(n.x + Math.cos(a) * rr, 0.4 + k * 0.05, -(n.y + Math.sin(a) * rr)); sp.scale.setScalar(n.r * (k === 0 ? 2.2 : 1.4)); grp.add(sp);
       }
       grp.add(this.circle(n.x, n.y, n.r, 0x9a7bff, 0.35));
@@ -1040,7 +1057,7 @@ class Component extends DCLogic {
     const t3 = this.three, dt = Math.min(0.05, (now - this.last) / 1000); this.last = now;
     const g = this.g;
     if (this.killCam) this.runKillCam(now);
-    else if (!this.userCam && (g.phase === 'moving' || g.phase === 'firing')) this.followShips(dt);
+    else if (!this.userCam && (g.phase === 'moving' || g.phase === 'firing' || this.replaying)) this.followShips(dt);
     this.applyCam();
     const cam = t3.camera;
     if (this.anim && this.anim.kind === 'move') {
@@ -1048,6 +1065,10 @@ class Component extends DCLogic {
       this.ids().forEach((id) => { if (!g.orders[id] || !g.orders[id].path) return; const p = g.orders[id].path.at(e), o = t3.objs[id]; o.root.position.set(p.x, 0, -p.y); o.root.rotation.y = p.h + Math.PI / 2; o.glow.scale.setScalar(2.6 + 2.2 * Math.sin(Math.PI * k)); });
       this.placeTorps(e, false);
       if (k >= 1) { this.anim = null; this.afterMove(); }
+    } else if (this.anim && this.anim.kind === 'replay') {
+      const R = g.replay, k = Math.min(1, (now - this.anim.t0) / this.anim.dur), e = k < 0.5 ? 2 * k * k : 1 - Math.pow(-2 * k + 2, 2) / 2;
+      Object.keys(R.paths).forEach((id) => { const o = t3.objs[id]; if (!o) return; const p = R.paths[id].at(e); o.root.position.set(p.x, 0, -p.y); o.root.rotation.y = p.h + Math.PI / 2; });
+      if (k >= 1) { this.anim = null; this.playReplayFx(0); }
     }
     const fxDt = now < this.slowUntil ? dt * 0.3 : dt;
     this.shake *= Math.pow(0.03, dt);
@@ -1116,13 +1137,78 @@ class Component extends DCLogic {
     return { x: p.x, y: -p.z };
   }
 
+  // Keyboard: Backspace/Delete clears the plotted course, Enter commits, Tab-free shortcuts only on the map page.
+  keyDown(e) {
+    const tag = (e.target && e.target.tagName) || '';
+    if (/INPUT|TEXTAREA|SELECT/.test(tag) || !this.g || this.replaying) return;
+    if ((e.key === 'Backspace' || e.key === 'Delete') && this.g.phase === 'orders') { e.preventDefault(); this.clearPlot(); }
+    else if (e.key === 'Enter' && this.g.phase === 'orders' && this.allDrafted() && tag !== 'BUTTON') { e.preventDefault(); this.commitOrders(); }
+    else if (e.key === 'r' && this.g.phase === 'orders' && this.g.replay) this.replayTurn();
+  }
+
+  /* ───────────── HOW TO PLAY ───────────── */
+  tutSteps() {
+    const g = this.g, plotted = (id) => !!(g.drafts && g.drafts[id]);
+    return [
+      { title: 'Welcome to Gunline', text: 'You command the blue Concord squadron: CNS Resolute and CNS Vigilant. Each turn both sides write secret orders, every ship moves at the same moment, then every gun fires at once.', manual: true },
+      { title: 'Plot a course', text: 'Click inside the blue fan in front of ' + ((g.ships[g.plotting] || {}).def || {}).name + ' to set where it ends this turn. The ghost shows where it will be; the firing preview (top left) shows what it would hit and what could hit it from there.', done: () => plotted(g.plotting) || this.allDrafted() },
+      { title: 'Orders and targets', text: 'In the panel on the right, pick a special order (Lock On is +1 to hit; ★ marks orders your captain improves) and a priority target. Changed your mind? Clear course (or Backspace) undoes the plot.', manual: true },
+      { title: 'Plot the second ship', text: 'Plot CNS Vigilant too: click its name in the fleet row, or double-click the map to plot this ship and move straight on to the next.', done: () => this.allDrafted() || g.phase !== 'orders' },
+      { title: 'Commit', text: 'Press Commit fleet orders (or Enter, or double-click). The Reavers have already sealed theirs.', done: () => g.phase !== 'orders' || g.turn > 1 },
+      { title: 'Roll your dice', text: 'In gunnery you roll your own dice: press Roll in the dice tray at the bottom. Damage lands once every ship has fired. Hover a ship’s damage tag later to see every roll.', done: () => g.turn > 1 || g.phase === 'over' },
+      { title: 'Over to you', text: 'Orange lanes are torpedo runs, red where they would strike your plotted spot. ↺ (or R) replays the last turn. Win by destroying, capturing or driving off both Reaver ships. Good hunting.', manual: true, last: true }
+    ];
+  }
+
+  tutStart() { this.tut = { step: 0 }; this.bump(); }
+  tutNext() { const n = this.tutSteps().length; if (this.tut.step >= n - 1) { this.tutEnd(); return; } this.tut.step += 1; this.bump(); }
+  tutEnd() { this.tut = { step: -1 }; try { window.localStorage.setItem('gunline.tutorial.v1', 'done'); } catch (e) { /* ignore */ } this.bump(); }
+  tutCheck() {
+    if (this.tut.step < 0) return;
+    const steps = this.tutSteps();
+    while (this.tut.step < steps.length - 1 && steps[this.tut.step].done && steps[this.tut.step].done()) this.tut.step += 1;
+  }
+
+  /* ───────────── REPLAY ───────────── */
+  // Re-run last turn's movement and effects from the replay log, then put everything back.
+  replayTurn() {
+    const g = this.g, R = g.replay;
+    if (!R || !this.three || this.anim || this.replaying || g.phase !== 'orders') return;
+    this.replaying = true; this.userCam = false;
+    this.disposeGroup(this.three.overlay); this.disposeGroup(this.three.preview);
+    this.ids().forEach((id) => { const o = this.three.objs[id], p = R.start[id]; if (o && p) { o.root.position.set(p.x, 0, -p.y); o.root.rotation.y = p.h + Math.PI / 2; } });
+    this.anim = { kind: 'replay', t0: performance.now(), dur: 2000 / this.speedMul() };
+    this.bump();
+  }
+
+  playReplayFx(i) {
+    const R = this.g.replay;
+    if (!this.alive || !this.replaying) return;
+    if (!R || i >= R.fx.length) { this.endReplay(); return; }
+    const q = R.fx[i];
+    const ms = q.kind === 'explode' || q.kind === 'captured' ? 0 : this.playFx(q);
+    setTimeout(() => this.playReplayFx(i + 1), Math.max(60, ms * 0.7));
+  }
+
+  endReplay() { this.replaying = false; this.placeShips(); this.refreshOverlays(); this.bump(); }
+
   pointerDown(e) {
     this.unlockAudio();
+    this.ptrs[e.pointerId] = { x: e.clientX, y: e.clientY };
+    const ids = Object.keys(this.ptrs);
+    // Two fingers: pinch to zoom.
+    if (ids.length === 2) { const a = this.ptrs[ids[0]], b = this.ptrs[ids[1]]; this.pinch = { d0: Math.hypot(a.x - b.x, a.y - b.y) || 1, dist0: this.cam.dist }; this.drag = null; return; }
     this.drag = { x: e.clientX, y: e.clientY, moved: false, button: e.button, pan: e.button !== 0 || e.shiftKey, tx: this.cam.tx, tz: this.cam.tz, yaw: this.cam.yaw, tilt: this.cam.tilt };
     if (e.currentTarget && e.currentTarget.setPointerCapture) { try { e.currentTarget.setPointerCapture(e.pointerId); } catch (err) {} }
   }
 
   pointerMove(e) {
+    if (this.ptrs[e.pointerId]) this.ptrs[e.pointerId] = { x: e.clientX, y: e.clientY };
+    if (this.pinch) {
+      const ids = Object.keys(this.ptrs);
+      if (ids.length >= 2) { const a = this.ptrs[ids[0]], b = this.ptrs[ids[1]], d = Math.hypot(a.x - b.x, a.y - b.y) || 1; this.cam.dist = Math.max(22, Math.min(230, this.pinch.dist0 * this.pinch.d0 / d)); }
+      return;
+    }
     if (this.drag) {
       const dx = e.clientX - this.drag.x, dy = e.clientY - this.drag.y;
       if (Math.abs(dx) + Math.abs(dy) > 6) this.drag.moved = true;
@@ -1148,8 +1234,16 @@ class Component extends DCLogic {
   }
 
   pointerUp(e) {
+    delete this.ptrs[e.pointerId];
+    if (this.pinch) { if (Object.keys(this.ptrs).length < 2) { this.pinch = null; this.drag = null; } return; }
     const d = this.drag; this.drag = null;
-    if (!d || d.moved || d.button !== 0) return;
+    if (!d || d.moved || d.button !== 0 || this.replaying) return;
+    // Touch has no reliable double-click: a second tap close in time and place counts as one.
+    if (e.pointerType === 'touch') {
+      const now = performance.now(), lt = this.lastTap;
+      if (lt && now - lt.t < 380 && Math.hypot(e.clientX - lt.x, e.clientY - lt.y) < 30) { this.lastTap = null; this.onDbl(e); return; }
+      this.lastTap = { t: now, x: e.clientX, y: e.clientY };
+    }
     const p = this.pickMap(e); if (!p) return;
     const hit = this.shipAt(p);
     if (hit) {
@@ -1237,12 +1331,15 @@ class Component extends DCLogic {
   }
 
   renderVals() {
+    this.tutCheck();
     const g = this.g, D = this.D;
     const phaseLabel = { orders: 'ORDERS', handoff: 'ORDERS', moving: 'MOVEMENT', firing: 'GUNNERY', over: 'BATTLE OVER' }[g.phase];
     const plot = g.ships[g.plotting];
     const insp = this.inspectVals(g.ships[this.ui.sel]);
     const canOrder = g.phase === 'orders';
     const bridge = this.count(plot, 'bridge') > 0;
+    const tsteps = this.tutSteps(), ts = this.tut.step >= 0 && !this.mission ? tsteps[this.tut.step] : null;
+    const tutView = ts ? { show: true, count: 'HOW TO PLAY · ' + (this.tut.step + 1) + ' of ' + tsteps.length, title: ts.title, text: ts.text, manual: !!ts.manual, nextLabel: ts.last ? 'Done' : 'Next', waiting: !ts.manual } : { show: false, count: '', title: '', text: '', manual: false, nextLabel: '', waiting: false };
     const capT = plot && plot.def.capTrait, capShort = { gunnery: { lock: '+1 to hit · Turn ½ · re-roll misses' }, daredevil: { aaf: 'Speed ×1.5 · full Turn · −1 to hit' }, steady: { brace: '+1 save · full dice' } }[capT] || {};
     const orderOpts = D.ORDERS.map((o) => {
       const sel = this.ui.order === o.id, dis = !canOrder || (bridge && o.id !== 'steady');
@@ -1315,7 +1412,7 @@ class Component extends DCLogic {
       if (away.length) notes.push('Expected: ' + away.join(', '));
       misView.notes = notes; misView.hasNotes = notes.length > 0;
     } else if (this.save && this.save.current) {
-      misView.ready = true; misView.readyText = 'Operation Iron Tide: ' + this.save.current.toUpperCase() + ' is ready to launch with your saved fleet.';
+      misView.ready = true; misView.readyText = this.opOf(this.save).title + ': ' + this.save.current.toUpperCase() + ' is ready to launch with your saved fleet.';
     }
     const dbr = g.debrief || {}, dbView = {
       title: dbr.won ? 'Mission accomplished' : 'Mission failed', col: dbr.won ? '#7be3a4' : '#ff8a8a', name: this.mission ? this.mission.code + ' · ' + this.mission.name : '',
@@ -1410,11 +1507,14 @@ class Component extends DCLogic {
     const win = g.winner;
     return {
       turn: g.turn, phaseLabel: phaseLabel,
-      modeLabel: this.mission ? 'Operation Iron Tide · ' + this.mission.code + ' ' + this.mission.name : this.modeHot() ? 'Hot-seat · 2 players' : 'Skirmish · versus AI',
+      modeLabel: this.mission ? this.opOf(this.save).title + ' · ' + this.mission.code + ' ' + this.mission.name : this.modeHot() ? 'Hot-seat · 2 players' : 'Skirmish · versus AI',
       turnMax: this.mission && this.mission.turns ? ' / ' + this.mission.turns : '',
       restartLabel: this.mission && g.phase !== 'over' ? 'Restart mission' : 'New battle',
       mis: misView, startMissionClick: this.startMissionClick, skirmish: this.skirmish,
-      insp: insp, nextShip: this.nextShip, orderOpts: orderOpts, torp: torp, torpClick: this.torpClick, fleet: fleet, targets: targets, pv: pvm,
+      insp: insp, nextShip: this.nextShip, orderOpts: orderOpts, torp: torp, torpClick: this.torpClick,
+      tut: tutView, howTo: this.howTo, tutNextClick: this.tutNextClick, tutSkipClick: this.tutSkipClick,
+      canReplay: g.phase === 'orders' && !!g.replay && !this.replaying && !!this.three, replayClick: this.replayClick, replaying: !!this.replaying,
+      canClear: canOrder && !!g.drafts[g.plotting] && !this.replaying, clearClick: this.clearClick, fleet: fleet, targets: targets, pv: pvm,
       badges: badges, toggleBadges: this.toggleBadges, badgesPressed: this.ui.arcBadges ? 'true' : 'false', badgesBg: this.ui.arcBadges ? '#26324a' : 'rgba(8,12,22,0.86)',
       toggleSound: this.toggleSound, soundPressed: this.ui.muted ? 'false' : 'true', soundOn: !this.ui.muted, soundOff: this.ui.muted, soundLabel: this.ui.muted ? 'Sound off — click to unmute' : 'Sound on — click to mute', canOrder: canOrder,
       plotName: canOrder ? plot.def.name : '—', plotColor: canOrder ? plot.def.color : '#93a3bf',

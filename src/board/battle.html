@@ -32,6 +32,7 @@ button:focus-visible{outline:2px solid #ffc94d;outline-offset:2px}
     <div style="display: flex; align-items: center; gap: 16px; flex-wrap: wrap">
       <span style="font-family: 'JetBrains Mono', monospace; font-size: 13px; color: #c5d1e6">TURN {{turn}}{{turnMax}} · {{phaseLabel}}</span>
       <span style="font-size: 12px; color: #93a3bf; padding: 4px 10px; border: 1px solid #26324a; border-radius: 999px">{{modeLabel}}</span>
+      <button onClick="{{howTo}}" style="min-height: 44px; padding: 0 14px; background: transparent; color: #d8e1f0; border: 1px solid #33425f; border-radius: 6px; cursor: pointer; font-size: 13px; font-weight: 600">How to play</button>
       <button onClick="{{restart}}" style="min-height: 44px; padding: 0 16px; background: transparent; color: #d8e1f0; border: 1px solid #33425f; border-radius: 6px; cursor: pointer; font-size: 13px; font-weight: 600">{{restartLabel}}</button>
     </div>
   </header>
@@ -161,6 +162,10 @@ button:focus-visible{outline:2px solid #ffc94d;outline-offset:2px}
         <button onClick="{{zoomIn}}" aria-label="Zoom in" style="width: 44px; height: 44px; background: rgba(8,12,22,0.86); color: #e6edf8; border: 1px solid #33425f; border-radius: 6px; cursor: pointer; display: flex; align-items: center; justify-content: center"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14"></path></svg></button>
         <button onClick="{{zoomOut}}" aria-label="Zoom out" style="width: 44px; height: 44px; background: rgba(8,12,22,0.86); color: #e6edf8; border: 1px solid #33425f; border-radius: 6px; cursor: pointer; display: flex; align-items: center; justify-content: center"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M5 12h14"></path></svg></button>
         <button onClick="{{recenter}}" aria-label="Recenter camera" style="width: 44px; height: 44px; background: rgba(8,12,22,0.86); color: #e6edf8; border: 1px solid #33425f; border-radius: 6px; cursor: pointer; display: flex; align-items: center; justify-content: center"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="3"></circle><path d="M12 2v4M12 18v4M2 12h4M18 12h4"></path></svg></button>
+        <sc-if value="{{canReplay}}" hint-placeholder-val="{{ false }}">
+          <button onClick="{{replayClick}}" aria-label="Replay last turn (R)" title="Replay last turn (R)" style="width: 44px; height: 44px; background: rgba(8,12,22,0.86); color: #e6edf8; border: 1px solid #33425f; border-radius: 6px; cursor: pointer; display: flex; align-items: center; justify-content: center"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 12a9 9 0 1 0 3-6.7"></path><path d="M3 3v6h6"></path></svg></button>
+        </sc-if>
+        <sc-if value="{{replaying}}" hint-placeholder-val="{{ false }}"><span style="padding: 4px 8px; border-radius: 4px; background: rgba(8,12,22,0.86); color: #ffc94d; font-size: 11px; font-weight: 700; letter-spacing: 0.06em">REPLAY</span></sc-if>
       </div>
 
       <sc-if value="{{loading}}" hint-placeholder-val="{{ false }}">
@@ -173,6 +178,19 @@ button:focus-visible{outline:2px solid #ffc94d;outline-offset:2px}
             <h2 style="margin: 0; font-family: 'Chakra Petch', sans-serif; font-size: 26px; color: #ff6a3d">Reaver commander</h2>
             <p style="margin: 0; color: #c5d1e6; line-height: 1.5">The Concord's orders are sealed. Pass the device to the Reaver player, then plot a course for each Reaver ship.</p>
             <button onClick="{{takeOver}}" style="min-height: 44px; padding: 0 22px; background: #ff6a3d; color: #1a0a04; border: 0; border-radius: 6px; cursor: pointer; font-weight: 700; font-size: 14px">I'm the Reaver — show my ships</button>
+          </div>
+        </div>
+      </sc-if>
+
+      <sc-if value="{{tut.show}}" hint-placeholder-val="{{ false }}">
+        <div role="dialog" aria-label="How to play" aria-live="polite" style="position: absolute; z-index: 45; left: 50%; top: 14px; transform: translateX(-50%); width: min(400px, calc(100% - 28px)); box-sizing: border-box; display: flex; flex-direction: column; gap: 8px; padding: 12px 14px; background: rgba(9,14,26,0.95); border: 1px solid #2f5a8a; border-top: 3px solid #5aa9ff; border-radius: 8px; color: #d8e1f0; font-size: 13px">
+          <span style="font-size: 11px; font-weight: 700; letter-spacing: 0.08em; color: #8cc4ff">{{tut.count}}</span>
+          <span style="font-family: 'Chakra Petch', sans-serif; font-size: 17px; font-weight: 700; color: #eef3fb">{{tut.title}}</span>
+          <span style="line-height: 1.5">{{tut.text}}</span>
+          <div style="display: flex; justify-content: space-between; align-items: center; gap: 8px">
+            <button onClick="{{tutSkipClick}}" style="min-height: 36px; padding: 0 10px; background: transparent; color: #93a3bf; border: 0; cursor: pointer; font-size: 12px; font-weight: 600">Skip tutorial</button>
+            <sc-if value="{{tut.waiting}}" hint-placeholder-val="{{ false }}"><span style="font-size: 12px; color: #ffc94d">Waiting for you…</span></sc-if>
+            <sc-if value="{{tut.manual}}" hint-placeholder-val="{{ true }}"><button onClick="{{tutNextClick}}" style="min-height: 40px; padding: 0 16px; background: #5aa9ff; color: #070a12; border: 0; border-radius: 6px; cursor: pointer; font-size: 13px; font-weight: 700">{{tut.nextLabel}}</button></sc-if>
           </div>
         </div>
       </sc-if>
@@ -297,6 +315,12 @@ button:focus-visible{outline:2px solid #ffc94d;outline-offset:2px}
             <div style="display: flex; flex-direction: column; gap: 1px"><span>BEARING</span><span style="font-family: 'JetBrains Mono', monospace; font-size: 13px; color: #e6edf8">{{destBearing}}</span></div>
             <div style="display: flex; flex-direction: column; gap: 1px"><span>NEW HEADING</span><span style="font-family: 'JetBrains Mono', monospace; font-size: 13px; color: #e6edf8">{{destTurn}}</span></div>
           </div>
+          <sc-if value="{{canClear}}" hint-placeholder-val="{{ false }}">
+            <div style="display: flex; align-items: center; justify-content: space-between; gap: 8px">
+              <span style="font-size: 11px; color: #6f7f9c">Backspace clears · Enter commits</span>
+              <button onClick="{{clearClick}}" style="min-height: 36px; padding: 0 12px; background: transparent; color: #d8e1f0; border: 1px solid #33425f; border-radius: 6px; cursor: pointer; font-size: 12px; font-weight: 600">Clear course</button>
+            </div>
+          </sc-if>
         </sc-if>
         <button onClick="{{commit}}" disabled="{{commitDisabled}}" style="{{commitStyle}}">{{commitLabel}}</button>
       </section>

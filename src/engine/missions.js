@@ -13,7 +13,7 @@ class GLMissions {
     if (spec) this.newGame(false, spec);
   }
 
-  // Mission set-ups for Operation Iron Tide. Your deployed fleet comes from the save; enemies and map features from here.
+  // Mission set-ups for both operations (Iron Tide m*, Black Meridian b*). Your deployed fleet comes from the save; enemies and map features from here.
   missionSpec(code, sv) {
     const mods = sv.mods || {}, W = this.D.W / 2, H = this.D.H / 2;
     const fleet = (sv.fleet || []).filter((f) => !f.sitsOut && !f.reserve);

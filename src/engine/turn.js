@@ -103,6 +103,17 @@ class GLTurn {
     this.bump();
   }
 
+  // Undo the plotted course for the ship being plotted (its order and target choice stay selected).
+  clearPlot() {
+    const g = this.g;
+    if (g.phase !== 'orders' || !g.drafts[g.plotting]) return;
+    delete g.drafts[g.plotting]; g.dest = null;
+    this.refreshOverlays(); this.bump();
+  }
+
+  // A light copy of a ship for the replay log: where it was and what it was when the effect played.
+  snapShip(s) { return s ? { id: s.id, def: s.def, x: s.x, y: s.y, h: s.h, hull: s.hull, crits: s.crits.slice() } : s; }
+
   // Torpedo target: the priority target if it is within launch range, otherwise the nearest enemy in range.
   torpTarget(s, tid) {
     const g = this.g, R0 = this.D.TORP.range, dist = (t) => Math.hypot(t.x - s.x, t.y - s.y);
@@ -165,6 +176,9 @@ class GLTurn {
       ent.push({ side: id, text: s.def.name + ': ' + ord.label + ' — moves ' + o.path.d.toFixed(1) + 'u.' });
     });
     this.pushLog('TURN ' + g.turn, ent);
+    // Replay log for this turn: start poses and paths now, effects as they play.
+    g.replay = { turn: g.turn, start: {}, paths: {}, fx: [] };
+    this.ids().forEach((id) => { const s = g.ships[id]; g.replay.start[id] = { x: s.x, y: s.y, h: s.h }; if (g.orders[id] && g.orders[id].path) g.replay.paths[id] = g.orders[id].path; });
     this.launchTorps();
     this.syncTorps(); this.placeTorps(0, false);
     this.anim = { kind: 'move', t0: performance.now(), dur: 2600 / this.speedMul() };
@@ -327,6 +341,7 @@ class GLTurn {
       }
       if (q.type === 'fx') {
         if (this.autoAll || !this.three) { r = this.seq.next(); continue; }
+        if (this.g.replay) this.g.replay.fx.push(Object.assign({}, q, { A: this.snapShip(q.A), B: this.snapShip(q.B), t: q.t ? Object.assign({}, q.t) : q.t, from: q.from ? Object.assign({}, q.from) : q.from }));
         const ms = this.playFx(q);
         setTimeout(() => { if (this.alive && id === this.seqId) this.advance(); }, ms);
         return;

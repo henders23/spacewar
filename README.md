@@ -8,11 +8,11 @@ This first slice is a design mockup:
 - **Ruleset** — [`docs/rules.md`](docs/rules.md)
 - **Playable 2v2 squadron battle mockup** — `design/Main.dc.html` (three.js scene, rules engine, AI opponent,
   hot-seat mode, manual dice tray, projectile and explosion art, top-down ship inspector, priority targeting,
-  live firing preview while plotting, ramming, torpedoes, tractor beams, captain traits, Risk-style boarding, arc value badges, sound and impact effects) and the rulebook page `design/Rules.dc.html`. `design/Operation.dc.html` is the campaign board (Operation Iron Tide: mission map,
-  briefings, drydock refit and repair). Both boards share one campaign save (the canvas database, falling back to
+  live firing preview and threat display while plotting, a guided first battle, turn replay, touch controls, ramming, torpedoes, tractor beams, captain traits, Risk-style boarding, arc value badges, sound and impact effects) and the rulebook page `design/Rules.dc.html`. `design/Operation.dc.html` is the campaign board (Operations Iron Tide and Black Meridian: mission maps,
+  briefings, drydock refit and repair, captains, shipyard). Both boards share one campaign save (the canvas database, falling back to
   browser storage): ready a mission on the Operation board, fight it on the battle board with your saved fleet, and the
-  debrief writes damage, losses, prizes, credits and renown back. These are the sources of the Claude Design
-  canvas; `design/canvas.json` is its layout index.
+  debrief writes damage, losses, prizes, credits and renown back. These are the files of the Claude Design
+  canvas (Main and Operation are built from `src/`); `design/canvas.json` is its layout index.
 - **Ship models** — `assets/ships/*.glb`, two battleships and two cruisers from the asset pack reduced from ~70 MB
   (1.9M triangles, 4K textures) to ~1.1 MB each (≈38k triangles, 1K WebP textures), plus `station.glb` (Lair Station,
   Station Aurel) and `freighter.glb` (freighters, Mother Hydra) for the campaign missions (~5 MB each; these two would
@@ -23,6 +23,23 @@ This first slice is a design mockup:
 
 - **Projectile & explosion art** — `assets/fx/*.webp`, 13 sprites and 4 explosion sprite sheets built from
   the supplied projectiles/explosions pack (frames packed into grids for animation).
+
+## Source layout
+
+The canvas boards in `design/` are build outputs. Edit `src/` and run the build:
+
+```
+src/engine/     rules engine (plain classes, no rendering): core, preview, threats, ai, turn, combat, missions, hooks
+src/shared/     shared by both boards: operations (maps, forks, docks), store (campaign save), install (module merge)
+src/board/      battle board and Operation board: markup (.html) and rendering/UI (.js)
+tools/build.mjs inlines the modules into design/Main.dc.html and design/Operation.dc.html
+tests/          node:test suites (npm test)
+```
+
+```bash
+npm run build      # rebuild design/*.dc.html from src/
+npm test           # rules, preview maths, odds, missions, Operation board logic
+```
 
 ## Tools
 
