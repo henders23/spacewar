@@ -1,4 +1,4 @@
-# Gunline — Core Rules (draft v0.6)
+# Gunline — Core Rules (draft v0.7)
 
 Capital ships slugging it out in open space. Both admirals write orders in secret,
 every ship moves at the same moment, and then every gun fires at the same moment.
@@ -110,7 +110,20 @@ A tractor beam drags a ship into close range and holds it there: for a broadside
 - **Pulled in & held** — a win drags the target up to 4u straight toward the beam ship, stopping short of collision distance (4u between centres), and holds it: −4u Speed on its next move. If the target wins, it breaks free.
 - **Using it** — the pull lands before gunnery, so it changes this turn's ranges and arcs, and boarding (6u) is checked afterwards. A cruiser breaks a battleship's beam only 10 times in 36; battleship against battleship, 15 in 36.
 
-## 10. Ship profiles (starter squadrons: Resolute + Vigilant vs Maw of Ruin + Carrion Wing)
+## 10. Captains
+
+Every ship may have one captain, whose trait bends one rule for that ship. Traits that improve an order (★ on the order buttons) apply only when that order is given. In the campaign, captains move between ships between missions and are lost with their ship.
+
+| Captain | Ship (skirmish) | Trait | Effect |
+|---|---|---|---|
+| Capt. Ilse Varga | CNS Resolute | Gunnery Master | With **Lock On**, re-roll the misses of this ship's biggest volley (the weapon rolling the most dice), once per turn. Included in the firing preview. |
+| Capt. Tomas Rheel | CNS Vigilant | Daredevil | **All Ahead Full** keeps full Turn instead of halving it (Ram still halves). |
+| Warlord Garrak | Maw of Ruin | Boarding Master | The ship's boarders win ties in the **first exchange** of every boarding action (3 vs 2: 66% → 82% to capture). |
+| Vex the Quick | Carrion Wing | Daredevil | As Rheel. |
+| Cmdr. Ama Okafor | Campaign: joins after M2A if all three freighters get through | Boarding Master | As Garrak. |
+| Capt. Davin Holt | Campaign: hire at Forward Base Sela for 300 credits | Steady Hand | **Brace for Impact** no longer halves this ship's dice. |
+
+## 11. Ship profiles (starter squadrons: Resolute + Vigilant vs Maw of Ruin + Carrion Wing)
 
 ### CNS Resolute — Dominion-class battleship (Concord Navy)
 Speed 12u · Turn 45° · Hull 14 · Shields F2 P2 S2 A1 · Armour 4+ · Crew 8
@@ -164,7 +177,7 @@ Speed 18u · Turn 60° · Hull 10 · Shields F3 P1 S1 A0 · Armour 5+ · Crew 4
 
 Model: `assets/ships/carrion.glb` (pack file "spacecraft battleship 3d model.glb").
 
-## 11. Campaign battles (Operation Iron Tide)
+## 12. Campaign battles (Operation Iron Tide)
 
 In the campaign the battle board loads your saved fleet and the mission readied on the Operation board, then writes the result back.
 
@@ -189,6 +202,6 @@ M2A and M2B are a fork: flying one skips the other. Drydocks (before M1, D1 afte
 ## Designer's notes (online build)
 
 - **Server-authoritative turns**: clients submit `{destination, specialOrder}` per ship; the server validates against the manoeuvre zone and waits for both players (or a timer). In gunnery it prompts each player for their own rolls and generates each die on the player's click, so rolls stay tamper-proof, then streams results to both clients.
-- **Balance snapshot**: `node tools/balance-sim.js` runs 1,500 AI-vs-AI duels. Current 2v2 squadrons with ramming, boarding, torpedoes and the Maw's tractor beam: Concord ≈45%, Reaver ≈49%, mutual destruction ≈6%, ~6 turns per battle (7 before torpedoes). About 60% of AI torpedoes hit, because the AI never dodges; expect fewer against a player. The AI is a simple one-turn look-ahead, so treat this as a starting point.
+- **Balance snapshot**: `node tools/balance-sim.js` runs 1,500 AI-vs-AI duels. Current 2v2 squadrons with ramming, boarding, torpedoes, the Maw's tractor beam and captains on all four ships: Concord ≈49%, Reaver ≈45%, mutual destruction ≈6%, ~6 turns per battle (7 before torpedoes). About 60% of AI torpedoes hit, because the AI never dodges; expect fewer against a player. The AI is a simple one-turn look-ahead, so treat this as a starting point.
 - **Campaign check**: `node tools/campaign-sim.js` plays every mission AI-vs-AI and checks the save write-back. With a scripted pilot that flies the objective, M2B is won ~74% of the time, M4 ~32% and M3 ~25% (that pilot also shoots the Hydra to pieces in about a third of runs).
 - **Open questions**: should a priority target cost something (e.g. −1 to hit when it isn't the closest enemy)?; wreck hazards; firing in mid-move tick slices vs. end of move; altitude bands.

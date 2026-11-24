@@ -250,7 +250,7 @@ button:focus-visible{outline:2px solid #ffc94d;outline-offset:2px}
         <sc-if value="{{insp.hasCrits}}" hint-placeholder-val="{{ false }}">
           <div style="display: flex; flex-wrap: wrap; gap: 6px; align-items: center">
             <sc-for list="{{insp.crits}}" as="c" hint-placeholder-count="1">
-              <span style="font-size: 11px; font-weight: 600; padding: 3px 8px; border-radius: 4px; {{c.style}}">{{c.text}}</span>
+              <span title="{{c.title}}" style="font-size: 11px; font-weight: 600; padding: 3px 8px; border-radius: 4px; {{c.style}}">{{c.text}}</span>
             </sc-for>
           </div>
         </sc-if>
@@ -377,6 +377,18 @@ class Component extends DCLogic {
         s_hit_cyan: '/_blob/73019e492566ed010ea32a272b09274b', s_hit_purple: '/_blob/43b399904d46bcb5419a17a6a7a01851', i_sparks_gold: '/_blob/9ce9125ee7637bd37181b6a62e10f713',
         x_small_orange: '/_blob/7b16720d98bfdf25905f7a3c64027b77', x_breach_red: '/_blob/9cca5611880a5440bc664f988ae734f8',
         x_capital_orange: '/_blob/76c9d2d750292cfa93d29cb2eae24fc3', x_reactor_violet: '/_blob/e088983b7a44693ca887c729c43e76bb'
+      },
+      // Captains and their traits. A ship's captain is part of its roster entry (campaign save or skirmish line-up).
+      TRAITS: {
+        gunnery: { name: 'Gunnery Master', text: 'With Lock On, re-roll the misses of this ship’s biggest volley, once per turn.' },
+        daredevil: { name: 'Daredevil', text: 'All Ahead Full keeps this ship’s full Turn value.' },
+        boarding: { name: 'Boarding Master', text: 'This ship’s boarders win ties in the first exchange of every boarding action.' },
+        steady: { name: 'Steady Hand', text: 'Brace for Impact no longer halves this ship’s dice.' }
+      },
+      CAPTAINS: {
+        varga: { name: 'Capt. Ilse Varga', trait: 'gunnery' }, rheel: { name: 'Capt. Tomas Rheel', trait: 'daredevil' },
+        okafor: { name: 'Cmdr. Ama Okafor', trait: 'boarding' }, holt: { name: 'Capt. Davin Holt', trait: 'steady' },
+        garrak: { name: 'Warlord Garrak', trait: 'boarding' }, vex: { name: 'Vex the Quick', trait: 'daredevil' }
       },
       // Torpedoes: run 20u a move toward where the target was, turning up to 60°; burn out after 3 moves; launch within 40u.
       TORP: { speed: 20, turn: 60, life: 3, range: 40, reach: 1.5, reachK: 0.35, dice: 2, plus: 0 },
@@ -505,7 +517,16 @@ class Component extends DCLogic {
       crits: (c.crits || []).map((k) => Object.assign({}, k)), torps: def.torps || 0, heldTurn: 0, dead: false, fled: false, captured: false, escaped: false, away: (def.spawn || 0) > 1 };
   }
 
-  skirmishRoster() { return ['resolute', 'vigilant', 'maw', 'carrion'].map((k) => ({ id: k, cls: k })); }
+  skirmishRoster() { const cap = { resolute: 'varga', vigilant: 'rheel', maw: 'garrak', carrion: 'vex' }; return ['resolute', 'vigilant', 'maw', 'carrion'].map((k) => ({ id: k, cls: k, cap: cap[k] })); }
+
+  // Campaign saves made before captains had ids name them in text.
+  capOf(f) {
+    if (f.cap !== undefined) return f.cap || null;
+    const t = String(f.captain || ''), C = this.D.CAPTAINS;
+    return Object.keys(C).filter((k) => t.indexOf(C[k].name.split(' ').pop()) >= 0)[0] || null;
+  }
+
+  trait(s, key) { return !!s && s.def.capTrait === key; }
 
   // Build this battle's ships from class templates: each ship inherits its class and carries its own name, side,
   // position, damage, crew and fitted upgrades.
@@ -517,7 +538,8 @@ class Component extends DCLogic {
       d.weapons = base.weapons.map((w) => Object.assign({}, w)); d.shields = Object.assign({}, base.shields);
       d.start = { x: it.x != null ? it.x : base.start.x, y: it.y != null ? it.y : base.start.y, h: it.h != null ? it.h : base.start.h };
       d.spawn = it.spawn || 0; d.spawnIf = it.spawnIf || null; d.fit = Object.assign({}, it.fit || {});
-      d.carry = { hull: it.hull, crew: it.crew, crits: it.crits }; d.captain = it.captain || ''; d.prize = !!it.prize; d.battles = it.battles || 0; d.campaignId = it.campaignId || null;
+      d.carry = { hull: it.hull, crew: it.crew, crits: it.crits };
+      const cp = it.cap && this.D.CAPTAINS[it.cap]; d.cap = cp ? it.cap : null; d.captain = cp ? cp.name : ''; d.capTrait = cp ? cp.trait : null; d.prize = !!it.prize; d.battles = it.battles || 0; d.campaignId = it.campaignId || null;
       if (it.hullMax) d.hull = it.hullMax;
       if (it.lanceBonus) d.weapons.forEach((w) => { if (w.lance) w.range += it.lanceBonus; });
       this.applyFit(d);
@@ -652,14 +674,14 @@ class Component extends DCLogic {
     const fleet = (sv.fleet || []).filter((f) => !f.sitsOut && !f.reserve);
     const deploy = (slots) => fleet.map((f, i) => {
       const sl = slots[i % slots.length], row = Math.floor(i / slots.length);
-      return { id: f.id, cls: f.cls, side: 'concord', name: f.name, hull: f.hull, crew: f.crew, crits: f.crits, fit: f.fit, captain: f.captain, prize: f.prize, battles: f.battles, campaignId: f.id, x: sl.x - row * 9, y: sl.y, h: sl.h };
+      return { id: f.id, cls: f.cls, side: 'concord', name: f.name, hull: f.hull, crew: f.crew, crits: f.crits, fit: f.fit, cap: this.capOf(f), prize: f.prize, battles: f.battles, campaignId: f.id, x: sl.x - row * 9, y: sl.y, h: sl.h };
     });
     const lb = mods.reaverLances ? 6 : 0;
     const raider = (id, name, x, y, h, extra) => Object.assign({ id: id, cls: 'carrion', name: name, x: x, y: y, h: h, lanceBonus: lb }, extra || {});
-    const maw = (x, y, h, extra) => Object.assign({ id: 'e_maw', cls: 'maw', name: 'Maw of Ruin', x: x, y: y, h: h, lanceBonus: lb }, extra || {});
+    const maw = (x, y, h, extra) => Object.assign({ id: 'e_maw', cls: 'maw', name: 'Maw of Ruin', x: x, y: y, h: h, lanceBonus: lb, cap: 'garrak' }, extra || {});
     const M = {
       m1: { name: 'Picket Line', type: 'Fleet engagement', turns: 0,
-        roster: deploy([{ x: -44, y: -14, h: 0 }, { x: -48, y: 8, h: 0 }]).concat([maw(44, 14, Math.PI), raider('e_carrion', 'Carrion Wing', 48, -8, Math.PI)]) },
+        roster: deploy([{ x: -44, y: -14, h: 0 }, { x: -48, y: 8, h: 0 }]).concat([maw(44, 14, Math.PI), raider('e_carrion', 'Carrion Wing', 48, -8, Math.PI, { cap: 'vex' })]) },
       m2a: { name: 'Convoy Run', type: 'Escort', turns: 9, exit: { edge: 'west', who: 'freighter' },
         roster: deploy([{ x: 4, y: -24, h: Math.PI }, { x: 14, y: 22, h: Math.PI }]).concat([
           { id: 'f1', cls: 'freighter', name: 'Freighter Ostra', x: 14, y: -8, h: Math.PI }, { id: 'f2', cls: 'freighter', name: 'Freighter Bell', x: 22, y: 0, h: Math.PI }, { id: 'f3', cls: 'freighter', name: 'Freighter Kaye', x: 14, y: 8, h: Math.PI },
@@ -752,7 +774,11 @@ class Component extends DCLogic {
     sv.fleet.forEach((f) => {
       const s = g.ships[f.id];
       if (!s) { f.sitsOut = false; fleet.push(f); return; }
-      if (s.dead || s.captured) { lost.push(f.name + (s.dead ? ' (destroyed)' : ' (captured)')); return; }
+      if (s.dead || s.captured) {
+        lost.push(f.name + (s.dead ? ' (destroyed)' : ' (captured)'));
+        const cp = this.capOf(f); if (cp) sv.capsLost = (sv.capsLost || []).concat([cp]);
+        return;
+      }
       f.hull = Math.max(1, s.hull); f.crew = Math.max(1, s.crew); f.crits = s.crits.map((c) => ({ k: c.k, roll: c.roll, side: c.side || null }));
       f.battles = (f.battles || 0) + 1; f.sitsOut = false;
       fleet.push(f);
@@ -761,7 +787,7 @@ class Component extends DCLogic {
       const s = g.ships[id];
       if (s.captured && s.capturedBy === 'concord' && s.def.side === 'reaver') {
         prizes.push(s.def.name);
-        fleet.push({ id: 'p_' + s.def.cls + '_' + (Date.now() % 1e6), cls: s.def.cls, name: s.def.name, hull: Math.max(1, s.hull), crew: Math.max(1, s.crew), crits: [], fit: {}, battles: 0, captain: 'No captain assigned', prize: true, sitsOut: false });
+        fleet.push({ id: 'p_' + s.def.cls + '_' + (Date.now() % 1e6), cls: s.def.cls, name: s.def.name, hull: Math.max(1, s.hull), crew: Math.max(1, s.crew), crits: [], fit: {}, battles: 0, cap: null, prize: true, sitsOut: false });
       }
     });
     sv.fleet = fleet;
@@ -809,7 +835,7 @@ class Component extends DCLogic {
     const speed = Math.max(4, s.def.speed - 4 * this.count(s, 'engines') - held);
     let turn = Math.max(15, s.def.turn - 15 * this.count(s, 'steering'));
     let minMove = speed / 2, maxMove = speed;
-    if (order === 'aaf' || order === 'ram') { minMove = speed; maxMove = speed * 1.5; turn = turn / 2; }
+    if (order === 'aaf' || order === 'ram') { minMove = speed; maxMove = speed * 1.5; if (!(order === 'aaf' && s.def && s.def.capTrait === 'daredevil')) turn = turn / 2; }
     if (order === 'about') { minMove = 2; maxMove = speed / 2; turn = turn + 30; }
     if (order === 'lock') { turn = turn / 2; }
     return { speed: speed, turn: turn, minMove: minMove, maxMove: maxMove };
@@ -859,7 +885,7 @@ class Component extends DCLogic {
     let d = w.dice;
     if (w.broadside && this.crippled(s)) d = Math.ceil(d / 2);
     if (w.broadside) { const n = s.crits.filter((c) => c.k === 'gundeck' && c.side === w.side).length; for (let i = 0; i < n; i++) d = Math.ceil(d / 2); }
-    if (order === 'brace') d = Math.ceil(d / 2);
+    if (order === 'brace' && s.def.capTrait !== 'steady') d = Math.ceil(d / 2);
     return d;
   }
 
@@ -881,12 +907,17 @@ class Component extends DCLogic {
       if (!best) return;
       (groups[best.id] = groups[best.id] || { T: best, r: bd, ws: [] }).ws.push({ w: w, n: n });
     });
+    let capX = null;
+    if (A.def.capTrait === 'gunnery' && order === 'lock') Object.keys(groups).forEach((k) => groups[k].ws.forEach((x) => { if (!capX || x.n > capX.n) capX = x; }));
     Object.keys(groups).forEach((tid) => {
       const G = groups[tid], T = G.T, facing = this.arcOf(T, A.x, A.y), narrow = facing === 'fore' || facing === 'aft';
       let dist = [1], lanceHits = 0;
       const parts = [];
       G.ws.forEach((x) => {
-        const tn = Math.min(6, this.toHitTN(G.r, narrow, order, A) + this.defMod(T, G.r, x.w)), p = (7 - tn) / 6;
+        const tn = Math.min(6, this.toHitTN(G.r, narrow, order, A) + this.defMod(T, G.r, x.w)), p0 = (7 - tn) / 6;
+        let p = p0;
+        if (A.def.gunners && x.w.broadside && tn > 1) p += p0 / 6;
+        if (x === capX) p += (1 - p) * p0;
         parts.push((x.w.broadside ? (x.w.side === 'port' ? 'Port' : 'Stbd') : x.w.lance ? 'Lance' : 'Turrets') + ' ' + x.n + 'd6@' + tn + '+');
         if (x.w.lance) { lanceHits += x.n * p; return; }
         for (let i = 0; i < x.n; i++) { const nd = new Array(dist.length + 1).fill(0); dist.forEach((v, k) => { nd[k] += v * (1 - p); nd[k + 1] += v * p; }); dist = nd; }
@@ -1625,6 +1656,9 @@ class Component extends DCLogic {
       if (!byId[best.id]) { byId[best.id] = { T: best, ws: [], r: bd }; groups.push(byId[best.id]); }
       byId[best.id].ws.push(w);
     });
+    // Gunnery Master: with Lock On, the biggest volley this turn re-rolls its misses.
+    let capW = null;
+    if (A.def.capTrait === 'gunnery' && oA === 'lock') groups.forEach((G) => G.ws.forEach((w) => { if (!capW || this.weaponDice(A, w, oA) > this.weaponDice(A, capW, oA)) capW = w; }));
     if (!groups.length) {
       const T = this.nearestEnemy(A);
       this.record({ owner: A.id, label: A.def.name + ' · no weapons bear', result: T ? 'nearest enemy ' + Math.round(Math.hypot(T.x - A.x, T.y - A.y)) + 'u away' : '', dice: [] }, null);
@@ -1642,8 +1676,16 @@ class Component extends DCLogic {
         const dice = yield { type: 'roll', owner: A.id, n: n, label: A.def.name + ' · ' + w.name + (w.lance ? ' (lance)' : '') + ' → ' + B.def.name + (pref && pref.id === B.id ? ' (target)' : ''), sub: n + 'd6 to hit, need ' + tn + '+' + (narrow ? ' (narrow profile)' : '') + ' · range ' + Math.round(r) + 'u' };
         let rr = 0;
         if (A.def.gunners && w.broadside) for (let k = 0; k < dice.length; k++) if (dice[k] === 1) { dice[k] = this.d6(); rr++; }
+        let capRe = 0;
+        if (w === capW) {
+          const miss = []; dice.forEach((v, k) => { if (!hit(v)) miss.push(k); });
+          if (miss.length) {
+            const re = yield { type: 'roll', owner: A.id, n: miss.length, label: A.def.name + ' · ' + A.def.captain + ' re-rolls the misses', sub: 'Gunnery Master · ' + miss.length + 'd6, need ' + tn + '+' };
+            miss.forEach((k, i) => { dice[k] = re[i]; }); capRe = miss.length;
+          }
+        }
         const nh = dice.filter(hit).length;
-        this.record({ owner: A.id, label: A.def.name + ' · ' + w.name, dice: dice.map((v) => ({ v: v, kind: hit(v) ? (v === 6 ? 'crit' : 'hit') : 'miss' })), result: nh + ' hit' + (nh === 1 ? '' : 's') + ' (need ' + tn + '+)' + (rr ? ' · veteran crews re-rolled ' + rr + ' × 1' : '') }, B.id);
+        this.record({ owner: A.id, label: A.def.name + ' · ' + w.name, dice: dice.map((v) => ({ v: v, kind: hit(v) ? (v === 6 ? 'crit' : 'hit') : 'miss' })), result: nh + ' hit' + (nh === 1 ? '' : 's') + ' (need ' + tn + '+)' + (rr ? ' · veteran crews re-rolled ' + rr + ' × 1' : '') + (capRe ? ' · Gunnery Master re-rolled ' + capRe + ' misses' : '') }, B.id);
         dice.forEach((v) => { if (hit(v)) hits.push({ v: v, lance: !!w.lance }); });
         yield { type: 'fx', kind: 'bolts', A: A, B: B, shots: dice.map((v) => { const h = hit(v), sh = h && !w.lance && shVis > 0; if (sh) shVis--; return { w: w, hit: h, onShield: sh }; }) };
       }
@@ -1762,9 +1804,9 @@ class Component extends DCLogic {
   }
 
   // Risk-style boarding odds. riskTable(a, d): outcome distribution of one exchange with a attacker dice (≤3) vs d defender dice (≤2).
-  riskTable(a, d) {
+  riskTable(a, d, atkTies) {
     this.riskT = this.riskT || {};
-    const key = a + 'v' + d;
+    const key = a + 'v' + d + (atkTies ? 't' : '');
     if (this.riskT[key]) return this.riskT[key];
     const out = {}, n = a + d, total = Math.pow(6, n);
     for (let i = 0; i < total; i++) {
@@ -1772,16 +1814,18 @@ class Component extends DCLogic {
       for (let k = 0; k < n; k++) { r.push(x % 6 + 1); x = Math.floor(x / 6); }
       const A = r.slice(0, a).sort((p, q) => q - p), D = r.slice(a).sort((p, q) => q - p);
       let al = 0, dl = 0;
-      for (let k = 0; k < Math.min(a, d); k++) { if (A[k] > D[k]) dl++; else al++; }
+      for (let k = 0; k < Math.min(a, d); k++) { if (A[k] > D[k] || (atkTies && A[k] === D[k])) dl++; else al++; }
       out[al + ',' + dl] = (out[al + ',' + dl] || 0) + 1 / total;
     }
     return (this.riskT[key] = out);
   }
 
   // Chance the boarders take the ship if they keep pressing the attack.
-  boardOdds(a, d) {
+  // first: this is the first exchange of a boarding led by a Boarding Master (boarders win its ties).
+  boardOdds(a, d, first) {
     this.oddsMemo = this.oddsMemo || {};
     if (d <= 0) return 1; if (a <= 0) return 0;
+    if (first) { const t1 = this.riskTable(Math.min(3, a), Math.min(2, d), true); let p1 = 0; Object.keys(t1).forEach((k) => { const v = k.split(',').map(Number); p1 += t1[k] * this.boardOdds(a - v[0], d - v[1]); }); return p1; }
     const key = a + ',' + d;
     if (this.oddsMemo[key] != null) return this.oddsMemo[key];
     const t = this.riskTable(Math.min(3, a), Math.min(2, d));
@@ -1792,27 +1836,28 @@ class Component extends DCLogic {
 
   *boardSeq(A, B, facingName) {
     const g = this.g, pct = (x) => Math.round(x * 100) + '%';
-    const max = A.crew - 1, half = Math.max(1, Math.ceil(max / 2));
-    const options = [{ label: 'Board with ' + max + ' crew · ' + pct(this.boardOdds(max, B.crew)) + ' to capture', value: max, primary: true }];
-    if (half < max) options.push({ label: 'Board with ' + half + ' · ' + pct(this.boardOdds(half, B.crew)), value: half });
+    const max = A.crew - 1, half = Math.max(1, Math.ceil(max / 2)), bm = A.def.capTrait === 'boarding';
+    const options = [{ label: 'Board with ' + max + ' crew · ' + pct(this.boardOdds(max, B.crew, bm)) + ' to capture', value: max, primary: true }];
+    if (half < max) options.push({ label: 'Board with ' + half + ' · ' + pct(this.boardOdds(half, B.crew, bm)), value: half });
     options.push({ label: 'Stand off', value: 0 });
-    const party = yield { type: 'choice', owner: A.id, label: A.def.name + ' · boarding opportunity', sub: B.def.name + ' is below half hull with its ' + facingName + ' shield down. Your crew ' + A.crew + ' vs their ' + B.crew + '. Keep at least 1 aboard.', options: options, auto: this.boardOdds(max, B.crew) >= 0.5 ? max : 0 };
+    const party = yield { type: 'choice', owner: A.id, label: A.def.name + ' · boarding opportunity', sub: B.def.name + ' is below half hull with its ' + facingName + ' shield down. Your crew ' + A.crew + ' vs their ' + B.crew + '. Keep at least 1 aboard.' + (bm ? ' ' + A.def.captain + ' leads: your boarders win ties in the first exchange.' : ''), options: options, auto: this.boardOdds(max, B.crew, bm) >= 0.5 ? max : 0 };
     if (!party) return;
     A.boardedThisTurn = true; B.boardedThisTurn = true;
     A.crew -= party;
     const bd = g.boarding = { a: A.id, b: B.id, party: party, start: party, def: B.crew, defStart: B.crew, last: null };
     this.floater(B.id, 'word', 'BOARDERS AWAY', 0);
     yield { type: 'fx', kind: 'pods', A: A, B: B, n: party };
+    let round = 0;
     while (bd.party > 0 && bd.def > 0) {
-      const an = Math.min(3, bd.party), dn = Math.min(2, bd.def);
-      const ad = (yield { type: 'roll', owner: A.id, n: an, label: 'Boarding ' + B.def.name + ' · assault', sub: an + 'd6 for ' + bd.party + ' boarders · highest vs highest, ties go to the defender' }).slice().sort((x, y) => y - x);
+      const an = Math.min(3, bd.party), dn = Math.min(2, bd.def), tieA = bm && round === 0; round++;
+      const ad = (yield { type: 'roll', owner: A.id, n: an, label: 'Boarding ' + B.def.name + ' · assault', sub: an + 'd6 for ' + bd.party + ' boarders · highest vs highest, ' + (tieA ? 'ties go to the boarders this exchange (Boarding Master)' : 'ties go to the defender') }).slice().sort((x, y) => y - x);
       const dd = (yield { type: 'roll', owner: B.id, n: dn, label: B.def.name + ' · defenders hold the corridors', sub: dn + 'd6 for ' + bd.def + ' defenders' }).slice().sort((x, y) => y - x);
       let al = 0, dl = 0;
-      for (let k = 0; k < Math.min(an, dn); k++) { if (ad[k] > dd[k]) dl++; else al++; }
+      for (let k = 0; k < Math.min(an, dn); k++) { if (ad[k] > dd[k] || (tieA && ad[k] === dd[k])) dl++; else al++; }
       bd.party -= al; bd.def -= dl; B.crew = bd.def;
       bd.last = { a: ad, d: dd, al: al, dl: dl };
-      this.record({ owner: A.id, label: 'Boarding ' + B.def.name + ' · boarders', dice: ad.map((v, k) => ({ v: v, kind: k < dn ? (v > dd[k] ? 'hit' : 'miss') : 'miss' })), result: 'kill ' + dl + ' · lose ' + al }, B.id);
-      this.record({ owner: B.id, label: 'Boarding ' + B.def.name + ' · defenders', dice: dd.map((v, k) => ({ v: v, kind: k < an ? (v >= ad[k] ? 'save' : 'fail') : 'save' })), result: bd.party + ' boarders vs ' + bd.def + ' left' }, B.id);
+      this.record({ owner: A.id, label: 'Boarding ' + B.def.name + ' · boarders', dice: ad.map((v, k) => ({ v: v, kind: k < dn ? (v > dd[k] || (tieA && v === dd[k]) ? 'hit' : 'miss') : 'miss' })), result: 'kill ' + dl + ' · lose ' + al }, B.id);
+      this.record({ owner: B.id, label: 'Boarding ' + B.def.name + ' · defenders', dice: dd.map((v, k) => ({ v: v, kind: k < an ? (v > ad[k] || (!tieA && v === ad[k]) ? 'save' : 'fail') : 'save' })), result: bd.party + ' boarders vs ' + bd.def + ' left' }, B.id);
       yield { type: 'fx', kind: 'melee', B: B, n: al + dl };
       if (bd.party > 0 && bd.def > 0) {
         const p = this.boardOdds(bd.party, bd.def);
@@ -2839,10 +2884,11 @@ class Component extends DCLogic {
       return { lab: f[1], v: v, style: 'display: flex; align-items: baseline; gap: 4px; padding: 3px 7px; border-radius: 4px; font-size: 11px; ' + (v ? 'color: #e6edf8; box-shadow: inset 0 0 0 1px ' + def.color + ';' : 'color: #6f7f9c; box-shadow: inset 0 0 0 1px #26324a;') };
     });
     const gold = 'background: #3a2208; color: #ffc94d; border: 1px solid #6b4310;', violet = 'background: #221a3a; color: #d7c8ff; border: 1px solid #4a3a7a;';
-    const chips = s.crits.map((c) => ({ text: this.critName(c), style: gold }));
-    if (def.tractor) chips.unshift({ text: 'Tractor beam · ' + def.tractor + 'u', style: violet });
+    const chips = s.crits.map((c) => ({ text: this.critName(c), title: '', style: gold }));
+    if (def.tractor) chips.unshift({ text: 'Tractor beam · ' + def.tractor + 'u', title: 'Locks an enemy within 8u after movement; roll-off to pull it 4u closer and hold it', style: violet });
+    if (def.cap) { const tr = this.D.TRAITS[def.capTrait]; chips.unshift({ text: def.captain + ' · ' + tr.name, title: tr.text, style: 'background: #10223a; color: #cfe4ff; border: 1px solid #2f5a8a;' }); }
     const g0 = this.g, heldNext = s.heldTurn && (s.heldTurn === g0.turn + 1 || (s.heldTurn === g0.turn && (g0.phase === 'orders' || g0.phase === 'handoff')));
-    if (heldNext && !s.dead) chips.push({ text: 'Held: −4u next move', style: violet });
+    if (heldNext && !s.dead) chips.push({ text: 'Held: −4u next move', title: 'Caught by a tractor beam', style: violet });
     let status = 'OPERATIONAL', bg = '#11301f', fg = '#7be3a4';
     if (s.dead) { status = 'DESTROYED'; bg = '#3a0f12'; fg = '#ff8a8a'; }
     else if (s.captured) { status = 'CAPTURED'; bg = '#2a1a3a'; fg = '#d7b8ff'; }
@@ -2865,10 +2911,12 @@ class Component extends DCLogic {
     const insp = this.inspectVals(g.ships[this.ui.sel]);
     const canOrder = g.phase === 'orders';
     const bridge = this.count(plot, 'bridge') > 0;
+    const capT = plot && plot.def.capTrait, capShort = { gunnery: { lock: '+1 to hit · Turn ½ · re-roll misses' }, daredevil: { aaf: 'Speed ×1.5 · full Turn · −1 to hit' }, steady: { brace: '+1 save · full dice' } }[capT] || {};
     const orderOpts = D.ORDERS.map((o) => {
       const sel = this.ui.order === o.id, dis = !canOrder || (bridge && o.id !== 'steady');
+      const boost = capShort[o.id];
       return {
-        label: o.label, short: o.short, desc: o.desc, pressed: sel ? 'true' : 'false', disabled: dis,
+        label: o.label + (boost ? ' ★' : ''), short: boost || o.short, desc: o.desc + (boost ? ' ' + plot.def.captain + ' (' + D.TRAITS[capT].name + '): ' + D.TRAITS[capT].text : ''), pressed: sel ? 'true' : 'false', disabled: dis,
         pick: () => this.pickOrder(o.id),
         style: 'min-height: 44px; text-align: left; padding: 5px 10px; border-radius: 6px; cursor: ' + (dis ? 'not-allowed' : 'pointer') + '; ' +
           (sel ? 'background: ' + plot.def.color + '; color: #070a12; border: 1px solid ' + plot.def.color + ';' : 'background: #111a2c; color: #d8e1f0; border: 1px solid #26324a;') + (dis && !sel ? ' opacity: 0.45;' : '') + ' flex: 1 1 130px;'

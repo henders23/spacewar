@@ -168,6 +168,14 @@ th{font-size:11px;letter-spacing:0.06em;color:#93a3bf;font-weight:600}
           <span style="font-size: 12px; color: #93a3bf">{{sel.reserveNote}}</span>
           <button onClick="{{sel.reserveAct}}" style="min-height: 44px; padding: 0 12px; background: #16243d; color: #e6edf8; border: 1px solid #33425f; border-radius: 6px; cursor: pointer; font-size: 12px; font-weight: 600; flex: none">{{sel.reserveLabel}}</button>
         </div>
+        <div role="group" aria-label="Captain" style="display: flex; flex-direction: column; gap: 6px; padding-bottom: 10px; border-bottom: 1px solid #1c2638">
+          <span style="font-size: 11px; font-weight: 700; letter-spacing: 0.06em; color: #93a3bf">CAPTAIN · any time between missions</span>
+          <div style="display: flex; flex-wrap: wrap; gap: 6px">
+            <sc-for list="{{sel.capOpts}}" as="k" hint-placeholder-count="3">
+              <button onClick="{{k.pick}}" aria-pressed="{{k.pressed}}" style="{{k.style}}"><span>{{k.name}}</span><span style="font-size: 11px; font-weight: 500; color: #93a3bf">{{k.sub}}</span></button>
+            </sc-for>
+          </div>
+        </div>
         <sc-for list="{{sel.repairs}}" as="r" hint-placeholder-count="3">
           <div style="display: flex; justify-content: space-between; align-items: center; gap: 12px">
             <div style="display: flex; flex-direction: column"><span style="font-weight: 600; color: #eef3fb">{{r.label}}</span><span style="font-size: 12px; color: #93a3bf">{{r.detail}}</span></div>
@@ -228,7 +236,7 @@ th{font-size:11px;letter-spacing:0.06em;color:#93a3bf;font-weight:600}
       </div>
       <div style="flex: 1 1 260px; display: flex; flex-direction: column; gap: 6px; padding: 16px; background: #0d1220; border: 1px solid #1c2638; border-radius: 10px">
         <h3 style="margin: 0; font-family: 'Chakra Petch', sans-serif; font-size: 17px; color: #eef3fb">Veterancy</h3>
-        <p style="margin: 0; font-size: 13px; color: #c5d1e6"><strong style="color: #eef3fb">Green</strong> → <strong style="color: #eef3fb">Trained</strong> (1 battle) → <strong style="color: #eef3fb">Veteran</strong> (3: re-roll one 1 per volley) → <strong style="color: #eef3fb">Elite</strong> (6: boarders win ties). Shown on each ship; veterancy and captain traits are not in the battle rules yet.</p>
+        <p style="margin: 0; font-size: 13px; color: #c5d1e6"><strong style="color: #eef3fb">Green</strong> → <strong style="color: #eef3fb">Trained</strong> (1 battle) → <strong style="color: #eef3fb">Veteran</strong> (3: re-roll one 1 per volley) → <strong style="color: #eef3fb">Elite</strong> (6: boarders win ties). Shown on each ship; veterancy is not in the battle rules yet. Captain traits are.</p>
       </div>
     </div>
 
@@ -240,6 +248,7 @@ th{font-size:11px;letter-spacing:0.06em;color:#93a3bf;font-weight:600}
           <span style="font-size: 12px; font-weight: 700; color: #ffc94d">{{c.trait}}</span>
           <span style="font-size: 13px; color: #c5d1e6">{{c.effect}}</span>
           <span style="font-size: 12px; color: #93a3bf">{{c.where}}</span>
+          <sc-if value="{{c.canHire}}" hint-placeholder-val="{{ false }}"><button onClick="{{c.hire}}" disabled="{{c.hireOff}}" style="margin-top: 4px; min-height: 44px; border: 0; border-radius: 6px; background: #5aa9ff; color: #070a12; font-weight: 700; font-size: 13px; cursor: pointer">{{c.hireLabel}}</button></sc-if>
         </div>
       </sc-for>
     </div>
@@ -311,6 +320,7 @@ class Component extends DCLogic {
   onSave(sv) {
     const mode = this.store ? this.store.mode : 'memory';
     if (!sv || !sv.fleet) { sv = this.freshSave(); if (mode !== 'memory') this.storeSave(sv); }
+    sv.fleet.forEach((f) => { if (f.cap === undefined) f.cap = this.capOf(f); });
     this.setState({ sv: sv, mode: mode });
   }
 
@@ -321,8 +331,8 @@ class Component extends DCLogic {
   freshSave() {
     return { v: 1, op: 'iron_tide', credits: 600, renown: 0, done: {}, dockLeft: {}, current: null, mods: {}, results: {}, history: [], debrief: null,
       fleet: [
-        { id: 'resolute', cls: 'resolute', name: 'CNS Resolute', hull: 14, crew: 8, crits: [], fit: {}, battles: 0, captain: 'Capt. Ilse Varga · Gunnery Master' },
-        { id: 'vigilant', cls: 'vigilant', name: 'CNS Vigilant', hull: 8, crew: 6, crits: [], fit: {}, battles: 0, captain: 'Capt. Tomas Rheel · Daredevil' }
+        { id: 'resolute', cls: 'resolute', name: 'CNS Resolute', hull: 14, crew: 8, crits: [], fit: {}, battles: 0, cap: 'varga' },
+        { id: 'vigilant', cls: 'vigilant', name: 'CNS Vigilant', hull: 8, crew: 6, crits: [], fit: {}, battles: 0, cap: 'rheel' }
       ] };
   }
 
@@ -389,11 +399,12 @@ class Component extends DCLogic {
                  ['REWARDS', '#7be3a4', ['+800 credits, +3 renown (+1 for the secondary). Operation complete']]] }
     };
     const order = ['m1', 'm2a', 'm2b', 'd1', 'm3', 'm4', 'd2', 'm5'];
+    // Captains: the same traits the battle board applies.
     const caps = [
-      { name: 'Capt. Ilse Varga', trait: 'Gunnery Master', effect: 'Lock On also lets this ship re-roll its misses once per turn.', where: 'Commands CNS Resolute', key: null },
-      { name: 'Capt. Tomas Rheel', trait: 'Daredevil', effect: 'All Ahead Full keeps its full Turn value.', where: 'Commands CNS Vigilant', key: null },
-      { name: 'Cmdr. Ama Okafor', trait: 'Boarding Master', effect: 'Boarders win ties on the first round of every boarding action.', where: 'Joins after M2A if every freighter survives', key: 'okafor' },
-      { name: 'Capt. Davin Holt', trait: 'Steady Hand', effect: 'Brace for Impact no longer halves this ship’s dice.', where: 'For hire at Forward Base Sela (300 credits)', key: null }
+      { id: 'varga', name: 'Capt. Ilse Varga', trait: 'Gunnery Master', effect: 'With Lock On, re-roll the misses of this ship’s biggest volley, once per turn.', join: 'With the squadron from the start' },
+      { id: 'rheel', name: 'Capt. Tomas Rheel', trait: 'Daredevil', effect: 'All Ahead Full keeps this ship’s full Turn value.', join: 'With the squadron from the start' },
+      { id: 'okafor', name: 'Cmdr. Ama Okafor', trait: 'Boarding Master', effect: 'This ship’s boarders win ties in the first exchange of every boarding action.', join: 'Joins after M2A if every freighter gets through', key: 'okafor' },
+      { id: 'holt', name: 'Capt. Davin Holt', trait: 'Steady Hand', effect: 'Brace for Impact no longer halves this ship’s dice.', join: 'For hire at Forward Base Sela (300 credits)', key: 'holt' }
     ];
     this.D = { U: U, CLS: CLS, CRIT: CRIT, M: M, order: order, caps: caps, costs: { hull: 40, crit: 60, crew: 30 } };
     return this.D;
@@ -477,6 +488,33 @@ class Component extends DCLogic {
     this.write(this.freshSave(), { confirmReset: false, rep: {}, fit: {}, mission: 'm1', ship: 'resolute' });
   }
 
+  // Saves from before captains had ids name them in text.
+  capOf(f) {
+    if (f.cap !== undefined) return f.cap || null;
+    const t = String(f.captain || '');
+    return (this.data().caps.filter((c) => t.indexOf(c.name.split(' ').pop()) >= 0)[0] || {}).id || null;
+  }
+
+  // Captains you can give a ship: the starting two, plus Okafor and Holt once earned, minus any lost with their ships.
+  roster(sv) {
+    const lost = sv.capsLost || [];
+    return this.data().caps.filter((c) => (!c.key || sv[c.key]) && lost.indexOf(c.id) < 0).map((c) => c.id);
+  }
+
+  assignCap(shipId, capId) {
+    const sv = this.copy();
+    sv.fleet.forEach((f) => { if (capId && f.cap === capId) f.cap = null; });
+    sv.fleet.forEach((f) => { if (f.id === shipId) f.cap = capId || null; });
+    this.write(sv);
+  }
+
+  hireHolt() {
+    const sv = this.copy(), P = this.progress(sv), fee = this.price(300);
+    if (P.dock !== 'd2' || sv.holt || sv.credits - this.spentOf(this.state) < fee) return;
+    sv.holt = true; sv.credits -= fee;
+    this.write(sv);
+  }
+
   vet(n) { n = n || 0; return n >= 6 ? 'Elite · ' + n + ' battles' : n >= 3 ? 'Veteran · ' + n + ' battles' : n >= 1 ? 'Trained · ' + n + ' battle' + (n === 1 ? '' : 's') : 'Green · no battles'; }
 
   renderVals() {
@@ -526,12 +564,12 @@ class Component extends DCLogic {
       const tag = f.sitsOut ? ['IN DOCK', '#16243d', '#8cc4ff'] : f.reserve ? ['RESERVE', '#1a2335', '#93a3bf'] : f.prize ? ['PRIZE', '#2a1a3a', '#d7b8ff'] : f.hull < C.hull || (f.crits || []).length ? ['DAMAGED', '#3a2208', '#ffc94d'] : ['READY', '#11301f', '#7be3a4'];
       const maxCrew = C.crew + (dfit.crew === 'marines' ? 2 : 0);
       return {
-        name: f.name, cls: C.cls + (f.prize ? ' · prize' : ''), col: col, tag: tag[0], tagBg: tag[1], tagFg: tag[2], pips: pips, hull: hull + '/' + C.hull, crew: (f.crew + r.crew) + '/' + maxCrew, vet: this.vet(f.battles), captain: f.captain || 'No captain assigned',
+        name: f.name, cls: C.cls + (f.prize ? ' · prize' : ''), col: col, tag: tag[0], tagBg: tag[1], tagFg: tag[2], pips: pips, hull: hull + '/' + C.hull, crew: (f.crew + r.crew) + '/' + maxCrew, vet: this.vet(f.battles), captain: f.cap ? (D.caps.filter((c) => c.id === f.cap).map((c) => c.name + ' · ' + c.trait)[0] || 'No captain assigned') : 'No captain assigned',
         sitsOut: (r.hull > 4 || newFit) && !f.sitsOut, pressed: on ? 'true' : 'false', pick: () => this.setState({ ship: f.id, slot: C.slots.indexOf(st.slot) >= 0 ? st.slot : C.slots[0] }),
         style: 'flex: 1 1 260px; min-width: 0; display: flex; flex-direction: column; align-items: flex-start; gap: 6px; padding: 14px 16px; border-radius: 10px; cursor: pointer; text-align: left; ' + (on ? 'background: #111c33; border: 1px solid ' + col + '; box-shadow: 0 0 0 1px ' + col + ';' : 'background: #0d1220; border: 1px solid #1c2638;')
       };
     });
-    let sel = { name: '—', repairs: [], crits: [], hasCrits: false, slots: [], options: [], noSlots: true, reserveLabel: '', reserveAct: () => {}, reserveNote: '' };
+    let sel = { name: '—', repairs: [], crits: [], hasCrits: false, slots: [], options: [], noSlots: true, reserveLabel: '', reserveAct: () => {}, reserveNote: '', capOpts: [] };
     if (sid) {
       const f = this.ship(sid), C = this.cls(f), r = Object.assign({ hull: 0, crit: 0, crew: 0 }, st.rep[sid]);
       const sq = (dis) => 'width: 44px; height: 44px; border-radius: 6px; font-size: 18px; font-weight: 700; cursor: ' + (dis ? 'not-allowed' : 'pointer') + '; ' + (dis ? 'background: #111a2c; color: #4a5a7a; border: 1px solid #1c2638;' : 'background: #16243d; color: #e6edf8; border: 1px solid #33425f;');
@@ -562,6 +600,11 @@ class Component extends DCLogic {
       });
       sel = { name: f.name, repairs: rep, crits: critChips, hasCrits: critChips.length > 0, slots: slots, options: options, noSlots: C.slots.length === 0,
         reserveLabel: f.reserve ? 'In reserve: deploy it' : 'Deploys: hold it in reserve', reserveAct: () => this.toggleReserve(sid),
+        capOpts: this.roster(sv).map((id) => D.caps.filter((c) => c.id === id)[0]).concat([{ id: null, name: 'No captain' }]).map((c) => {
+          const on = (f.cap || null) === c.id, elsewhere = c.id && sv.fleet.filter((x) => x.cap === c.id && x.id !== f.id)[0];
+          return { name: c.id ? c.name.replace(/^(Capt\.|Cmdr\.) /, '') + (c.trait ? ' · ' + c.trait : '') : c.name, sub: elsewhere ? 'moves from ' + elsewhere.name.replace('CNS ', '') : '', pressed: on ? 'true' : 'false', pick: () => this.assignCap(f.id, c.id),
+            style: 'min-height: 44px; flex: 1 1 140px; display: flex; flex-direction: column; justify-content: center; align-items: flex-start; padding: 4px 10px; border-radius: 6px; cursor: pointer; text-align: left; font-size: 12px; font-weight: 600; ' + (on ? 'background: #10223a; color: #cfe4ff; border: 1px solid #5aa9ff;' : 'background: #0a1222; color: #c5d1e6; border: 1px solid #26324a;') };
+        }),
         reserveNote: f.sitsOut ? 'In dock for work orders: sits out the next mission.' : f.reserve ? 'Held back: it will not fly the next mission.' : 'Flies the next mission.' };
     }
     const dockName = P.dock === 'start' ? 'Fleet yard, before M1' : P.dock ? D.M[P.dock].name : 'No drydock in reach';
@@ -582,7 +625,12 @@ class Component extends DCLogic {
       nodes: nodes, m: m, ships: ships, sel: sel,
       dockTitle: '2 · Drydock · ' + dockName, dockNote: dockNote, dockOpen: dockOpen, spent: fmt(spent), credits: fmt(sv.credits),
       reset: () => this.setState({ fit: {}, rep: {} }), confirm: () => this.confirmWork(), canConfirm: dockOpen && (spent > 0 || Object.keys(st.fit).length > 0), noConfirm: !(dockOpen && (spent > 0 || Object.keys(st.fit).length > 0)),
-      captains: D.caps.map((c) => ({ name: c.name, trait: c.trait, effect: c.effect, where: c.key && sv[c.key] ? 'Joined your fleet' : c.where })),
+      captains: D.caps.map((c) => {
+        const ship = sv.fleet.filter((f) => f.cap === c.id)[0], lost = (sv.capsLost || []).indexOf(c.id) >= 0, have = this.roster(sv).indexOf(c.id) >= 0;
+        const canHire = c.id === 'holt' && !sv.holt && P.dock === 'd2', fee = this.price(300), afford = left >= fee;
+        const where = lost ? 'Lost with their ship' : ship ? 'Commands ' + ship.name : have ? 'Unassigned: pick a ship in the drydock panel above' : c.join;
+        return { name: c.name, trait: c.trait, effect: c.effect, where: where, canHire: canHire, hire: () => this.hireHolt(), hireLabel: afford ? 'Hire for ' + fee + ' credits' : 'Needs ' + fee + ' credits', hireOff: !afford };
+      }),
       catalogue: D.U.map((u) => ({ name: u.name, slot: ({ weapons: 'Weapons', defence: 'Defence', engines: 'Engines', crew: 'Crew', special: 'Special' })[u.slot], cost: fmt(this.price(u.cost)), effect: u.effect }))
     };
   }
