@@ -109,6 +109,8 @@ class GLCombat {
         const dice = yield { type: 'roll', owner: A.id, n: n, label: A.def.name + ' · ' + w.name + (w.lance ? ' (lance)' : '') + ' → ' + B.def.name + (pref && pref.id === B.id ? ' (target)' : ''), sub: n + 'd6 to hit, need ' + tn + '+' + (narrow ? ' (narrow profile)' : '') + ' · range ' + Math.round(r) + 'u' };
         let rr = 0;
         if (A.def.gunners && w.broadside) for (let k = 0; k < dice.length; k++) if (dice[k] === 1) { dice[k] = this.d6(); rr++; }
+        let vetRe = 0;
+        if (A.def.vet >= 2 && !(A.def.gunners && w.broadside)) { const k1 = dice.indexOf(1); if (k1 >= 0) { dice[k1] = this.d6(); vetRe = 1; } }
         let capRe = 0;
         if (w === capW) {
           const miss = []; dice.forEach((v, k) => { if (!hit(v)) miss.push(k); });
@@ -118,7 +120,7 @@ class GLCombat {
           }
         }
         const nh = dice.filter(hit).length;
-        this.record({ owner: A.id, label: A.def.name + ' · ' + w.name, dice: dice.map((v) => ({ v: v, kind: hit(v) ? (v === 6 ? 'crit' : 'hit') : 'miss' })), result: nh + ' hit' + (nh === 1 ? '' : 's') + ' (need ' + tn + '+)' + (rr ? ' · veteran crews re-rolled ' + rr + ' × 1' : '') + (capRe ? ' · Gunnery Master re-rolled ' + capRe + ' misses' : '') }, B.id);
+        this.record({ owner: A.id, label: A.def.name + ' · ' + w.name, dice: dice.map((v) => ({ v: v, kind: hit(v) ? (v === 6 ? 'crit' : 'hit') : 'miss' })), result: nh + ' hit' + (nh === 1 ? '' : 's') + ' (need ' + tn + '+)' + (rr ? ' · veteran crews re-rolled ' + rr + ' × 1' : '') + (capRe ? ' · Gunnery Master re-rolled ' + capRe + ' misses' : '') + (vetRe ? ' · veteran crew re-rolled a 1' : '') }, B.id);
         dice.forEach((v) => { if (hit(v)) hits.push({ v: v, lance: !!w.lance }); });
         yield { type: 'fx', kind: 'bolts', A: A, B: B, shots: dice.map((v) => { const h = hit(v), sh = h && !w.lance && shVis > 0; if (sh) shVis--; return { w: w, hit: h, onShield: sh }; }) };
       }
@@ -255,9 +257,15 @@ class GLCombat {
 
   // Chance the boarders take the ship if they keep pressing the attack.
   // first: this is the first exchange of a boarding led by a Boarding Master (boarders win its ties).
-  boardOdds(a, d, first) {
+  boardOdds(a, d, first, allTies) {
     this.oddsMemo = this.oddsMemo || {};
     if (d <= 0) return 1; if (a <= 0) return 0;
+    if (allTies) {
+      const k2 = 'T' + a + ',' + d; if (this.oddsMemo[k2] != null) return this.oddsMemo[k2];
+      const t2 = this.riskTable(Math.min(3, a), Math.min(2, d), true); let p2 = 0;
+      Object.keys(t2).forEach((k) => { const v = k.split(',').map(Number); p2 += t2[k] * this.boardOdds(a - v[0], d - v[1], false, true); });
+      return (this.oddsMemo[k2] = p2);
+    }
     if (first) { const t1 = this.riskTable(Math.min(3, a), Math.min(2, d), true); let p1 = 0; Object.keys(t1).forEach((k) => { const v = k.split(',').map(Number); p1 += t1[k] * this.boardOdds(a - v[0], d - v[1]); }); return p1; }
     const key = a + ',' + d;
     if (this.oddsMemo[key] != null) return this.oddsMemo[key];
@@ -269,11 +277,12 @@ class GLCombat {
 
   *boardSeq(A, B, facingName) {
     const g = this.g, pct = (x) => Math.round(x * 100) + '%';
-    const max = A.crew - 1, half = Math.max(1, Math.ceil(max / 2)), bm = A.def.capTrait === 'boarding';
-    const options = [{ label: 'Board with ' + max + ' crew · ' + pct(this.boardOdds(max, B.crew, bm)) + ' to capture', value: max, primary: true }];
-    if (half < max) options.push({ label: 'Board with ' + half + ' · ' + pct(this.boardOdds(half, B.crew, bm)), value: half });
+    const max = A.crew - 1, half = Math.max(1, Math.ceil(max / 2)), bm = A.def.capTrait === 'boarding', elite = A.def.vet >= 3;
+    const odds = (n) => this.boardOdds(n, B.crew, bm, elite);
+    const options = [{ label: 'Board with ' + max + ' crew · ' + pct(odds(max)) + ' to capture', value: max, primary: true }];
+    if (half < max) options.push({ label: 'Board with ' + half + ' · ' + pct(odds(half)), value: half });
     options.push({ label: 'Stand off', value: 0 });
-    const party = yield { type: 'choice', owner: A.id, label: A.def.name + ' · boarding opportunity', sub: B.def.name + ' is below half hull with its ' + facingName + ' shield down. Your crew ' + A.crew + ' vs their ' + B.crew + '. Keep at least 1 aboard.' + (bm ? ' ' + A.def.captain + ' leads: your boarders win ties in the first exchange.' : ''), options: options, auto: this.boardOdds(max, B.crew, bm) >= 0.5 ? max : 0 };
+    const party = yield { type: 'choice', owner: A.id, label: A.def.name + ' · boarding opportunity', sub: B.def.name + ' is below half hull with its ' + facingName + ' shield down. Your crew ' + A.crew + ' vs their ' + B.crew + '. Keep at least 1 aboard.' + (elite ? ' Elite crew: your boarders win every tie.' : bm ? ' ' + A.def.captain + ' leads: your boarders win ties in the first exchange.' : ''), options: options, auto: odds(max) >= 0.5 ? max : 0 };
     if (!party) return;
     A.boardedThisTurn = true; B.boardedThisTurn = true;
     A.crew -= party;
@@ -282,8 +291,8 @@ class GLCombat {
     yield { type: 'fx', kind: 'pods', A: A, B: B, n: party };
     let round = 0;
     while (bd.party > 0 && bd.def > 0) {
-      const an = Math.min(3, bd.party), dn = Math.min(2, bd.def), tieA = bm && round === 0; round++;
-      const ad = (yield { type: 'roll', owner: A.id, n: an, label: 'Boarding ' + B.def.name + ' · assault', sub: an + 'd6 for ' + bd.party + ' boarders · highest vs highest, ' + (tieA ? 'ties go to the boarders this exchange (Boarding Master)' : 'ties go to the defender') }).slice().sort((x, y) => y - x);
+      const an = Math.min(3, bd.party), dn = Math.min(2, bd.def), tieA = elite || (bm && round === 0); round++;
+      const ad = (yield { type: 'roll', owner: A.id, n: an, label: 'Boarding ' + B.def.name + ' · assault', sub: an + 'd6 for ' + bd.party + ' boarders · highest vs highest, ' + (tieA ? 'ties go to the boarders this exchange (' + (elite ? 'elite crew' : 'Boarding Master') + ')' : 'ties go to the defender') }).slice().sort((x, y) => y - x);
       const dd = (yield { type: 'roll', owner: B.id, n: dn, label: B.def.name + ' · defenders hold the corridors', sub: dn + 'd6 for ' + bd.def + ' defenders' }).slice().sort((x, y) => y - x);
       let al = 0, dl = 0;
       for (let k = 0; k < Math.min(an, dn); k++) { if (ad[k] > dd[k] || (tieA && ad[k] === dd[k])) dl++; else al++; }
@@ -293,7 +302,7 @@ class GLCombat {
       this.record({ owner: B.id, label: 'Boarding ' + B.def.name + ' · defenders', dice: dd.map((v, k) => ({ v: v, kind: k < an ? (v > ad[k] || (!tieA && v === ad[k]) ? 'save' : 'fail') : 'save' })), result: bd.party + ' boarders vs ' + bd.def + ' left' }, B.id);
       yield { type: 'fx', kind: 'melee', B: B, n: al + dl };
       if (bd.party > 0 && bd.def > 0) {
-        const p = this.boardOdds(bd.party, bd.def);
+        const p = this.boardOdds(bd.party, bd.def, false, elite);
         const go = yield { type: 'choice', owner: A.id, label: 'Boarding ' + B.def.name + ' · ' + bd.party + ' boarders vs ' + bd.def + ' defenders', sub: 'Press on and you take the ship ' + pct(p) + ' of the time. Withdraw and the survivors return.', options: [{ label: 'Press the attack · ' + pct(p), value: 1, primary: true }, { label: 'Withdraw', value: 0 }], auto: p >= 0.4 ? 1 : 0 };
         if (!go) break;
       }

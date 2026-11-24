@@ -28,6 +28,7 @@ class GLPreview {
         const tn = Math.min(6, this.toHitTN(G.r, narrow, order, A) + this.defMod(T, G.r, x.w)), p0 = (7 - tn) / 6;
         let p = p0;
         if (A.def.gunners && x.w.broadside && tn > 1) p += p0 / 6;
+        else if (A.def.vet >= 2) p += (1 - Math.pow(5 / 6, x.n)) / x.n * p0;
         if (x === capX) p += (1 - p) * p0;
         parts.push((x.w.broadside ? (x.w.side === 'port' ? 'Port' : 'Stbd') : x.w.lance ? 'Lance' : 'Turrets') + ' ' + x.n + 'd6@' + tn + '+');
         if (x.w.lance) { lanceHits += x.n * p; return; }
@@ -50,7 +51,7 @@ class GLPreview {
     const deal = this.expectedVolley(A, enemies, this.ui.order, this.ui.target);
     const take = {};
     enemies.forEach((E) => { const v = this.expectedVolley(E, friends, 'steady', 'auto'); if (v[A.id]) take[E.id] = v[A.id]; });
-    return { pose: pose, enemies: enemies, deal: deal, take: take };
+    return { pose: pose, enemies: enemies, deal: deal, take: take, threats: this.threatsAt ? this.threatsAt(me, pose) : [] };
   }
 
   /* ───────────── AI ───────────── */

@@ -119,7 +119,7 @@ button:focus-visible{outline:2px solid #ffc94d;outline-offset:2px}
       </sc-if>
       <sc-if value="{{pv.show}}" hint-placeholder-val="{{ false }}">
         <div role="region" aria-label="Firing preview" aria-live="polite" style="width: 100%; box-sizing: border-box; display: flex; flex-direction: column; gap: 8px; padding: 10px 12px; background: rgba(0,0,0,0.86); border: 1px solid #26324a; border-radius: 8px; font-size: 12px; color: #d8e1f0; pointer-events: none">
-          <span style="font-size: 11px; font-weight: 700; letter-spacing: 0.08em; color: #93a3bf">FIRING PREVIEW · {{pv.ship}}</span>
+          <span style="font-size: 11px; font-weight: 700; letter-spacing: 0.08em; color: #93a3bf">FIRING PREVIEW &amp; THREATS · {{pv.ship}}</span>
           <sc-if value="{{pv.empty}}" hint-placeholder-val="{{ true }}"><span style="color: #b9c6dc">Hover inside the manoeuvre zone to see expected damage from that position.</span></sc-if>
           <sc-if value="{{pv.full}}" hint-placeholder-val="{{ false }}">
             <div style="display: flex; flex-direction: column; gap: 8px">
@@ -138,7 +138,15 @@ button:focus-visible{outline:2px solid #ffc94d;outline-offset:2px}
                 </sc-for>
                 <sc-if value="{{pv.noTake}}" hint-placeholder-val="{{ false }}"><span style="font-size: 11px; color: #93a3bf">Nothing would bear on you here.</span></sc-if>
               </div>
-              <span style="font-size: 11px; color: #6f7f9c">Expected hull damage per volley; criticals not included.</span>
+              <sc-if value="{{pv.hasThreats}}" hint-placeholder-val="{{ false }}">
+                <div style="display: flex; flex-direction: column; gap: 3px">
+                  <span style="font-weight: 700; color: #ff8a5c">THREATS HERE</span>
+                  <sc-for list="{{pv.threats}}" as="t" hint-placeholder-count="1">
+                    <div style="display: flex; gap: 6px; font-size: 11px"><span style="color: {{t.col}}; font-weight: 700">{{t.mark}}</span><span style="color: {{t.col}}">{{t.text}}</span></div>
+                  </sc-for>
+                </div>
+              </sc-if>
+              <span style="font-size: 11px; color: #6f7f9c">Expected hull damage per volley; criticals not included. Torpedo lanes: red where a run would strike this position.</span>
             </div>
           </sc-if>
         </div>
@@ -341,7 +349,7 @@ class GLCore {
       CAPTAINS: {
         varga: { name: 'Capt. Ilse Varga', trait: 'gunnery' }, rheel: { name: 'Capt. Tomas Rheel', trait: 'daredevil' },
         okafor: { name: 'Cmdr. Ama Okafor', trait: 'boarding' }, holt: { name: 'Capt. Davin Holt', trait: 'steady' },
-        garrak: { name: 'Warlord Garrak', trait: 'boarding' }, vex: { name: 'Vex the Quick', trait: 'daredevil' }
+        garrak: { name: 'Warlord Garrak', trait: 'boarding' }, vex: { name: 'Vex the Quick', trait: 'daredevil' }, sorn: { name: 'Matriarch Sorn', trait: 'steady' }
       },
       // Torpedoes: run 20u a move toward where the target was, turning up to 60°; burn out after 3 moves; launch within 40u.
       TORP: { speed: 20, turn: 60, life: 3, range: 40, reach: 1.5, reachK: 0.35, dice: 2, plus: 0 },
@@ -440,6 +448,32 @@ class GLCore {
           speed: 0, turn: 0, hull: 20, shields: { fore: 3, port: 3, stbd: 3, aft: 3 }, armour: 4, crew: 12, ram: false, start: { x: 0, y: 0, h: 0 },
           weapons: [{ id: 'turret', name: 'Station batteries', dice: 6, range: 24, arcs: ['fore', 'port', 'stbd', 'aft'] }],
           assets: { mesh: '/_blob/61f3bdf41de0d7f850ce3abbd0dad3e6', base: '/_blob/a05d33ec5191a3900bc29dadafcfcaa0', normal: '/_blob/0e8fd72339192966f2e9ebc06726b678', rm: '/_blob/7241d03f459c65ef36df002f044de3ad' }
+        },
+        // Operation Black Meridian. Lancers and the dreadnought reuse the Reaver models, re-tinted and re-scaled.
+        lancer: {
+          id: 'lancer', side: 'reaver', len: 5.5, beam: 0.9, tint: 0xd9b8ff, name: 'Lancer', cls: 'Lancer-class strike craft · Reaver Clans', color: '#ff6a3d', hex: 0xff6a3d,
+          speed: 20, turn: 70, hull: 6, shields: { fore: 2, port: 1, stbd: 1, aft: 0 }, armour: 5, crew: 3, ram: false, torps: 1, start: { x: 0, y: 0, h: Math.PI },
+          weapons: [
+            { id: 'maw', name: 'Talon lance', dice: 2, range: 18, arcs: ['fore'], lance: true },
+            { id: 'turret', name: 'Point turrets', dice: 2, range: 15, arcs: ['fore', 'port', 'stbd', 'aft'] }
+          ],
+          assets: { mesh: '/_blob/08d8e56b994af5349f1a7e5a0b1eac58', base: '/_blob/b638cc5f369cb5d16c19d54534bc5104', normal: '/_blob/8da63acb2cebf790c7f9a82c6a3193d7', rm: '/_blob/efbe2e8fcaf666606aeb8ccd26999727' }
+        },
+        dreadnought: {
+          id: 'dreadnought', side: 'reaver', len: 11, beam: 1.7, tint: 0xffb79a, name: 'Gravemind', cls: 'Gravemind-class dreadnought · Reaver Clans', color: '#ff6a3d', hex: 0xff6a3d,
+          speed: 10, turn: 35, hull: 22, shields: { fore: 3, port: 3, stbd: 3, aft: 2 }, armour: 4, crew: 10, ram: true, tractor: 10, torps: 2, start: { x: 0, y: 0, h: Math.PI },
+          weapons: [
+            { id: 'port', name: 'Port broadside', dice: 8, range: 26, arcs: ['port'], broadside: true, side: 'port' },
+            { id: 'stbd', name: 'Starboard broadside', dice: 8, range: 26, arcs: ['stbd'], broadside: true, side: 'stbd' },
+            { id: 'maw', name: 'Graviton maw', dice: 4, range: 20, arcs: ['fore'], lance: true },
+            { id: 'turret', name: 'Spinal turrets', dice: 3, range: 18, arcs: ['fore', 'port', 'stbd', 'aft'] }
+          ],
+          assets: { mesh: '/_blob/c644ca5c0c860be99b90b776783c832d', base: '/_blob/a3fec9d6b439e84422b2180316fbad33', normal: '/_blob/1631962b096ed9a4432e4b3c0abb9c29', rm: '/_blob/7dfc69f5529eb78e929aebbda296f429' }
+        },
+        depot: {
+          id: 'depot', side: 'reaver', len: 7, beam: 1, static: true, tint: 0xffa77a, name: 'Fuel depot', cls: 'Reaver fuel depot', color: '#ff6a3d', hex: 0xff6a3d,
+          speed: 0, turn: 0, hull: 6, shields: { fore: 1, port: 1, stbd: 1, aft: 1 }, armour: 5, crew: 2, ram: false, start: { x: 0, y: 0, h: Math.PI }, weapons: [],
+          assets: { mesh: '/_blob/61f3bdf41de0d7f850ce3abbd0dad3e6', base: '/_blob/a05d33ec5191a3900bc29dadafcfcaa0', normal: '/_blob/0e8fd72339192966f2e9ebc06726b678', rm: '/_blob/7241d03f459c65ef36df002f044de3ad' }
         }
       }
     };
@@ -507,6 +541,11 @@ class GLCore {
       d.carry = { hull: it.hull, crew: it.crew, crits: it.crits };
       const cp = it.cap && this.D.CAPTAINS[it.cap]; d.cap = cp ? it.cap : null; d.captain = cp ? cp.name : ''; d.capTrait = cp ? cp.trait : null; d.prize = !!it.prize; d.battles = it.battles || 0; d.campaignId = it.campaignId || null;
       if (it.hullMax) d.hull = it.hullMax;
+      if (it.shieldBonus) Object.keys(d.shields).forEach((f) => { d.shields[f] += it.shieldBonus; });
+      if (it.static) d.static = true;
+      if (it.npc) d.npc = true;
+      // Veterancy from battles fought: Trained 1+, Veteran 3+ (re-roll one 1 per volley), Elite 6+ (boarders win ties).
+      d.vet = this.vetLevel(it.battles || 0);
       if (it.lanceBonus) d.weapons.forEach((w) => { if (w.lance) w.range += it.lanceBonus; });
       this.applyFit(d);
       SHIPS[d.id] = d; IDS.push(d.id);
@@ -595,7 +634,15 @@ class GLCore {
 
 
   // Asteroids block fire between ships.
+  vetLevel(n) { return n >= 6 ? 3 : n >= 3 ? 2 : n >= 1 ? 1 : 0; }
+
+  // Asteroids block fire between ships; so does a nebula beyond 12u, firing into it or out of it.
   blocked(A, T) {
+    const neb = (this.g.feat && this.g.feat.nebula) || [];
+    if (neb.length && Math.hypot(T.x - A.x, T.y - A.y) > 12) {
+      const inN = (p) => neb.some((n) => Math.hypot(p.x - n.x, p.y - n.y) < n.r);
+      if (inN(A) || inN(T)) return true;
+    }
     const rocks = (this.g.feat && this.g.feat.rocks) || [];
     for (let i = 0; i < rocks.length; i++) {
       const k = rocks[i], dx = T.x - A.x, dy = T.y - A.y, L2 = dx * dx + dy * dy || 1;
@@ -714,6 +761,7 @@ class GLPreview {
         const tn = Math.min(6, this.toHitTN(G.r, narrow, order, A) + this.defMod(T, G.r, x.w)), p0 = (7 - tn) / 6;
         let p = p0;
         if (A.def.gunners && x.w.broadside && tn > 1) p += p0 / 6;
+        else if (A.def.vet >= 2) p += (1 - Math.pow(5 / 6, x.n)) / x.n * p0;
         if (x === capX) p += (1 - p) * p0;
         parts.push((x.w.broadside ? (x.w.side === 'port' ? 'Port' : 'Stbd') : x.w.lance ? 'Lance' : 'Turrets') + ' ' + x.n + 'd6@' + tn + '+');
         if (x.w.lance) { lanceHits += x.n * p; return; }
@@ -736,7 +784,7 @@ class GLPreview {
     const deal = this.expectedVolley(A, enemies, this.ui.order, this.ui.target);
     const take = {};
     enemies.forEach((E) => { const v = this.expectedVolley(E, friends, 'steady', 'auto'); if (v[A.id]) take[E.id] = v[A.id]; });
-    return { pose: pose, enemies: enemies, deal: deal, take: take };
+    return { pose: pose, enemies: enemies, deal: deal, take: take, threats: this.threatsAt ? this.threatsAt(me, pose) : [] };
   }
 
   /* ───────────── AI ───────────── */
@@ -754,6 +802,58 @@ class GLPreview {
     });
     const sh = B.def.shields[this.arcOf(sB, ax, ay)] || 0;
     return Math.max(0, normal - sh) + lance * 2.2;
+  }
+}
+
+// Gunline · what could hurt a ship at a given end position this turn: torpedo runs (exact: a torpedo steers for
+// where its target is now), enemy tractor beams and rams (reach), and boarding exposure. Used while plotting.
+class GLThreats {
+  threatsAt(me, pose) {
+    const g = this.g, out = [], foes = this.sideShips(this.enemySide(me.def.side)).map((id) => g.ships[id]);
+    const name = (s) => s.def.name.replace('CNS ', '');
+    // Torpedoes already running at this ship.
+    (g.torps || []).forEach((t) => {
+      if (t.gone || t.target !== me.id) return;
+      const run = this.torpRun(t, me, pose, me.def), src = g.ships[t.owner];
+      out.push({ kind: 'torp', live: true, hit: run.hit, from: { x: t.x, y: t.y }, to: run.full, reach: run.reach,
+        text: 'Torpedo from ' + (src ? name(src) : 'the enemy') + (run.hit ? ' strikes you here (2d6, ignores shields)' : ' misses you here'), sev: run.hit ? 3 : 0 });
+    });
+    // Torpedoes an enemy could launch at this ship this turn: they leave the bow and steer for where you are now.
+    foes.forEach((e) => {
+      if (!(e.torps > 0) || this.count(e, 'bridge') || Math.hypot(e.x - me.x, e.y - me.y) > this.D.TORP.range) return;
+      const bow = e.def.len * 0.55, t = { x: e.x + Math.cos(e.h) * bow, y: e.y + Math.sin(e.h) * bow, h: e.h };
+      const run = this.torpRun(t, me, pose, me.def);
+      out.push({ kind: 'torp', live: false, hit: run.hit, from: { x: t.x, y: t.y }, to: run.full, reach: run.reach,
+        text: name(e) + ' could launch a torpedo (' + e.torps + ' left): it would ' + (run.hit ? 'strike you here' : 'miss you here'), sev: run.hit ? 2 : 0 });
+    });
+    // Tractor beams: an enemy that can end within its beam range of this position may lock on.
+    foes.forEach((e) => {
+      if (!e.def.tractor) return;
+      const reach = this.env(e, 'aaf').maxMove + e.def.tractor, d = Math.hypot(e.x - pose.x, e.y - pose.y);
+      if (d > reach) return;
+      const p = this.tractorOdds(e, me);
+      out.push({ kind: 'tractor', at: { x: e.x, y: e.y }, r: reach, text: name(e) + '’s tractor beam can reach you here (' + Math.round(p * 100) + '% to pull you 4u and hold you)', sev: 1 });
+    });
+    // Rams: any enemy that can get its prow onto this position.
+    foes.forEach((e) => {
+      const reach = this.env(e, 'ram').maxMove + 4 + e.def.len * 0.5;
+      if (Math.hypot(e.x - pose.x, e.y - pose.y) > reach) return;
+      const mass = e.def.len >= 8 ? 2 : 1, prow = e.def.ram ? 2 : 0;
+      out.push({ kind: 'ram', text: name(e) + ' could ram you here (1d6+' + (mass + prow) + ', no shields or saves)', sev: 1 });
+    });
+    // Boarding: below half hull, any facing whose shield is knocked down lets a ship within 6u board.
+    if (me.hull < me.def.hull / 2) {
+      const near = foes.filter((e) => e.crew >= 2 && Math.hypot(e.x - pose.x, e.y - pose.y) <= this.env(e, 'aaf').maxMove + 6);
+      if (near.length) out.push({ kind: 'board', text: 'Boarding risk: below half hull, ' + near.map(name).join(' and ') + ' can board you through any facing whose shields go down', sev: 2 });
+    }
+    return out.sort((a, b) => b.sev - a.sev);
+  }
+
+  // Chance a beam ship wins the roll-off against this target: d6 + mass each, ties to the beam.
+  tractorOdds(A, B) {
+    const mA = A.def.len >= 8 ? 2 : 1, mB = B.def.len >= 8 ? 2 : 1;
+    let w = 0; for (let a = 1; a <= 6; a++) for (let b = 1; b <= 6; b++) if (a + mA >= b + mB) w++;
+    return w / 36;
   }
 }
 
@@ -1014,16 +1114,22 @@ class GLTurn {
       }
       t.from = { x: t.x, y: t.y, h: t.h };
       if (!T) { t.to = { x: t.x + Math.cos(t.h) * TP.speed, y: t.y + Math.sin(t.h) * TP.speed, h: t.h }; t.hit = false; t.life -= 1; return; }
-      // Steer for where the target was when orders were given; the hit is judged against where it ends its move.
-      const e = endOf(T.id), want = Math.atan2(T.y - t.y, T.x - t.x), lim = TP.turn * Math.PI / 180;
-      const h = t.h + Math.max(-lim, Math.min(lim, this.norm(want - t.h))), ux = Math.cos(h), uy = Math.sin(h);
-      // Closest approach to the target's end position along this run.
-      const along = Math.max(0, Math.min(TP.speed, (e.x - t.x) * ux + (e.y - t.y) * uy));
-      const cx = t.x + ux * along, cy = t.y + uy * along, miss = Math.hypot(e.x - cx, e.y - cy), reach = TP.reach + T.def.len * TP.reachK;
-      t.hit = miss <= reach;
-      t.to = t.hit ? { x: cx, y: cy, h: h } : { x: t.x + ux * TP.speed, y: t.y + uy * TP.speed, h: h };
+      const run = this.torpRun(t, T, endOf(T.id), T.def);
+      t.hit = run.hit; t.to = run.to;
       t.life -= 1;
     });
+  }
+
+  // One torpedo move. It steers (up to 60°) for where its target was when orders were given (aim), runs its full
+  // speed, and strikes if the run passes within reach of where the target ends its move (end). Shared by the real
+  // move and the plotting threat display, so the prediction is exact.
+  torpRun(t, aim, end, targetDef) {
+    const TP = this.D.TORP, want = Math.atan2(aim.y - t.y, aim.x - t.x), lim = TP.turn * Math.PI / 180;
+    const h = t.h + Math.max(-lim, Math.min(lim, this.norm(want - t.h))), ux = Math.cos(h), uy = Math.sin(h);
+    const along = Math.max(0, Math.min(TP.speed, (end.x - t.x) * ux + (end.y - t.y) * uy));
+    const cx = t.x + ux * along, cy = t.y + uy * along, reach = TP.reach + targetDef.len * TP.reachK;
+    const hit = Math.hypot(end.x - cx, end.y - cy) <= reach;
+    return { hit: hit, reach: reach, h: h, full: { x: t.x + ux * TP.speed, y: t.y + uy * TP.speed }, to: hit ? { x: cx, y: cy, h: h } : { x: t.x + ux * TP.speed, y: t.y + uy * TP.speed, h: h } };
   }
 
   // Torpedoes reach the end of their run: hits are queued for gunnery, burnt-out or off-map ones are removed.
@@ -1328,6 +1434,8 @@ class GLCombat {
         const dice = yield { type: 'roll', owner: A.id, n: n, label: A.def.name + ' · ' + w.name + (w.lance ? ' (lance)' : '') + ' → ' + B.def.name + (pref && pref.id === B.id ? ' (target)' : ''), sub: n + 'd6 to hit, need ' + tn + '+' + (narrow ? ' (narrow profile)' : '') + ' · range ' + Math.round(r) + 'u' };
         let rr = 0;
         if (A.def.gunners && w.broadside) for (let k = 0; k < dice.length; k++) if (dice[k] === 1) { dice[k] = this.d6(); rr++; }
+        let vetRe = 0;
+        if (A.def.vet >= 2 && !(A.def.gunners && w.broadside)) { const k1 = dice.indexOf(1); if (k1 >= 0) { dice[k1] = this.d6(); vetRe = 1; } }
         let capRe = 0;
         if (w === capW) {
           const miss = []; dice.forEach((v, k) => { if (!hit(v)) miss.push(k); });
@@ -1337,7 +1445,7 @@ class GLCombat {
           }
         }
         const nh = dice.filter(hit).length;
-        this.record({ owner: A.id, label: A.def.name + ' · ' + w.name, dice: dice.map((v) => ({ v: v, kind: hit(v) ? (v === 6 ? 'crit' : 'hit') : 'miss' })), result: nh + ' hit' + (nh === 1 ? '' : 's') + ' (need ' + tn + '+)' + (rr ? ' · veteran crews re-rolled ' + rr + ' × 1' : '') + (capRe ? ' · Gunnery Master re-rolled ' + capRe + ' misses' : '') }, B.id);
+        this.record({ owner: A.id, label: A.def.name + ' · ' + w.name, dice: dice.map((v) => ({ v: v, kind: hit(v) ? (v === 6 ? 'crit' : 'hit') : 'miss' })), result: nh + ' hit' + (nh === 1 ? '' : 's') + ' (need ' + tn + '+)' + (rr ? ' · veteran crews re-rolled ' + rr + ' × 1' : '') + (capRe ? ' · Gunnery Master re-rolled ' + capRe + ' misses' : '') + (vetRe ? ' · veteran crew re-rolled a 1' : '') }, B.id);
         dice.forEach((v) => { if (hit(v)) hits.push({ v: v, lance: !!w.lance }); });
         yield { type: 'fx', kind: 'bolts', A: A, B: B, shots: dice.map((v) => { const h = hit(v), sh = h && !w.lance && shVis > 0; if (sh) shVis--; return { w: w, hit: h, onShield: sh }; }) };
       }
@@ -1474,9 +1582,15 @@ class GLCombat {
 
   // Chance the boarders take the ship if they keep pressing the attack.
   // first: this is the first exchange of a boarding led by a Boarding Master (boarders win its ties).
-  boardOdds(a, d, first) {
+  boardOdds(a, d, first, allTies) {
     this.oddsMemo = this.oddsMemo || {};
     if (d <= 0) return 1; if (a <= 0) return 0;
+    if (allTies) {
+      const k2 = 'T' + a + ',' + d; if (this.oddsMemo[k2] != null) return this.oddsMemo[k2];
+      const t2 = this.riskTable(Math.min(3, a), Math.min(2, d), true); let p2 = 0;
+      Object.keys(t2).forEach((k) => { const v = k.split(',').map(Number); p2 += t2[k] * this.boardOdds(a - v[0], d - v[1], false, true); });
+      return (this.oddsMemo[k2] = p2);
+    }
     if (first) { const t1 = this.riskTable(Math.min(3, a), Math.min(2, d), true); let p1 = 0; Object.keys(t1).forEach((k) => { const v = k.split(',').map(Number); p1 += t1[k] * this.boardOdds(a - v[0], d - v[1]); }); return p1; }
     const key = a + ',' + d;
     if (this.oddsMemo[key] != null) return this.oddsMemo[key];
@@ -1488,11 +1602,12 @@ class GLCombat {
 
   *boardSeq(A, B, facingName) {
     const g = this.g, pct = (x) => Math.round(x * 100) + '%';
-    const max = A.crew - 1, half = Math.max(1, Math.ceil(max / 2)), bm = A.def.capTrait === 'boarding';
-    const options = [{ label: 'Board with ' + max + ' crew · ' + pct(this.boardOdds(max, B.crew, bm)) + ' to capture', value: max, primary: true }];
-    if (half < max) options.push({ label: 'Board with ' + half + ' · ' + pct(this.boardOdds(half, B.crew, bm)), value: half });
+    const max = A.crew - 1, half = Math.max(1, Math.ceil(max / 2)), bm = A.def.capTrait === 'boarding', elite = A.def.vet >= 3;
+    const odds = (n) => this.boardOdds(n, B.crew, bm, elite);
+    const options = [{ label: 'Board with ' + max + ' crew · ' + pct(odds(max)) + ' to capture', value: max, primary: true }];
+    if (half < max) options.push({ label: 'Board with ' + half + ' · ' + pct(odds(half)), value: half });
     options.push({ label: 'Stand off', value: 0 });
-    const party = yield { type: 'choice', owner: A.id, label: A.def.name + ' · boarding opportunity', sub: B.def.name + ' is below half hull with its ' + facingName + ' shield down. Your crew ' + A.crew + ' vs their ' + B.crew + '. Keep at least 1 aboard.' + (bm ? ' ' + A.def.captain + ' leads: your boarders win ties in the first exchange.' : ''), options: options, auto: this.boardOdds(max, B.crew, bm) >= 0.5 ? max : 0 };
+    const party = yield { type: 'choice', owner: A.id, label: A.def.name + ' · boarding opportunity', sub: B.def.name + ' is below half hull with its ' + facingName + ' shield down. Your crew ' + A.crew + ' vs their ' + B.crew + '. Keep at least 1 aboard.' + (elite ? ' Elite crew: your boarders win every tie.' : bm ? ' ' + A.def.captain + ' leads: your boarders win ties in the first exchange.' : ''), options: options, auto: odds(max) >= 0.5 ? max : 0 };
     if (!party) return;
     A.boardedThisTurn = true; B.boardedThisTurn = true;
     A.crew -= party;
@@ -1501,8 +1616,8 @@ class GLCombat {
     yield { type: 'fx', kind: 'pods', A: A, B: B, n: party };
     let round = 0;
     while (bd.party > 0 && bd.def > 0) {
-      const an = Math.min(3, bd.party), dn = Math.min(2, bd.def), tieA = bm && round === 0; round++;
-      const ad = (yield { type: 'roll', owner: A.id, n: an, label: 'Boarding ' + B.def.name + ' · assault', sub: an + 'd6 for ' + bd.party + ' boarders · highest vs highest, ' + (tieA ? 'ties go to the boarders this exchange (Boarding Master)' : 'ties go to the defender') }).slice().sort((x, y) => y - x);
+      const an = Math.min(3, bd.party), dn = Math.min(2, bd.def), tieA = elite || (bm && round === 0); round++;
+      const ad = (yield { type: 'roll', owner: A.id, n: an, label: 'Boarding ' + B.def.name + ' · assault', sub: an + 'd6 for ' + bd.party + ' boarders · highest vs highest, ' + (tieA ? 'ties go to the boarders this exchange (' + (elite ? 'elite crew' : 'Boarding Master') + ')' : 'ties go to the defender') }).slice().sort((x, y) => y - x);
       const dd = (yield { type: 'roll', owner: B.id, n: dn, label: B.def.name + ' · defenders hold the corridors', sub: dn + 'd6 for ' + bd.def + ' defenders' }).slice().sort((x, y) => y - x);
       let al = 0, dl = 0;
       for (let k = 0; k < Math.min(an, dn); k++) { if (ad[k] > dd[k] || (tieA && ad[k] === dd[k])) dl++; else al++; }
@@ -1512,7 +1627,7 @@ class GLCombat {
       this.record({ owner: B.id, label: 'Boarding ' + B.def.name + ' · defenders', dice: dd.map((v, k) => ({ v: v, kind: k < an ? (v > ad[k] || (!tieA && v === ad[k]) ? 'save' : 'fail') : 'save' })), result: bd.party + ' boarders vs ' + bd.def + ' left' }, B.id);
       yield { type: 'fx', kind: 'melee', B: B, n: al + dl };
       if (bd.party > 0 && bd.def > 0) {
-        const p = this.boardOdds(bd.party, bd.def);
+        const p = this.boardOdds(bd.party, bd.def, false, elite);
         const go = yield { type: 'choice', owner: A.id, label: 'Boarding ' + B.def.name + ' · ' + bd.party + ' boarders vs ' + bd.def + ' defenders', sub: 'Press on and you take the ship ' + pct(p) + ' of the time. Withdraw and the survivors return.', options: [{ label: 'Press the attack · ' + pct(p), value: 1, primary: true }, { label: 'Withdraw', value: 0 }], auto: p >= 0.4 ? 1 : 0 };
         if (!go) break;
       }
@@ -1554,6 +1669,114 @@ class GLCombat {
   }
 }
 
+// Gunline · the campaign's operations: map nodes, briefings, the order they unlock in, forks and drydocks.
+// Shared by the Operation board (map, briefings, progress) and the battle board (forks, next operation).
+class GLOps {
+  opsData() {
+    if (this._ops) return this._ops;
+    const ironTide = {
+      m1: { code: 'M1', name: 'Picket Line', type: 'FLEET ENGAGEMENT', x: 14, y: 45, brief: 'The Reaver vanguard is probing the Varn picket: the Maw of Ruin and its raider escort. Break them before the rest of the clan follows.', terrain: 'Open space, 160 × 110u',
+        blocks: [['ENEMY', '#ff8a8a', ['Maw of Ruin (Ravager-class battleship)', 'Carrion Wing (Harrow-class raider)']],
+                 ['OBJECTIVES', '#ffc94d', ['Destroy, capture or drive off both Reaver ships']],
+                 ['REWARDS', '#7be3a4', ['+400 credits, +1 renown', 'Any ship you board and capture joins your fleet as a prize']]] },
+      m2a: { code: 'M2A', name: 'Convoy Run', type: 'ESCORT', x: 43, y: 23, req: ['m1'], fork: 'm2', brief: 'Three ore freighters must cross the Varn shallows to the yards. Reaver raiders will come in from the north edge from turn 3.', terrain: 'Open space; freighters steam west at 12u a turn',
+        blocks: [['ENEMY', '#ff8a8a', ['Two Harrow-class raiders arrive on turn 3', 'Maw of Ruin arrives on turn 5 if any freighter is still on the map']],
+                 ['OBJECTIVES', '#ffc94d', ['Primary: at least 2 freighters exit the west edge by turn 9', 'Secondary: all 3 get through']],
+                 ['SPECIAL RULES', '#8cc4ff', ['Freighters have Hull 4, Shields 1 all round, no weapons, and hold their course']],
+                 ['REWARDS', '#7be3a4', ['+250 credits per freighter saved', 'Secondary: +1 renown and Cmdr. Ama Okafor joins as a captain']],
+                 ['IF YOU FAIL', '#ff8a8a', ['The yards cannot supply you: drydock prices +25% for the rest of the operation']]] },
+      m2b: { code: 'M2B', name: 'Salvage Field', type: 'RAID', x: 43, y: 67, req: ['m1'], fork: 'm2', brief: 'A wrecked Concord cruiser lies in the Tessaly asteroid belt with its lance foci intact. Recover the salvage before the Reavers strip it.', terrain: 'Asteroid field: rocks block fire and hole hulls',
+        blocks: [['ENEMY', '#ff8a8a', ['Two Harrow-class raiders', 'Proximity mines around the wreck (2d6 to any ship ending within 3u)']],
+                 ['OBJECTIVES', '#ffc94d', ['Primary: recover 2 of 3 salvage beacons (end a move within 5u), then exit the east edge by turn 12', 'Secondary: recover all 3']],
+                 ['SPECIAL RULES', '#8cc4ff', ['A ship that ends its move inside an asteroid takes D3 (no saves)', 'Asteroids block line of fire between ships']],
+                 ['REWARDS', '#7be3a4', ['+200 credits per beacon and +1 renown', 'Secondary: +150 credits']],
+                 ['IF YOU FAIL', '#ff8a8a', ['The Reavers refit with the salvage: their lances get +6u range for the rest of the operation']]] },
+      d1: { code: 'D1', name: 'Drydock Varn', type: 'DRYDOCK', x: 70, y: 45, dock: true, shipyard: true, req: ['m2a', 'm2b'], brief: 'Repair, recruit and refit before pushing into Reaver space. Use the drydock section below, then leave dock to unlock M3.', terrain: 'Safe harbour',
+        blocks: [['SERVICES', '#8cc4ff', ['Hull 40 credits per point · criticals 60 each · crew 30 each', 'Upgrades from the catalogue']]] },
+      m3: { code: 'M3', name: 'The Reaver Lair', type: 'PRIZE HUNT', x: 95, y: 45, req: ['d1'], brief: 'Prisoners point to the tender Mother Hydra, which refuels every Reaver raid. Take her intact.', terrain: 'Reaver station in a debris ring; the station guns fire at anything within 20u',
+        blocks: [['ENEMY', '#ff8a8a', ['Mother Hydra (Hull 14, Crew 5, no guns, cannot move)', 'Lair Station: 4d6 turrets at 20u, all arcs', 'Maw of Ruin on guard']],
+                 ['OBJECTIVES', '#ffc94d', ['Primary: capture Mother Hydra by boarding by turn 10. Destroying her fails the mission', 'Secondary: cripple the Maw of Ruin']],
+                 ['REWARDS', '#7be3a4', ['Mother Hydra joins your fleet', '+500 credits, +2 renown (+1 for the secondary)']],
+                 ['IF YOU FAIL', '#ff8a8a', ['The Reavers keep their supply line: +1 Reaver raider in M4 and M5']]] },
+      m4: { code: 'M4', name: 'Kessel Gate', type: 'BREAKTHROUGH', x: 120, y: 64, req: ['m3'], brief: 'The Reaver blockade line holds the only jump route to Station Aurel. Punch through it.', terrain: 'A gravity well in the centre drags every course toward it',
+        blocks: [['ENEMY', '#ff8a8a', ['Maw of Ruin and two raiders across the middle of the map']],
+                 ['OBJECTIVES', '#ffc94d', ['Primary: get 2 ships off the east edge by turn 10', 'Secondary: lose no ships']],
+                 ['REWARDS', '#7be3a4', ['+600 credits, +1 renown (+1 for the secondary)']],
+                 ['IF YOU FAIL', '#ff8a8a', ['Ships still in the zone after turn 10 are captured']]] },
+      d2: { code: 'D2', name: 'Forward Base Sela', type: 'DRYDOCK', x: 136, y: 24, dock: true, repairsOnly: true, tavern: true, req: ['m4'], brief: 'Last chance to repair before the final battle. Leave dock to unlock M5.', terrain: 'Safe harbour',
+        blocks: [['SERVICES', '#8cc4ff', ['Repairs only; no new upgrades (no shipyard)']]] },
+      m5: { code: 'M5', name: 'Iron Tide', type: 'HOLD THE STATION', x: 150, y: 49, req: ['d2'], brief: 'The Maw of Ruin leads the Reaver tide against Station Aurel. Hold the station until the home fleet arrives.', terrain: 'Station Aurel in the centre (Hull 20, shields 3, 6d6 at 24u)',
+        blocks: [['ENEMY', '#ff8a8a', ['Maw of Ruin as flagship (refitted, Hull 16) with a raider', 'Reinforcements on turns 4 and 7']],
+                 ['OBJECTIVES', '#ffc94d', ['Primary: Station Aurel survives 8 turns', 'Secondary: destroy or capture the Maw of Ruin']],
+                 ['REWARDS', '#7be3a4', ['+800 credits, +3 renown (+1 for the secondary). Operation complete']]] }
+    };
+    const blackMeridian = {
+      b1: { code: 'B1', name: 'Into the Rift', type: 'FLEET ENGAGEMENT', x: 16, y: 48, brief: 'What is left of the Reaver clans has fled into the Meridian Rift, a nebula that swallows sensor returns. Their Lancer packs hunt in the murk.', terrain: 'Nebula clouds: no fire into or out of a cloud beyond 12u',
+        blocks: [['ENEMY', '#ff8a8a', ['Three Lancer-class strike craft (fast, one torpedo each); a fourth arrives on turn 3']],
+                 ['OBJECTIVES', '#ffc94d', ['Destroy, capture or drive off the Lancer pack']],
+                 ['REWARDS', '#7be3a4', ['+500 credits, +1 renown']]] },
+      b2a: { code: 'B2A', name: 'Ghost Signal', type: 'RESCUE', x: 48, y: 22, req: ['b1'], fork: 'b2', brief: 'A Concord distress beacon: the cruiser CNS Halcyon, adrift and crippled, with Lancers closing to strip her.', terrain: 'Nebula edge; CNS Halcyon (Hull 6 of 8, cannot move, point defence still working) near the centre',
+        blocks: [['ENEMY', '#ff8a8a', ['Two Lancers from the east; a Harrow raider on turn 3 and another Lancer from the north on turn 4']],
+                 ['OBJECTIVES', '#ffc94d', ['Primary: CNS Halcyon survives, uncaptured, to the end of turn 7', 'Secondary: lose no ships']],
+                 ['REWARDS', '#7be3a4', ['CNS Halcyon joins your fleet (Valiant-class cruiser, needs repairs)', '+300 credits, +1 renown']],
+                 ['IF YOU FAIL', '#ff8a8a', ['The Halcyon is lost with all hands']]] },
+      b2b: { code: 'B2B', name: 'Burn the Depots', type: 'STRIKE', x: 48, y: 70, req: ['b1'], fork: 'b2', brief: 'Three fuel depots keep the Reaver dreadnought Gravemind fed. Burn them before it can sortie.', terrain: 'Open space; proximity mines around the depots',
+        blocks: [['ENEMY', '#ff8a8a', ['Three fuel depots (Hull 6, no guns)', 'Two Lancers on guard', 'Proximity mines']],
+                 ['OBJECTIVES', '#ffc94d', ['Primary: destroy all three depots by turn 10', 'Secondary: lose no ships']],
+                 ['REWARDS', '#7be3a4', ['+700 credits, +1 renown (+1 for the secondary)']],
+                 ['IF YOU FAIL', '#ff8a8a', ['The Gravemind sails fully fuelled: +4 Hull and +1 shield on every facing in B3']]] },
+      d3: { code: 'D3', name: 'Meridian Anchorage', type: 'DRYDOCK', x: 80, y: 46, dock: true, shipyard: true, tavern: true, req: ['b2a', 'b2b'], brief: 'A Concord anchorage at the edge of the Rift: full shipyard, and the last refit before the Gravemind. Leave dock to unlock B3.', terrain: 'Safe harbour',
+        blocks: [['SERVICES', '#8cc4ff', ['Repairs, recruits, upgrades and new hulls', 'Capt. Davin Holt can be hired here if you have not already']]] },
+      b3: { code: 'B3', name: 'The Gravemind', type: 'FLAGSHIP', x: 132, y: 46, req: ['d3'], brief: 'The Reaver dreadnought Gravemind, eleven units of armour and grudge, waits in the heart of the Rift with its Lancer escort. End it.', terrain: 'Nebula clouds; the Gravemind carries a tractor beam (10u) and torpedoes',
+        blocks: [['ENEMY', '#ff8a8a', ['Gravemind (Reaver dreadnought: Hull 22, 8-dice broadsides, tractor beam 10u, 2 torpedoes)', 'Two Lancers']],
+                 ['OBJECTIVES', '#ffc94d', ['Primary: destroy or capture the Gravemind by turn 12', 'Secondary: lose no ships']],
+                 ['REWARDS', '#7be3a4', ['+1,200 credits, +3 renown (+1 for the secondary). Operation complete']]] }
+    };
+    this._ops = {
+      iron_tide: { id: 'iron_tide', n: 1, title: 'Operation Iron Tide', nodes: ironTide, order: ['m1', 'm2a', 'm2b', 'd1', 'm3', 'm4', 'd2', 'm5'], final: 'm5', next: 'black_meridian',
+        intro: 'The Reaver Clans have broken through the Varn picket. Rear-Admiral, take the Resolute squadron forward, break up their raiding parties, find the lair their ships return to, and hold Station Aurel when the Maw of Ruin comes for it. Your ships, crews and captains carry every scar from one mission to the next.',
+        startYard: 'Fleet yard, before M1', legs: [['m1', 'm2a'], ['m1', 'm2b'], ['m2a', 'd1'], ['m2b', 'd1'], ['d1', 'm3'], ['m3', 'm4'], ['m4', 'd2'], ['d2', 'm5']],
+        ending: (sv) => (sv.done.m5 === 'won' ? 'Station Aurel held.' : 'Station Aurel fell.') },
+      black_meridian: { id: 'black_meridian', n: 2, title: 'Operation Black Meridian', nodes: blackMeridian, order: ['b1', 'b2a', 'b2b', 'd3', 'b3'], final: 'b3', next: null,
+        intro: 'Iron Tide broke the Reaver advance; Black Meridian ends it. Follow the survivors into the Meridian Rift, where nebula clouds blind long guns, cut the Gravemind off from its fuel, and destroy the dreadnought before the clans can rebuild around it.',
+        startYard: 'Varn yards, before B1', legs: [['b1', 'b2a'], ['b1', 'b2b'], ['b2a', 'd3'], ['b2b', 'd3'], ['d3', 'b3']],
+        ending: (sv) => (sv.done.b3 === 'won' ? 'The Gravemind is gone and the Rift is quiet.' : 'The Gravemind escaped into the Rift.') }
+    };
+    return this._ops;
+  }
+
+  opOf(sv) { return this.opsData()[(sv && sv.op) || 'iron_tide']; }
+
+  // Node states for the save's current operation: won / failed / skipped / open / dock / locked.
+  progress(sv) {
+    const op = this.opOf(sv), d = sv.done || {}, left = sv.dockLeft || {}, st = {};
+    const settled = (k) => !!d[k] || !!left[k];
+    op.order.forEach((k) => {
+      const n = op.nodes[k], ready = (n.req || []).every(settled);
+      st[k] = n.dock ? (ready ? (left[k] ? 'won' : 'dock') : 'locked') : (d[k] ? d[k] : ready ? 'open' : 'locked');
+    });
+    const flownAny = op.order.some((k) => !op.nodes[k].dock && d[k] && d[k] !== 'skipped');
+    const dock = !flownAny ? 'start' : (op.order.filter((k) => st[k] === 'dock')[0] || null);
+    return { op: op, st: st, dock: dock, complete: !!d[op.final], order: op.order };
+  }
+
+  // What the dock the fleet is at offers.
+  dockInfo(sv, dock) {
+    const op = this.opOf(sv);
+    if (!dock) return null;
+    if (dock === 'start') return { name: op.startYard, shipyard: true, repairsOnly: false, tavern: false };
+    const n = op.nodes[dock];
+    return { name: n.name, shipyard: !!n.shipyard, repairsOnly: !!n.repairsOnly, tavern: !!n.tavern };
+  }
+
+  // Flying one branch of a fork skips the others.
+  forkSkips(sv, key) {
+    const op = this.opOf(sv), n = op.nodes[key];
+    if (!n || !n.fork) return [];
+    return op.order.filter((k) => k !== key && op.nodes[k].fork === n.fork);
+  }
+}
+
 // Gunline · Campaign missions for the battle board: set-ups, objectives and writing the result back to the save.
 // Methods are copied onto each board's Component (see src/shared/install.js); `this` is the game.
 class GLMissions {
@@ -1579,6 +1802,8 @@ class GLMissions {
     });
     const lb = mods.reaverLances ? 6 : 0;
     const raider = (id, name, x, y, h, extra) => Object.assign({ id: id, cls: 'carrion', name: name, x: x, y: y, h: h, lanceBonus: lb }, extra || {});
+    const lancer = (id, name, x, y, h, extra) => Object.assign({ id: id, cls: 'lancer', name: name, x: x, y: y, h: h, lanceBonus: lb }, extra || {});
+    const PI = Math.PI;
     const maw = (x, y, h, extra) => Object.assign({ id: 'e_maw', cls: 'maw', name: 'Maw of Ruin', x: x, y: y, h: h, lanceBonus: lb, cap: 'garrak' }, extra || {});
     const M = {
       m1: { name: 'Picket Line', type: 'Fleet engagement', turns: 0,
@@ -1606,6 +1831,23 @@ class GLMissions {
           maw(58, 6, Math.PI, { hullMax: 16 }), raider('e_r1', 'Sawtooth', 62, -24, Math.PI),
           raider('e_r2', 'Bone Kite', 0, H - 4, -Math.PI / 2, { spawn: 4 }), raider('e_r3', 'Grief Hook', 0, -H + 4, Math.PI / 2, { spawn: 7 })].concat(mods.extraRaider ? [raider('e_r4', 'Gutter Saint', 64, 30, Math.PI)] : [])) }
     };
+    // Operation Black Meridian.
+    Object.assign(M, {
+      b1: { name: 'Into the Rift', type: 'Fleet engagement', turns: 0, features: { nebula: [{ x: -6, y: 14, r: 16 }, { x: 28, y: -22, r: 14 }, { x: 40, y: 28, r: 12 }] },
+        roster: deploy([{ x: -50, y: -12, h: 0 }, { x: -52, y: 12, h: 0 }]).concat([lancer('e_l1', 'Needle', 46, -14, PI), lancer('e_l2', 'Whisper', 50, 6, PI), lancer('e_l3', 'Shiv', 44, 24, PI), lancer('e_l4', 'Hook', 70, -4, PI, { spawn: 3 })]) },
+      b2a: { name: 'Ghost Signal', type: 'Rescue', turns: 7, features: { nebula: [{ x: 40, y: -30, r: 14 }, { x: -40, y: 30, r: 12 }] },
+        roster: deploy([{ x: -34, y: -6, h: 0 }, { x: -36, y: 12, h: 0 }]).concat([
+          { id: 'halcyon', cls: 'vigilant', side: 'concord', name: 'CNS Halcyon', x: -6, y: 0, h: PI / 2, hull: 6, crew: 4, static: true, fit: { defence: 'pd' } },
+          lancer('e_l1', 'Needle', 72, -12, PI), lancer('e_l2', 'Whisper', 74, 14, PI), raider('e_r1', 'Sawtooth', 70, 36, PI, { spawn: 3 }), lancer('e_l3', 'Shiv', 0, H - 4, -PI / 2, { spawn: 4 })]) },
+      b2b: { name: 'Burn the Depots', type: 'Strike', turns: 10, features: { mines: [{ x: 22, y: -12 }, { x: 30, y: 8 }, { x: 40, y: -32 }, { x: 46, y: 18 }] },
+        roster: deploy([{ x: -56, y: -8, h: 0 }, { x: -58, y: 12, h: 0 }]).concat([
+          { id: 'e_d1', cls: 'depot', name: 'Depot Ashfall', x: 34, y: -22, h: PI }, { id: 'e_d2', cls: 'depot', name: 'Depot Cinder', x: 44, y: 0, h: PI }, { id: 'e_d3', cls: 'depot', name: 'Depot Slag', x: 36, y: 24, h: PI },
+          lancer('e_l1', 'Needle', 22, -34, PI), lancer('e_l2', 'Whisper', 24, 34, PI)]) },
+      b3: { name: 'The Gravemind', type: 'Flagship', turns: 12, features: { nebula: [{ x: -10, y: -26, r: 14 }, { x: 6, y: 26, r: 15 }, { x: 52, y: -4, r: 10 }] },
+        roster: deploy([{ x: -56, y: -10, h: 0 }, { x: -58, y: 12, h: 0 }]).concat([
+          Object.assign({ id: 'e_grave', cls: 'dreadnought', name: 'Gravemind', x: 46, y: 4, h: PI, cap: 'sorn', lanceBonus: lb }, mods.gravemindFuel ? { hullMax: 26, hull: 26, shieldBonus: 1 } : {}),
+          lancer('e_l1', 'Needle', 40, -24, PI), lancer('e_l2', 'Whisper', 42, 30, PI)]) }
+    });
     const m = M[code]; if (!m) return null;
     m.code = code.toUpperCase(); m.features = m.features || {};
     return m;
@@ -1616,6 +1858,7 @@ class GLMissions {
     const g = this.g, m = this.mission, T = g.turn, ids = this.ids(), sh = (id) => g.ships[id];
     const mine = ids.filter((id) => sh(id).def.side === 'concord' && !sh(id).def.npc && !sh(id).def.static);
     const myLive = mine.filter((id) => this.active(sh(id))).length;
+    const lostN = mine.filter((id) => sh(id).dead || sh(id).captured).length;
     const foes = ids.filter((id) => sh(id).def.side === 'reaver');
     const foesLeft = foes.filter((id) => this.active(sh(id)) || sh(id).away).length;
     const limit = m.turns && T >= m.turns;
@@ -1656,6 +1899,28 @@ class GLMissions {
       res.won = out >= 2; res.secondary = res.won && lostN === 0;
       L(res.secondary, 'Secondary: lose no ships');
       res.credits = res.won ? 600 : 0; res.renown = res.won ? 1 + (res.secondary ? 1 : 0) : 0;
+    } else if (m.code === 'B1') {
+      L(foesLeft === 0, 'Destroy, capture or drive off the Lancer pack');
+      res.over = foesLeft === 0 || myLive === 0; res.won = foesLeft === 0 && myLive > 0;
+      if (res.won) { res.credits = 500; res.renown = 1; }
+    } else if (m.code === 'B2A') {
+      const hal = sh('halcyon'), ok = hal && !hal.dead && !hal.captured;
+      L(ok && (T >= 7 || foesLeft === 0), 'CNS Halcyon survives, uncaptured, to the end of turn 7 (turn ' + T + ')');
+      res.secondary = lostN === 0; L(res.secondary, 'Secondary: lose no ships');
+      res.over = !ok || limit || foesLeft === 0 || (myLive === 0 && foesLeft > 0); res.won = ok && (limit || foesLeft === 0);
+      res.credits = res.won ? 300 : 0; res.renown = res.won ? 1 : 0;
+    } else if (m.code === 'B2B') {
+      const dep = ids.filter((id) => sh(id).def.cls === 'depot'), burnt = dep.filter((id) => sh(id).dead || sh(id).captured).length;
+      L(burnt === dep.length, 'Destroy all three fuel depots by turn 10 (' + burnt + ' burning)');
+      res.secondary = lostN === 0 && burnt === dep.length; L(lostN === 0, 'Secondary: lose no ships');
+      res.over = burnt === dep.length || myLive === 0 || limit; res.won = burnt === dep.length;
+      res.credits = res.won ? 700 : 0; res.renown = res.won ? 1 + (res.secondary ? 1 : 0) : 0;
+    } else if (m.code === 'B3') {
+      const gm = sh('e_grave'), gone = !!gm && (gm.dead || gm.captured);
+      L(gone, 'Destroy or capture the Gravemind by turn 12');
+      res.secondary = gone && lostN === 0; L(lostN === 0, 'Secondary: lose no ships');
+      res.over = gone || myLive === 0 || limit; res.won = gone;
+      res.credits = res.won ? 1200 : 0; res.renown = res.won ? 3 + (res.secondary ? 1 : 0) : 0;
     } else if (m.code === 'M5') {
       const st = sh('aurel'), mw = sh('e_maw'), stOk = st && !st.dead && !st.captured;
       L(stOk && (T >= 8 || foesLeft === 0), 'Station Aurel survives 8 turns (turn ' + T + ')');
@@ -1682,6 +1947,8 @@ class GLMissions {
       }
       f.hull = Math.max(1, s.hull); f.crew = Math.max(1, s.crew); f.crits = s.crits.map((c) => ({ k: c.k, roll: c.roll, side: c.side || null }));
       f.battles = (f.battles || 0) + 1; f.sitsOut = false;
+      // Losing half the crew costs a ship one step of veterancy.
+      if (s.crew <= s.def.crew / 2) { const lv = this.vetLevel(f.battles); if (lv > 0) { f.battles = [0, 0, 1, 3][lv]; res.lines.push({ ok: false, text: f.name + ' lost half its crew and a step of veterancy' }); } }
       fleet.push(f);
     });
     this.ids().forEach((id) => {
@@ -1694,13 +1961,14 @@ class GLMissions {
     sv.fleet = fleet;
     sv.credits = (sv.credits || 0) + res.credits; sv.renown = (sv.renown || 0) + res.renown;
     sv.done = sv.done || {}; sv.done[key] = res.won ? 'won' : 'failed';
-    if (key === 'm2a' || key === 'm2b') sv.done[key === 'm2a' ? 'm2b' : 'm2a'] = 'skipped';
+    this.forkSkips(sv, key).forEach((k) => { if (!sv.done[k]) sv.done[k] = 'skipped'; });
+    if (key === 'b2a' && res.won) { const h = g.ships.halcyon; fleet.push({ id: 'halcyon', cls: 'vigilant', name: 'CNS Halcyon', hull: Math.max(1, h.hull), crew: Math.max(1, h.crew), crits: h.crits.map((c) => ({ k: c.k, roll: c.roll, side: c.side || null })), fit: {}, battles: 0, cap: null }); prizes.push('CNS Halcyon (rescued)'); }
+    if (!res.won && key === 'b2b') { sv.mods = sv.mods || {}; sv.mods.gravemindFuel = true; }
     sv.mods = sv.mods || {};
     if (!res.won && key === 'm2a') sv.mods.dockPrice = 1.25;
     if (!res.won && key === 'm2b') sv.mods.reaverLances = true;
     if (!res.won && key === 'm3') sv.mods.extraRaider = true;
     if (key === 'm2a' && res.secondary) sv.okafor = true;
-    if (key === 'm1' || key === 'm2a' || key === 'm2b') sv.docked = null;
     sv.current = null;
     sv.debrief = { code: m.code, name: m.name, won: res.won, lines: res.lines, credits: res.credits, renown: res.renown, lost: lost, prizes: prizes, turn: g.turn, at: Date.now() };
     sv.history = (sv.history || []).concat([{ code: m.code, won: res.won, turn: g.turn }]);
@@ -1869,6 +2137,15 @@ class Component extends DCLogic {
         const l = new T.Line(new T.BufferGeometry().setFromPoints([this.m2v(pose.x, pose.y, 0.9), this.m2v(e.x, e.y, 0.9)]), new T.LineBasicMaterial({ toneMapped: false, color: 0xffc94d, transparent: true, opacity: Math.min(0.95, 0.25 + d.dmg * 0.18) }));
         grp.add(l);
       }
+    });
+    // Threats: torpedo lanes (red where they would strike this position), tractor reach rings.
+    r.threats.forEach((t) => {
+      if (t.kind === 'torp') {
+        const p0 = this.m2v(t.from.x, t.from.y, 0.5), p1 = this.m2v(t.to.x, t.to.y, 0.5), q = this.flatQuad('none', t.reach * 2, 1, false, t.hit ? 0xff4d4d : 0xffa040);
+        q.position.copy(p0).lerp(p1, 0.5); this.aim(q, p0, p1); q.userData.mesh.scale.y = p0.distanceTo(p1);
+        q.userData.mesh.material.opacity = (t.hit ? 0.3 : 0.12) * (t.live ? 1 : 0.7); grp.add(q);
+        grp.add(this.torpLine(t.from.x, t.from.y, t.to.x, t.to.y, t.hit ? 0.95 : 0.5));
+      } else if (t.kind === 'tractor') grp.add(this.circle(t.at.x, t.at.y, t.r, 0xb59bff, 0.4));
     });
   }
 
@@ -2177,7 +2454,7 @@ class Component extends DCLogic {
       const gltf = res[0], base = res[1], normal = res[2], rm = res[3];
       [base, normal, rm].forEach((t) => { if (t) { t.flipY = false; t.anisotropy = 4; } });
       if (base) base.encoding = T.sRGBEncoding;
-      const mat = new T.MeshStandardMaterial({ map: base, normalMap: normal, roughnessMap: rm, metalnessMap: rm, metalness: rm ? 0.45 : 0.4, roughness: rm ? 1 : 0.55, color: base ? 0xffffff : 0x8a94a6 });
+      const mat = new T.MeshStandardMaterial({ map: base, normalMap: normal, roughnessMap: rm, metalnessMap: rm, metalness: rm ? 0.45 : 0.4, roughness: rm ? 1 : 0.55, color: base ? (def.tint || 0xffffff) : 0x8a94a6 });
       const m = gltf.scene;
       m.traverse((o) => { if (o.isMesh) o.material = mat; });
       const holder = new T.Group(); holder.add(m);
@@ -2233,6 +2510,14 @@ class Component extends DCLogic {
       geo.computeVertexNormals();
       const rock = new T.Mesh(geo, new T.MeshStandardMaterial({ color: 0x3a3631, roughness: 1, metalness: 0, flatShading: true }));
       rock.position.set(k.x, 0.6, -k.y); rock.rotation.set(i, i * 2.3, i * 0.7); grp.add(rock);
+    });
+    (F.nebula || []).forEach((n, i) => {
+      for (let k = 0; k < 7; k++) {
+        const a = k * 0.9 + i, rr = k === 0 ? 0 : n.r * 0.55;
+        const sp = new T.Sprite(new T.SpriteMaterial({ toneMapped: false, map: t3.glowTex, color: k % 2 ? 0x6a4fb8 : 0x3f5fa8, transparent: true, opacity: 0.32, depthWrite: false }));
+        sp.position.set(n.x + Math.cos(a) * rr, 0.4 + k * 0.05, -(n.y + Math.sin(a) * rr)); sp.scale.setScalar(n.r * (k === 0 ? 2.2 : 1.4)); grp.add(sp);
+      }
+      grp.add(this.circle(n.x, n.y, n.r, 0x9a7bff, 0.35));
     });
     (F.beacons || []).forEach((b) => {
       const g2 = new T.Group(); g2.userData.beacon = b;
@@ -2991,6 +3276,7 @@ class Component extends DCLogic {
     const gold = 'background: #3a2208; color: #ffc94d; border: 1px solid #6b4310;', violet = 'background: #221a3a; color: #d7c8ff; border: 1px solid #4a3a7a;';
     const chips = s.crits.map((c) => ({ text: this.critName(c), title: '', style: gold }));
     if (def.tractor) chips.unshift({ text: 'Tractor beam · ' + def.tractor + 'u', title: 'Locks an enemy within 8u after movement; roll-off to pull it 4u closer and hold it', style: violet });
+    if (def.vet) chips.push({ text: ['', 'Trained crew', 'Veteran crew · re-roll one 1 per volley', 'Elite crew · re-roll one 1 per volley, boarders win ties'][def.vet], title: 'Veterancy from battles fought: Veteran at 3, Elite at 6', style: 'background: #11301f; color: #b8f0cc; border: 1px solid #1f5a39;' });
     if (def.cap) { const tr = this.D.TRAITS[def.capTrait]; chips.unshift({ text: def.captain + ' · ' + tr.name, title: tr.text, style: 'background: #10223a; color: #cfe4ff; border: 1px solid #2f5a8a;' }); }
     const g0 = this.g, heldNext = s.heldTurn && (s.heldTurn === g0.turn + 1 || (s.heldTurn === g0.turn && (g0.phase === 'orders' || g0.phase === 'handoff')));
     if (heldNext && !s.dead) chips.push({ text: 'Held: −4u next move', title: 'Caught by a tractor beam', style: violet });
@@ -3058,7 +3344,7 @@ class Component extends DCLogic {
     const targets = canOrder ? [{ name: 'Closest', pick: this.targetAuto, pressed: this.ui.target === 'auto' ? 'true' : 'false', style: tchip(this.ui.target === 'auto') }].concat(
       this.sideShips(this.enemySide(g.side)).map((id) => ({ name: g.ships[id].def.name.replace('CNS ', ''), pick: this.targetFn(id), pressed: this.ui.target === id ? 'true' : 'false', style: tchip(this.ui.target === id) }))) : [];
     const pv = this.pv, f1 = (x) => (Math.round(x * 10) / 10).toFixed(1);
-    const pvm = { show: !!pv && g.phase === 'orders', ship: pv ? pv.ship : '', empty: !pv || !!pv.empty, full: !!pv && !pv.empty, where: '', dealTotal: '0.0', takeTotal: '0.0', deal: [], take: [], noDeal: true, noTake: true };
+    const pvm = { show: !!pv && g.phase === 'orders', ship: pv ? pv.ship : '', empty: !pv || !!pv.empty, full: !!pv && !pv.empty, where: '', dealTotal: '0.0', takeTotal: '0.0', deal: [], take: [], noDeal: true, noTake: true, threats: [], hasThreats: false };
     if (pv && !pv.empty) {
       const r = pv.r, nm = (id) => g.ships[id].def.name;
       pvm.where = (pv.src === 'hover' ? 'From the hovered position' : 'From the plotted position') + ' · enemies assumed to hold course';
@@ -3067,6 +3353,9 @@ class Component extends DCLogic {
       pvm.dealTotal = f1(Object.keys(r.deal).reduce((a, id) => a + r.deal[id].dmg, 0));
       pvm.takeTotal = f1(Object.keys(r.take).reduce((a, id) => a + r.take[id].dmg, 0));
       pvm.noDeal = !pvm.deal.length; pvm.noTake = !pvm.take.length;
+      const tcol = { 3: '#ff4d4d', 2: '#ff8a5c', 1: '#d7c8ff', 0: '#93a3bf' };
+      pvm.threats = (r.threats || []).map((t) => ({ text: t.text, col: tcol[t.sev] || '#93a3bf', mark: t.sev >= 2 ? '!' : '·' }));
+      pvm.hasThreats = pvm.threats.length > 0;
     }
     // Campaign: mission tracker, ready-to-start prompt, and the debrief.
     const misView = { show: false, ready: false };
@@ -3079,6 +3368,7 @@ class Component extends DCLogic {
       if (m.exit) notes.push('Green band: the ' + m.exit.edge + ' exit edge');
       if (g.feat.well) notes.push('Gravity well bends every course toward the purple swirl');
       if ((g.feat.rocks || []).length) notes.push('Asteroids block fire; ending a move inside one costs D3 hull');
+      if ((g.feat.nebula || []).length) notes.push('Purple clouds are nebulae: no fire into or out of one beyond 12u');
       if ((g.feat.mines || []).length) notes.push('Red lights are mines: 2d6 to any ship ending within 3u · gold rings are beacons (end within 5u)');
       const away = this.ids().filter((id) => g.ships[id].away).map((id) => g.ships[id].def.name + ' (turn ' + g.ships[id].def.spawn + ')');
       if (away.length) notes.push('Expected: ' + away.join(', '));
@@ -3211,7 +3501,7 @@ class Component extends DCLogic {
   }
 }
 
-glInstall(Component.prototype, [GLCore, GLPreview, GLAI, GLTurn, GLCombat, GLMissions, GLStore, GLHooks]);
+glInstall(Component.prototype, [GLCore, GLPreview, GLThreats, GLAI, GLTurn, GLCombat, GLOps, GLMissions, GLStore, GLHooks]);
 </script>
 </body>
 </html>

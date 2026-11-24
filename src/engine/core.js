@@ -27,7 +27,7 @@ class GLCore {
       CAPTAINS: {
         varga: { name: 'Capt. Ilse Varga', trait: 'gunnery' }, rheel: { name: 'Capt. Tomas Rheel', trait: 'daredevil' },
         okafor: { name: 'Cmdr. Ama Okafor', trait: 'boarding' }, holt: { name: 'Capt. Davin Holt', trait: 'steady' },
-        garrak: { name: 'Warlord Garrak', trait: 'boarding' }, vex: { name: 'Vex the Quick', trait: 'daredevil' }
+        garrak: { name: 'Warlord Garrak', trait: 'boarding' }, vex: { name: 'Vex the Quick', trait: 'daredevil' }, sorn: { name: 'Matriarch Sorn', trait: 'steady' }
       },
       // Torpedoes: run 20u a move toward where the target was, turning up to 60°; burn out after 3 moves; launch within 40u.
       TORP: { speed: 20, turn: 60, life: 3, range: 40, reach: 1.5, reachK: 0.35, dice: 2, plus: 0 },
@@ -126,6 +126,32 @@ class GLCore {
           speed: 0, turn: 0, hull: 20, shields: { fore: 3, port: 3, stbd: 3, aft: 3 }, armour: 4, crew: 12, ram: false, start: { x: 0, y: 0, h: 0 },
           weapons: [{ id: 'turret', name: 'Station batteries', dice: 6, range: 24, arcs: ['fore', 'port', 'stbd', 'aft'] }],
           assets: { mesh: '/_blob/61f3bdf41de0d7f850ce3abbd0dad3e6', base: '/_blob/a05d33ec5191a3900bc29dadafcfcaa0', normal: '/_blob/0e8fd72339192966f2e9ebc06726b678', rm: '/_blob/7241d03f459c65ef36df002f044de3ad' }
+        },
+        // Operation Black Meridian. Lancers and the dreadnought reuse the Reaver models, re-tinted and re-scaled.
+        lancer: {
+          id: 'lancer', side: 'reaver', len: 5.5, beam: 0.9, tint: 0xd9b8ff, name: 'Lancer', cls: 'Lancer-class strike craft · Reaver Clans', color: '#ff6a3d', hex: 0xff6a3d,
+          speed: 20, turn: 70, hull: 6, shields: { fore: 2, port: 1, stbd: 1, aft: 0 }, armour: 5, crew: 3, ram: false, torps: 1, start: { x: 0, y: 0, h: Math.PI },
+          weapons: [
+            { id: 'maw', name: 'Talon lance', dice: 2, range: 18, arcs: ['fore'], lance: true },
+            { id: 'turret', name: 'Point turrets', dice: 2, range: 15, arcs: ['fore', 'port', 'stbd', 'aft'] }
+          ],
+          assets: { mesh: '/_blob/08d8e56b994af5349f1a7e5a0b1eac58', base: '/_blob/b638cc5f369cb5d16c19d54534bc5104', normal: '/_blob/8da63acb2cebf790c7f9a82c6a3193d7', rm: '/_blob/efbe2e8fcaf666606aeb8ccd26999727' }
+        },
+        dreadnought: {
+          id: 'dreadnought', side: 'reaver', len: 11, beam: 1.7, tint: 0xffb79a, name: 'Gravemind', cls: 'Gravemind-class dreadnought · Reaver Clans', color: '#ff6a3d', hex: 0xff6a3d,
+          speed: 10, turn: 35, hull: 22, shields: { fore: 3, port: 3, stbd: 3, aft: 2 }, armour: 4, crew: 10, ram: true, tractor: 10, torps: 2, start: { x: 0, y: 0, h: Math.PI },
+          weapons: [
+            { id: 'port', name: 'Port broadside', dice: 8, range: 26, arcs: ['port'], broadside: true, side: 'port' },
+            { id: 'stbd', name: 'Starboard broadside', dice: 8, range: 26, arcs: ['stbd'], broadside: true, side: 'stbd' },
+            { id: 'maw', name: 'Graviton maw', dice: 4, range: 20, arcs: ['fore'], lance: true },
+            { id: 'turret', name: 'Spinal turrets', dice: 3, range: 18, arcs: ['fore', 'port', 'stbd', 'aft'] }
+          ],
+          assets: { mesh: '/_blob/c644ca5c0c860be99b90b776783c832d', base: '/_blob/a3fec9d6b439e84422b2180316fbad33', normal: '/_blob/1631962b096ed9a4432e4b3c0abb9c29', rm: '/_blob/7dfc69f5529eb78e929aebbda296f429' }
+        },
+        depot: {
+          id: 'depot', side: 'reaver', len: 7, beam: 1, static: true, tint: 0xffa77a, name: 'Fuel depot', cls: 'Reaver fuel depot', color: '#ff6a3d', hex: 0xff6a3d,
+          speed: 0, turn: 0, hull: 6, shields: { fore: 1, port: 1, stbd: 1, aft: 1 }, armour: 5, crew: 2, ram: false, start: { x: 0, y: 0, h: Math.PI }, weapons: [],
+          assets: { mesh: '/_blob/61f3bdf41de0d7f850ce3abbd0dad3e6', base: '/_blob/a05d33ec5191a3900bc29dadafcfcaa0', normal: '/_blob/0e8fd72339192966f2e9ebc06726b678', rm: '/_blob/7241d03f459c65ef36df002f044de3ad' }
         }
       }
     };
@@ -193,6 +219,11 @@ class GLCore {
       d.carry = { hull: it.hull, crew: it.crew, crits: it.crits };
       const cp = it.cap && this.D.CAPTAINS[it.cap]; d.cap = cp ? it.cap : null; d.captain = cp ? cp.name : ''; d.capTrait = cp ? cp.trait : null; d.prize = !!it.prize; d.battles = it.battles || 0; d.campaignId = it.campaignId || null;
       if (it.hullMax) d.hull = it.hullMax;
+      if (it.shieldBonus) Object.keys(d.shields).forEach((f) => { d.shields[f] += it.shieldBonus; });
+      if (it.static) d.static = true;
+      if (it.npc) d.npc = true;
+      // Veterancy from battles fought: Trained 1+, Veteran 3+ (re-roll one 1 per volley), Elite 6+ (boarders win ties).
+      d.vet = this.vetLevel(it.battles || 0);
       if (it.lanceBonus) d.weapons.forEach((w) => { if (w.lance) w.range += it.lanceBonus; });
       this.applyFit(d);
       SHIPS[d.id] = d; IDS.push(d.id);
@@ -281,7 +312,15 @@ class GLCore {
 
 
   // Asteroids block fire between ships.
+  vetLevel(n) { return n >= 6 ? 3 : n >= 3 ? 2 : n >= 1 ? 1 : 0; }
+
+  // Asteroids block fire between ships; so does a nebula beyond 12u, firing into it or out of it.
   blocked(A, T) {
+    const neb = (this.g.feat && this.g.feat.nebula) || [];
+    if (neb.length && Math.hypot(T.x - A.x, T.y - A.y) > 12) {
+      const inN = (p) => neb.some((n) => Math.hypot(p.x - n.x, p.y - n.y) < n.r);
+      if (inN(A) || inN(T)) return true;
+    }
     const rocks = (this.g.feat && this.g.feat.rocks) || [];
     for (let i = 0; i < rocks.length; i++) {
       const k = rocks[i], dx = T.x - A.x, dy = T.y - A.y, L2 = dx * dx + dy * dy || 1;

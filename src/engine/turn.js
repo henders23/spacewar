@@ -202,16 +202,22 @@ class GLTurn {
       }
       t.from = { x: t.x, y: t.y, h: t.h };
       if (!T) { t.to = { x: t.x + Math.cos(t.h) * TP.speed, y: t.y + Math.sin(t.h) * TP.speed, h: t.h }; t.hit = false; t.life -= 1; return; }
-      // Steer for where the target was when orders were given; the hit is judged against where it ends its move.
-      const e = endOf(T.id), want = Math.atan2(T.y - t.y, T.x - t.x), lim = TP.turn * Math.PI / 180;
-      const h = t.h + Math.max(-lim, Math.min(lim, this.norm(want - t.h))), ux = Math.cos(h), uy = Math.sin(h);
-      // Closest approach to the target's end position along this run.
-      const along = Math.max(0, Math.min(TP.speed, (e.x - t.x) * ux + (e.y - t.y) * uy));
-      const cx = t.x + ux * along, cy = t.y + uy * along, miss = Math.hypot(e.x - cx, e.y - cy), reach = TP.reach + T.def.len * TP.reachK;
-      t.hit = miss <= reach;
-      t.to = t.hit ? { x: cx, y: cy, h: h } : { x: t.x + ux * TP.speed, y: t.y + uy * TP.speed, h: h };
+      const run = this.torpRun(t, T, endOf(T.id), T.def);
+      t.hit = run.hit; t.to = run.to;
       t.life -= 1;
     });
+  }
+
+  // One torpedo move. It steers (up to 60°) for where its target was when orders were given (aim), runs its full
+  // speed, and strikes if the run passes within reach of where the target ends its move (end). Shared by the real
+  // move and the plotting threat display, so the prediction is exact.
+  torpRun(t, aim, end, targetDef) {
+    const TP = this.D.TORP, want = Math.atan2(aim.y - t.y, aim.x - t.x), lim = TP.turn * Math.PI / 180;
+    const h = t.h + Math.max(-lim, Math.min(lim, this.norm(want - t.h))), ux = Math.cos(h), uy = Math.sin(h);
+    const along = Math.max(0, Math.min(TP.speed, (end.x - t.x) * ux + (end.y - t.y) * uy));
+    const cx = t.x + ux * along, cy = t.y + uy * along, reach = TP.reach + targetDef.len * TP.reachK;
+    const hit = Math.hypot(end.x - cx, end.y - cy) <= reach;
+    return { hit: hit, reach: reach, h: h, full: { x: t.x + ux * TP.speed, y: t.y + uy * TP.speed }, to: hit ? { x: cx, y: cy, h: h } : { x: t.x + ux * TP.speed, y: t.y + uy * TP.speed, h: h } };
   }
 
   // Torpedoes reach the end of their run: hits are queued for gunnery, burnt-out or off-map ones are removed.

@@ -55,3 +55,22 @@ test('tractor beam: winning the roll-off drags the target 4u (never inside 4.2u)
   Object.assign(B, { x: -5, y: 0 }); drain(c, c.tractorSeq(A, B));
   assert.ok(Math.abs(Math.hypot(B.x - A.x, B.y - A.y) - 4.2) < 1e-9);
 });
+
+test('threat display predicts torpedo strikes exactly', () => {
+  const c = engine(), g = c.g, me = g.ships.vigilant, foe = g.ships.carrion;
+  Object.assign(me, { x: 0, y: 0, h: 0 }); Object.assign(foe, { x: 30, y: 0, h: Math.PI });
+  Object.assign(g.ships.resolute, { x: -60, y: -40 }); Object.assign(g.ships.maw, { x: 70, y: 50 });
+  for (const pose of [{ x: 10, y: 0, h: 0 }, { x: 8, y: 9, h: 1 }]) {
+    const th = c.threatsAt(me, pose).filter((t) => t.kind === 'torp' && !t.live)[0];
+    assert.ok(th, 'carrion can launch');
+    // Now really launch and move: the prediction must match.
+    const c2 = engine(), g2 = c2.g;
+    Object.assign(g2.ships.vigilant, { x: 0, y: 0, h: 0 }); Object.assign(g2.ships.carrion, { x: 30, y: 0, h: Math.PI });
+    Object.assign(g2.ships.resolute, { x: -60, y: -40 }); Object.assign(g2.ships.maw, { x: 70, y: 50 });
+    g2.orders = { vigilant: { order: 'steady', dest: c2.path(g2.ships.vigilant, pose).at(1) && pose }, carrion: { order: 'steady', dest: { x: 22, y: 0 }, target: 'vigilant', torp: true },
+      resolute: { order: 'steady', dest: { x: -52, y: -40 } }, maw: { order: 'steady', dest: { x: 62, y: 50 } } };
+    c2.beginMovement();
+    assert.equal(g2.torps[0].hit, th.hit, 'pose ' + JSON.stringify(pose));
+  }
+  assert.ok(Math.abs(c.tractorOdds(g.ships.maw, me) - 26 / 36) < 1e-9);
+});

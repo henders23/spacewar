@@ -29,7 +29,9 @@ for (const [name, setup, order] of [
   ['steady broadside at 16u', place(), 'steady'],
   ['Gunnery Master with Lock On', place(), 'lock'],
   ['Gunnery Master + veteran gun crews', place({ gunners: true }), 'lock'],
-  ['braced (half dice)', place(), 'brace']
+  ['braced (half dice)', place(), 'brace'],
+  ['veteran crew (re-roll one 1 per volley)', place({ vet: 2 }), 'steady'],
+  ['veteran crew + Gunnery Master', place({ vet: 2 }), 'lock']
 ]) {
   test('preview matches simulation: ' + name, () => {
     const { pv, sim } = check(setup, order, 12000);

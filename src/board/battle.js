@@ -79,6 +79,15 @@ class Component extends DCLogic {
         grp.add(l);
       }
     });
+    // Threats: torpedo lanes (red where they would strike this position), tractor reach rings.
+    r.threats.forEach((t) => {
+      if (t.kind === 'torp') {
+        const p0 = this.m2v(t.from.x, t.from.y, 0.5), p1 = this.m2v(t.to.x, t.to.y, 0.5), q = this.flatQuad('none', t.reach * 2, 1, false, t.hit ? 0xff4d4d : 0xffa040);
+        q.position.copy(p0).lerp(p1, 0.5); this.aim(q, p0, p1); q.userData.mesh.scale.y = p0.distanceTo(p1);
+        q.userData.mesh.material.opacity = (t.hit ? 0.3 : 0.12) * (t.live ? 1 : 0.7); grp.add(q);
+        grp.add(this.torpLine(t.from.x, t.from.y, t.to.x, t.to.y, t.hit ? 0.95 : 0.5));
+      } else if (t.kind === 'tractor') grp.add(this.circle(t.at.x, t.at.y, t.r, 0xb59bff, 0.4));
+    });
   }
 
   selectShip(id) {
@@ -386,7 +395,7 @@ class Component extends DCLogic {
       const gltf = res[0], base = res[1], normal = res[2], rm = res[3];
       [base, normal, rm].forEach((t) => { if (t) { t.flipY = false; t.anisotropy = 4; } });
       if (base) base.encoding = T.sRGBEncoding;
-      const mat = new T.MeshStandardMaterial({ map: base, normalMap: normal, roughnessMap: rm, metalnessMap: rm, metalness: rm ? 0.45 : 0.4, roughness: rm ? 1 : 0.55, color: base ? 0xffffff : 0x8a94a6 });
+      const mat = new T.MeshStandardMaterial({ map: base, normalMap: normal, roughnessMap: rm, metalnessMap: rm, metalness: rm ? 0.45 : 0.4, roughness: rm ? 1 : 0.55, color: base ? (def.tint || 0xffffff) : 0x8a94a6 });
       const m = gltf.scene;
       m.traverse((o) => { if (o.isMesh) o.material = mat; });
       const holder = new T.Group(); holder.add(m);
@@ -442,6 +451,14 @@ class Component extends DCLogic {
       geo.computeVertexNormals();
       const rock = new T.Mesh(geo, new T.MeshStandardMaterial({ color: 0x3a3631, roughness: 1, metalness: 0, flatShading: true }));
       rock.position.set(k.x, 0.6, -k.y); rock.rotation.set(i, i * 2.3, i * 0.7); grp.add(rock);
+    });
+    (F.nebula || []).forEach((n, i) => {
+      for (let k = 0; k < 7; k++) {
+        const a = k * 0.9 + i, rr = k === 0 ? 0 : n.r * 0.55;
+        const sp = new T.Sprite(new T.SpriteMaterial({ toneMapped: false, map: t3.glowTex, color: k % 2 ? 0x6a4fb8 : 0x3f5fa8, transparent: true, opacity: 0.32, depthWrite: false }));
+        sp.position.set(n.x + Math.cos(a) * rr, 0.4 + k * 0.05, -(n.y + Math.sin(a) * rr)); sp.scale.setScalar(n.r * (k === 0 ? 2.2 : 1.4)); grp.add(sp);
+      }
+      grp.add(this.circle(n.x, n.y, n.r, 0x9a7bff, 0.35));
     });
     (F.beacons || []).forEach((b) => {
       const g2 = new T.Group(); g2.userData.beacon = b;
@@ -1200,6 +1217,7 @@ class Component extends DCLogic {
     const gold = 'background: #3a2208; color: #ffc94d; border: 1px solid #6b4310;', violet = 'background: #221a3a; color: #d7c8ff; border: 1px solid #4a3a7a;';
     const chips = s.crits.map((c) => ({ text: this.critName(c), title: '', style: gold }));
     if (def.tractor) chips.unshift({ text: 'Tractor beam · ' + def.tractor + 'u', title: 'Locks an enemy within 8u after movement; roll-off to pull it 4u closer and hold it', style: violet });
+    if (def.vet) chips.push({ text: ['', 'Trained crew', 'Veteran crew · re-roll one 1 per volley', 'Elite crew · re-roll one 1 per volley, boarders win ties'][def.vet], title: 'Veterancy from battles fought: Veteran at 3, Elite at 6', style: 'background: #11301f; color: #b8f0cc; border: 1px solid #1f5a39;' });
     if (def.cap) { const tr = this.D.TRAITS[def.capTrait]; chips.unshift({ text: def.captain + ' · ' + tr.name, title: tr.text, style: 'background: #10223a; color: #cfe4ff; border: 1px solid #2f5a8a;' }); }
     const g0 = this.g, heldNext = s.heldTurn && (s.heldTurn === g0.turn + 1 || (s.heldTurn === g0.turn && (g0.phase === 'orders' || g0.phase === 'handoff')));
     if (heldNext && !s.dead) chips.push({ text: 'Held: −4u next move', title: 'Caught by a tractor beam', style: violet });
@@ -1267,7 +1285,7 @@ class Component extends DCLogic {
     const targets = canOrder ? [{ name: 'Closest', pick: this.targetAuto, pressed: this.ui.target === 'auto' ? 'true' : 'false', style: tchip(this.ui.target === 'auto') }].concat(
       this.sideShips(this.enemySide(g.side)).map((id) => ({ name: g.ships[id].def.name.replace('CNS ', ''), pick: this.targetFn(id), pressed: this.ui.target === id ? 'true' : 'false', style: tchip(this.ui.target === id) }))) : [];
     const pv = this.pv, f1 = (x) => (Math.round(x * 10) / 10).toFixed(1);
-    const pvm = { show: !!pv && g.phase === 'orders', ship: pv ? pv.ship : '', empty: !pv || !!pv.empty, full: !!pv && !pv.empty, where: '', dealTotal: '0.0', takeTotal: '0.0', deal: [], take: [], noDeal: true, noTake: true };
+    const pvm = { show: !!pv && g.phase === 'orders', ship: pv ? pv.ship : '', empty: !pv || !!pv.empty, full: !!pv && !pv.empty, where: '', dealTotal: '0.0', takeTotal: '0.0', deal: [], take: [], noDeal: true, noTake: true, threats: [], hasThreats: false };
     if (pv && !pv.empty) {
       const r = pv.r, nm = (id) => g.ships[id].def.name;
       pvm.where = (pv.src === 'hover' ? 'From the hovered position' : 'From the plotted position') + ' · enemies assumed to hold course';
@@ -1276,6 +1294,9 @@ class Component extends DCLogic {
       pvm.dealTotal = f1(Object.keys(r.deal).reduce((a, id) => a + r.deal[id].dmg, 0));
       pvm.takeTotal = f1(Object.keys(r.take).reduce((a, id) => a + r.take[id].dmg, 0));
       pvm.noDeal = !pvm.deal.length; pvm.noTake = !pvm.take.length;
+      const tcol = { 3: '#ff4d4d', 2: '#ff8a5c', 1: '#d7c8ff', 0: '#93a3bf' };
+      pvm.threats = (r.threats || []).map((t) => ({ text: t.text, col: tcol[t.sev] || '#93a3bf', mark: t.sev >= 2 ? '!' : '·' }));
+      pvm.hasThreats = pvm.threats.length > 0;
     }
     // Campaign: mission tracker, ready-to-start prompt, and the debrief.
     const misView = { show: false, ready: false };
@@ -1288,6 +1309,7 @@ class Component extends DCLogic {
       if (m.exit) notes.push('Green band: the ' + m.exit.edge + ' exit edge');
       if (g.feat.well) notes.push('Gravity well bends every course toward the purple swirl');
       if ((g.feat.rocks || []).length) notes.push('Asteroids block fire; ending a move inside one costs D3 hull');
+      if ((g.feat.nebula || []).length) notes.push('Purple clouds are nebulae: no fire into or out of one beyond 12u');
       if ((g.feat.mines || []).length) notes.push('Red lights are mines: 2d6 to any ship ending within 3u · gold rings are beacons (end within 5u)');
       const away = this.ids().filter((id) => g.ships[id].away).map((id) => g.ships[id].def.name + ' (turn ' + g.ships[id].def.spawn + ')');
       if (away.length) notes.push('Expected: ' + away.join(', '));

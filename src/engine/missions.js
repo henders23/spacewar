@@ -23,6 +23,8 @@ class GLMissions {
     });
     const lb = mods.reaverLances ? 6 : 0;
     const raider = (id, name, x, y, h, extra) => Object.assign({ id: id, cls: 'carrion', name: name, x: x, y: y, h: h, lanceBonus: lb }, extra || {});
+    const lancer = (id, name, x, y, h, extra) => Object.assign({ id: id, cls: 'lancer', name: name, x: x, y: y, h: h, lanceBonus: lb }, extra || {});
+    const PI = Math.PI;
     const maw = (x, y, h, extra) => Object.assign({ id: 'e_maw', cls: 'maw', name: 'Maw of Ruin', x: x, y: y, h: h, lanceBonus: lb, cap: 'garrak' }, extra || {});
     const M = {
       m1: { name: 'Picket Line', type: 'Fleet engagement', turns: 0,
@@ -50,6 +52,23 @@ class GLMissions {
           maw(58, 6, Math.PI, { hullMax: 16 }), raider('e_r1', 'Sawtooth', 62, -24, Math.PI),
           raider('e_r2', 'Bone Kite', 0, H - 4, -Math.PI / 2, { spawn: 4 }), raider('e_r3', 'Grief Hook', 0, -H + 4, Math.PI / 2, { spawn: 7 })].concat(mods.extraRaider ? [raider('e_r4', 'Gutter Saint', 64, 30, Math.PI)] : [])) }
     };
+    // Operation Black Meridian.
+    Object.assign(M, {
+      b1: { name: 'Into the Rift', type: 'Fleet engagement', turns: 0, features: { nebula: [{ x: -6, y: 14, r: 16 }, { x: 28, y: -22, r: 14 }, { x: 40, y: 28, r: 12 }] },
+        roster: deploy([{ x: -50, y: -12, h: 0 }, { x: -52, y: 12, h: 0 }]).concat([lancer('e_l1', 'Needle', 46, -14, PI), lancer('e_l2', 'Whisper', 50, 6, PI), lancer('e_l3', 'Shiv', 44, 24, PI), lancer('e_l4', 'Hook', 70, -4, PI, { spawn: 3 })]) },
+      b2a: { name: 'Ghost Signal', type: 'Rescue', turns: 7, features: { nebula: [{ x: 40, y: -30, r: 14 }, { x: -40, y: 30, r: 12 }] },
+        roster: deploy([{ x: -34, y: -6, h: 0 }, { x: -36, y: 12, h: 0 }]).concat([
+          { id: 'halcyon', cls: 'vigilant', side: 'concord', name: 'CNS Halcyon', x: -6, y: 0, h: PI / 2, hull: 6, crew: 4, static: true, fit: { defence: 'pd' } },
+          lancer('e_l1', 'Needle', 72, -12, PI), lancer('e_l2', 'Whisper', 74, 14, PI), raider('e_r1', 'Sawtooth', 70, 36, PI, { spawn: 3 }), lancer('e_l3', 'Shiv', 0, H - 4, -PI / 2, { spawn: 4 })]) },
+      b2b: { name: 'Burn the Depots', type: 'Strike', turns: 10, features: { mines: [{ x: 22, y: -12 }, { x: 30, y: 8 }, { x: 40, y: -32 }, { x: 46, y: 18 }] },
+        roster: deploy([{ x: -56, y: -8, h: 0 }, { x: -58, y: 12, h: 0 }]).concat([
+          { id: 'e_d1', cls: 'depot', name: 'Depot Ashfall', x: 34, y: -22, h: PI }, { id: 'e_d2', cls: 'depot', name: 'Depot Cinder', x: 44, y: 0, h: PI }, { id: 'e_d3', cls: 'depot', name: 'Depot Slag', x: 36, y: 24, h: PI },
+          lancer('e_l1', 'Needle', 22, -34, PI), lancer('e_l2', 'Whisper', 24, 34, PI)]) },
+      b3: { name: 'The Gravemind', type: 'Flagship', turns: 12, features: { nebula: [{ x: -10, y: -26, r: 14 }, { x: 6, y: 26, r: 15 }, { x: 52, y: -4, r: 10 }] },
+        roster: deploy([{ x: -56, y: -10, h: 0 }, { x: -58, y: 12, h: 0 }]).concat([
+          Object.assign({ id: 'e_grave', cls: 'dreadnought', name: 'Gravemind', x: 46, y: 4, h: PI, cap: 'sorn', lanceBonus: lb }, mods.gravemindFuel ? { hullMax: 26, hull: 26, shieldBonus: 1 } : {}),
+          lancer('e_l1', 'Needle', 40, -24, PI), lancer('e_l2', 'Whisper', 42, 30, PI)]) }
+    });
     const m = M[code]; if (!m) return null;
     m.code = code.toUpperCase(); m.features = m.features || {};
     return m;
@@ -60,6 +79,7 @@ class GLMissions {
     const g = this.g, m = this.mission, T = g.turn, ids = this.ids(), sh = (id) => g.ships[id];
     const mine = ids.filter((id) => sh(id).def.side === 'concord' && !sh(id).def.npc && !sh(id).def.static);
     const myLive = mine.filter((id) => this.active(sh(id))).length;
+    const lostN = mine.filter((id) => sh(id).dead || sh(id).captured).length;
     const foes = ids.filter((id) => sh(id).def.side === 'reaver');
     const foesLeft = foes.filter((id) => this.active(sh(id)) || sh(id).away).length;
     const limit = m.turns && T >= m.turns;
@@ -100,6 +120,28 @@ class GLMissions {
       res.won = out >= 2; res.secondary = res.won && lostN === 0;
       L(res.secondary, 'Secondary: lose no ships');
       res.credits = res.won ? 600 : 0; res.renown = res.won ? 1 + (res.secondary ? 1 : 0) : 0;
+    } else if (m.code === 'B1') {
+      L(foesLeft === 0, 'Destroy, capture or drive off the Lancer pack');
+      res.over = foesLeft === 0 || myLive === 0; res.won = foesLeft === 0 && myLive > 0;
+      if (res.won) { res.credits = 500; res.renown = 1; }
+    } else if (m.code === 'B2A') {
+      const hal = sh('halcyon'), ok = hal && !hal.dead && !hal.captured;
+      L(ok && (T >= 7 || foesLeft === 0), 'CNS Halcyon survives, uncaptured, to the end of turn 7 (turn ' + T + ')');
+      res.secondary = lostN === 0; L(res.secondary, 'Secondary: lose no ships');
+      res.over = !ok || limit || foesLeft === 0 || (myLive === 0 && foesLeft > 0); res.won = ok && (limit || foesLeft === 0);
+      res.credits = res.won ? 300 : 0; res.renown = res.won ? 1 : 0;
+    } else if (m.code === 'B2B') {
+      const dep = ids.filter((id) => sh(id).def.cls === 'depot'), burnt = dep.filter((id) => sh(id).dead || sh(id).captured).length;
+      L(burnt === dep.length, 'Destroy all three fuel depots by turn 10 (' + burnt + ' burning)');
+      res.secondary = lostN === 0 && burnt === dep.length; L(lostN === 0, 'Secondary: lose no ships');
+      res.over = burnt === dep.length || myLive === 0 || limit; res.won = burnt === dep.length;
+      res.credits = res.won ? 700 : 0; res.renown = res.won ? 1 + (res.secondary ? 1 : 0) : 0;
+    } else if (m.code === 'B3') {
+      const gm = sh('e_grave'), gone = !!gm && (gm.dead || gm.captured);
+      L(gone, 'Destroy or capture the Gravemind by turn 12');
+      res.secondary = gone && lostN === 0; L(lostN === 0, 'Secondary: lose no ships');
+      res.over = gone || myLive === 0 || limit; res.won = gone;
+      res.credits = res.won ? 1200 : 0; res.renown = res.won ? 3 + (res.secondary ? 1 : 0) : 0;
     } else if (m.code === 'M5') {
       const st = sh('aurel'), mw = sh('e_maw'), stOk = st && !st.dead && !st.captured;
       L(stOk && (T >= 8 || foesLeft === 0), 'Station Aurel survives 8 turns (turn ' + T + ')');
@@ -126,6 +168,8 @@ class GLMissions {
       }
       f.hull = Math.max(1, s.hull); f.crew = Math.max(1, s.crew); f.crits = s.crits.map((c) => ({ k: c.k, roll: c.roll, side: c.side || null }));
       f.battles = (f.battles || 0) + 1; f.sitsOut = false;
+      // Losing half the crew costs a ship one step of veterancy.
+      if (s.crew <= s.def.crew / 2) { const lv = this.vetLevel(f.battles); if (lv > 0) { f.battles = [0, 0, 1, 3][lv]; res.lines.push({ ok: false, text: f.name + ' lost half its crew and a step of veterancy' }); } }
       fleet.push(f);
     });
     this.ids().forEach((id) => {
@@ -138,13 +182,14 @@ class GLMissions {
     sv.fleet = fleet;
     sv.credits = (sv.credits || 0) + res.credits; sv.renown = (sv.renown || 0) + res.renown;
     sv.done = sv.done || {}; sv.done[key] = res.won ? 'won' : 'failed';
-    if (key === 'm2a' || key === 'm2b') sv.done[key === 'm2a' ? 'm2b' : 'm2a'] = 'skipped';
+    this.forkSkips(sv, key).forEach((k) => { if (!sv.done[k]) sv.done[k] = 'skipped'; });
+    if (key === 'b2a' && res.won) { const h = g.ships.halcyon; fleet.push({ id: 'halcyon', cls: 'vigilant', name: 'CNS Halcyon', hull: Math.max(1, h.hull), crew: Math.max(1, h.crew), crits: h.crits.map((c) => ({ k: c.k, roll: c.roll, side: c.side || null })), fit: {}, battles: 0, cap: null }); prizes.push('CNS Halcyon (rescued)'); }
+    if (!res.won && key === 'b2b') { sv.mods = sv.mods || {}; sv.mods.gravemindFuel = true; }
     sv.mods = sv.mods || {};
     if (!res.won && key === 'm2a') sv.mods.dockPrice = 1.25;
     if (!res.won && key === 'm2b') sv.mods.reaverLances = true;
     if (!res.won && key === 'm3') sv.mods.extraRaider = true;
     if (key === 'm2a' && res.secondary) sv.okafor = true;
-    if (key === 'm1' || key === 'm2a' || key === 'm2b') sv.docked = null;
     sv.current = null;
     sv.debrief = { code: m.code, name: m.name, won: res.won, lines: res.lines, credits: res.credits, renown: res.renown, lost: lost, prizes: prizes, turn: g.turn, at: Date.now() };
     sv.history = (sv.history || []).concat([{ code: m.code, won: res.won, turn: g.turn }]);

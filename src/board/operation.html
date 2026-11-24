@@ -24,9 +24,9 @@ th{font-size:11px;letter-spacing:0.06em;color:#93a3bf;font-weight:600}
 <main style="max-width: 1240px; margin: 0 auto; padding: 44px 24px 72px; display: flex; flex-direction: column; gap: 40px">
 
   <header style="display: flex; flex-direction: column; gap: 14px">
-    <span style="font-family: 'JetBrains Mono', monospace; font-size: 12px; letter-spacing: 0.14em; color: #ffc94d">GUNLINE · CAMPAIGN · OPERATION 1 OF 3</span>
-    <h1 style="margin: 0; font-family: 'Chakra Petch', sans-serif; font-weight: 700; font-size: 48px; line-height: 1.05; letter-spacing: 0.04em; color: #eef3fb">OPERATION IRON TIDE</h1>
-    <p style="margin: 0; max-width: 780px; font-size: 16px; color: #c5d1e6">The Reaver Clans have broken through the Varn picket. Rear-Admiral, take the Resolute squadron forward, break up their raiding parties, find the lair their ships return to, and hold Station Aurel when the Maw of Ruin comes for it. Your ships, crews and captains carry every scar from one mission to the next.</p>
+    <span style="font-family: 'JetBrains Mono', monospace; font-size: 12px; letter-spacing: 0.14em; color: #ffc94d">{{opKicker}}</span>
+    <h1 style="margin: 0; font-family: 'Chakra Petch', sans-serif; font-weight: 700; font-size: 48px; line-height: 1.05; letter-spacing: 0.04em; color: #eef3fb">{{opTitle}}</h1>
+    <p style="margin: 0; max-width: 780px; font-size: 16px; color: #c5d1e6">{{opIntro}}</p>
     <div style="display: flex; flex-wrap: wrap; gap: 10px">
       <div style="display: flex; flex-direction: column; padding: 10px 16px; background: #0d1220; border: 1px solid #1c2638; border-radius: 8px; min-width: 130px"><span style="font-size: 11px; letter-spacing: 0.06em; color: #93a3bf">CREDITS</span><span style="font-family: 'JetBrains Mono', monospace; font-size: 22px; font-weight: 700; color: #ffc94d">{{creditsLeft}}</span></div>
       <div style="display: flex; flex-direction: column; padding: 10px 16px; background: #0d1220; border: 1px solid #1c2638; border-radius: 8px; min-width: 130px"><span style="font-size: 11px; letter-spacing: 0.06em; color: #93a3bf">RENOWN</span><span style="font-family: 'JetBrains Mono', monospace; font-size: 22px; font-weight: 700; color: #eef3fb">{{renown}}</span></div>
@@ -39,7 +39,10 @@ th{font-size:11px;letter-spacing:0.06em;color:#93a3bf;font-weight:600}
       <button onClick="{{restart}}" style="{{restartStyle}}">{{restartLabel}}</button>
     </div>
     <sc-if value="{{showEnd}}" hint-placeholder-val="{{ false }}">
-      <div role="status" style="padding: 14px 18px; background: #0d1220; border: 1px solid #4a3a12; border-left: 3px solid #ffc94d; border-radius: 8px; font-size: 15px; color: #eef3fb">{{endText}}</div>
+      <div role="status" style="display: flex; flex-wrap: wrap; gap: 12px; align-items: center; justify-content: space-between; padding: 14px 18px; background: #0d1220; border: 1px solid #4a3a12; border-left: 3px solid #ffc94d; border-radius: 8px; font-size: 15px; color: #eef3fb">
+        <span>{{endText}}</span>
+        <sc-if value="{{canNextOp}}" hint-placeholder-val="{{ false }}"><button onClick="{{nextOp}}" style="min-height: 46px; padding: 0 18px; border: 0; border-radius: 6px; background: #ffc94d; color: #1a1204; font-weight: 700; font-size: 14px; cursor: pointer">{{nextOpLabel}}</button></sc-if>
+      </div>
     </sc-if>
     <sc-if value="{{showDebrief}}" hint-placeholder-val="{{ false }}">
       <div role="region" aria-label="Last mission debrief" style="display: flex; flex-direction: column; gap: 6px; padding: 16px 20px; background: #0d1220; border: 1px solid #1c2638; border-left: 3px solid {{db.col}}; border-radius: 8px">
@@ -61,14 +64,7 @@ th{font-size:11px;letter-spacing:0.06em;color:#93a3bf;font-weight:600}
       <div style="flex: 3 1 560px; min-width: 0; display: flex; flex-direction: column; gap: 10px">
         <div style="position: relative; width: 100%; aspect-ratio: 16 / 9; background: #04060c; border: 1px solid #1c2638; border-radius: 10px; overflow: hidden">
           <svg viewBox="0 0 160 90" preserveAspectRatio="none" aria-hidden="true" style="position: absolute; inset: 0; width: 100%; height: 100%">
-            <path d="M14,45 L43,23" stroke-width="0.5" fill="none" style="{{rs.l0}}"></path>
-            <path d="M14,45 L43,67" stroke-width="0.5" fill="none" style="{{rs.l1}}"></path>
-            <path d="M43,23 L70,45" stroke-width="0.5" fill="none" style="{{rs.l2}}"></path>
-            <path d="M43,67 L70,45" stroke-width="0.5" fill="none" style="{{rs.l3}}"></path>
-            <path d="M70,45 L95,45" stroke-width="0.5" fill="none" style="{{rs.l4}}"></path>
-            <path d="M95,45 L120,64" stroke-width="0.5" fill="none" style="{{rs.l5}}"></path>
-            <path d="M120,64 L136,24" stroke-width="0.5" fill="none" style="{{rs.l6}}"></path>
-            <path d="M136,24 L150,49" stroke-width="0.5" fill="none" style="{{rs.l7}}"></path>
+            <sc-for list="{{legs}}" as="l" hint-placeholder-count="8"><path d="{{l.d}}" stroke-width="0.5" fill="none" style="{{l.style}}"></path></sc-for>
             <circle cx="40" cy="12" r="0.35" fill="#5a6a86"></circle><circle cx="88" cy="78" r="0.35" fill="#5a6a86"></circle><circle cx="120" cy="10" r="0.35" fill="#5a6a86"></circle><circle cx="20" cy="80" r="0.35" fill="#5a6a86"></circle><circle cx="66" cy="16" r="0.35" fill="#5a6a86"></circle><circle cx="148" cy="80" r="0.35" fill="#5a6a86"></circle><circle cx="104" cy="22" r="0.35" fill="#5a6a86"></circle>
           </svg>
           <sc-for list="{{nodes}}" as="n" hint-placeholder-count="8">
@@ -85,7 +81,7 @@ th{font-size:11px;letter-spacing:0.06em;color:#93a3bf;font-weight:600}
           <span><span style="color: #ff8a8a; font-weight: 700">●</span> failed</span>
           <span><span style="color: #5a6a86; font-weight: 700">●</span> locked</span>
           <span><span style="color: #5aa9ff; font-weight: 700">◆</span> drydock: repair and refit</span>
-          <span>Missions 2A and 2B are a fork: you can only fly one of them.</span>
+          <span>Two missions side by side are a fork: you can only fly one of them.</span>
         </div>
       </div>
 
@@ -160,6 +156,19 @@ th{font-size:11px;letter-spacing:0.06em;color:#93a3bf;font-weight:600}
         </button>
       </sc-for>
     </div>
+
+    <sc-if value="{{yard.show}}" hint-placeholder-val="{{ false }}">
+      <div role="region" aria-label="Shipyard" style="display: flex; flex-direction: column; gap: 10px; padding: 16px 18px; background: #0d1220; border: 1px solid #1c2638; border-radius: 10px">
+        <div style="display: flex; flex-wrap: wrap; justify-content: space-between; gap: 8px; align-items: baseline"><h3 style="margin: 0; font-family: 'Chakra Petch', sans-serif; font-size: 18px; color: #eef3fb">Shipyard · new hulls</h3><span style="font-size: 12px; color: #93a3bf">Commissioned at once with full crew, green, no captain. Up to 4 hulls.</span></div>
+        <sc-for list="{{yard.hulls}}" as="h" hint-placeholder-count="2">
+          <div style="display: flex; justify-content: space-between; align-items: center; gap: 14px; padding: 10px 12px; border-radius: 8px; background: #080c16; border: 1px solid #1c2638">
+            <div style="display: flex; flex-direction: column; gap: 2px; min-width: 0"><span style="font-weight: 700; color: #eef3fb">{{h.name}}</span><span style="font-size: 12px; color: #c5d1e6">{{h.note}}</span></div>
+            <div style="display: flex; align-items: center; gap: 10px; flex: none"><span style="font-family: 'JetBrains Mono', monospace; color: #ffc94d">{{h.price}}</span><button onClick="{{h.act}}" disabled="{{h.off}}" style="{{h.btnStyle}}">{{h.label}}</button></div>
+          </div>
+        </sc-for>
+        <sc-if value="{{yard.full}}" hint-placeholder-val="{{ false }}"><span style="font-size: 12px; color: #ffc94d">{{yard.fullNote}}</span></sc-if>
+      </div>
+    </sc-if>
 
     <div style="display: flex; flex-wrap: wrap; gap: 20px; align-items: flex-start">
       <div style="flex: 1 1 340px; min-width: 0; display: flex; flex-direction: column; gap: 12px; padding: 16px 18px; background: #0d1220; border: 1px solid #1c2638; border-radius: 10px">

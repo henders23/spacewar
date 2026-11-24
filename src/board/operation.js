@@ -50,71 +50,24 @@ class Component extends DCLogic {
       resolute: { cls: 'Dominion-class battleship', hull: 14, crew: 8, slots: ['weapons', 'defence', 'engines', 'crew', 'special'] },
       vigilant: { cls: 'Valiant-class cruiser', hull: 8, crew: 6, slots: ['weapons', 'defence', 'engines', 'crew'] },
       maw: { cls: 'Ravager-class battleship', hull: 13, crew: 7, slots: ['weapons', 'engines', 'crew'] },
+      lancer: { cls: 'Lancer-class strike craft', hull: 6, crew: 3, slots: ['weapons', 'engines'] },
+      dreadnought: { cls: 'Gravemind-class dreadnought', hull: 22, crew: 10, slots: ['weapons', 'defence', 'engines', 'crew', 'special'] },
       carrion: { cls: 'Harrow-class raider', hull: 10, crew: 4, slots: ['weapons', 'engines', 'crew'] },
       hydra: { cls: 'Hydra-class tender', hull: 14, crew: 5, slots: ['defence', 'crew'] }
     };
     const CRIT = { breach: 'Hull Breach', fire: 'Fire!', engines: 'Engines Hit', steering: 'Steering Jammed', gundeck: 'Gun Deck Hit', bridge: 'Bridge Hit' };
-    const M = {
-      m1: { code: 'M1', name: 'Picket Line', type: 'FLEET ENGAGEMENT', x: 14, y: 45, brief: 'The Reaver vanguard is probing the Varn picket: the Maw of Ruin and its raider escort. Break them before the rest of the clan follows.', terrain: 'Open space, 160 × 110u',
-        blocks: [['ENEMY', '#ff8a8a', ['Maw of Ruin (Ravager-class battleship)', 'Carrion Wing (Harrow-class raider)']],
-                 ['OBJECTIVES', '#ffc94d', ['Destroy, capture or drive off both Reaver ships']],
-                 ['REWARDS', '#7be3a4', ['+400 credits, +1 renown', 'Any ship you board and capture joins your fleet as a prize']]] },
-      m2a: { code: 'M2A', name: 'Convoy Run', type: 'ESCORT', x: 43, y: 23, brief: 'Three ore freighters must cross the Varn shallows to the yards. Reaver raiders will come in from the north edge from turn 3.', terrain: 'Open space; freighters steam west at 12u a turn',
-        blocks: [['ENEMY', '#ff8a8a', ['Two Harrow-class raiders arrive on turn 3', 'Maw of Ruin arrives on turn 5 if any freighter is still on the map']],
-                 ['OBJECTIVES', '#ffc94d', ['Primary: at least 2 freighters exit the west edge by turn 9', 'Secondary: all 3 get through']],
-                 ['SPECIAL RULES', '#8cc4ff', ['Freighters have Hull 4, Shields 1 all round, no weapons, and hold their course']],
-                 ['REWARDS', '#7be3a4', ['+250 credits per freighter saved', 'Secondary: +1 renown and Cmdr. Ama Okafor joins as a captain']],
-                 ['IF YOU FAIL', '#ff8a8a', ['The yards cannot supply you: drydock prices +25% for the rest of the operation']]] },
-      m2b: { code: 'M2B', name: 'Salvage Field', type: 'RAID', x: 43, y: 67, brief: 'A wrecked Concord cruiser lies in the Tessaly asteroid belt with its lance foci intact. Recover the salvage before the Reavers strip it.', terrain: 'Asteroid field: rocks block fire and hole hulls',
-        blocks: [['ENEMY', '#ff8a8a', ['Two Harrow-class raiders', 'Proximity mines around the wreck (2d6 to any ship ending within 3u)']],
-                 ['OBJECTIVES', '#ffc94d', ['Primary: recover 2 of 3 salvage beacons (end a move within 5u), then exit the east edge by turn 12', 'Secondary: recover all 3']],
-                 ['SPECIAL RULES', '#8cc4ff', ['A ship that ends its move inside an asteroid takes D3 (no saves)', 'Asteroids block line of fire between ships']],
-                 ['REWARDS', '#7be3a4', ['+200 credits per beacon and +1 renown', 'Secondary: +150 credits']],
-                 ['IF YOU FAIL', '#ff8a8a', ['The Reavers refit with the salvage: their lances get +6u range for the rest of the operation']]] },
-      d1: { code: 'D1', name: 'Drydock Varn', type: 'DRYDOCK', x: 70, y: 45, dock: true, brief: 'Repair, recruit and refit before pushing into Reaver space. Use the drydock section below, then leave dock to unlock M3.', terrain: 'Safe harbour',
-        blocks: [['SERVICES', '#8cc4ff', ['Hull 40 credits per point · criticals 60 each · crew 30 each', 'Upgrades from the catalogue']]] },
-      m3: { code: 'M3', name: 'The Reaver Lair', type: 'PRIZE HUNT', x: 95, y: 45, brief: 'Prisoners point to the tender Mother Hydra, which refuels every Reaver raid. Take her intact.', terrain: 'Reaver station in a debris ring; the station guns fire at anything within 20u',
-        blocks: [['ENEMY', '#ff8a8a', ['Mother Hydra (Hull 14, Crew 5, no guns, cannot move)', 'Lair Station: 4d6 turrets at 20u, all arcs', 'Maw of Ruin on guard']],
-                 ['OBJECTIVES', '#ffc94d', ['Primary: capture Mother Hydra by boarding by turn 10. Destroying her fails the mission', 'Secondary: cripple the Maw of Ruin']],
-                 ['REWARDS', '#7be3a4', ['Mother Hydra joins your fleet', '+500 credits, +2 renown (+1 for the secondary)']],
-                 ['IF YOU FAIL', '#ff8a8a', ['The Reavers keep their supply line: +1 Reaver raider in M4 and M5']]] },
-      m4: { code: 'M4', name: 'Kessel Gate', type: 'BREAKTHROUGH', x: 120, y: 64, brief: 'The Reaver blockade line holds the only jump route to Station Aurel. Punch through it.', terrain: 'A gravity well in the centre drags every course toward it',
-        blocks: [['ENEMY', '#ff8a8a', ['Maw of Ruin and two raiders across the middle of the map']],
-                 ['OBJECTIVES', '#ffc94d', ['Primary: get 2 ships off the east edge by turn 10', 'Secondary: lose no ships']],
-                 ['REWARDS', '#7be3a4', ['+600 credits, +1 renown (+1 for the secondary)']],
-                 ['IF YOU FAIL', '#ff8a8a', ['Ships still in the zone after turn 10 are captured']]] },
-      d2: { code: 'D2', name: 'Forward Base Sela', type: 'DRYDOCK', x: 136, y: 24, dock: true, brief: 'Last chance to repair before the final battle. Leave dock to unlock M5.', terrain: 'Safe harbour',
-        blocks: [['SERVICES', '#8cc4ff', ['Repairs only; no new upgrades (no shipyard)']]] },
-      m5: { code: 'M5', name: 'Iron Tide', type: 'HOLD THE STATION', x: 150, y: 49, brief: 'The Maw of Ruin leads the Reaver tide against Station Aurel. Hold the station until the home fleet arrives.', terrain: 'Station Aurel in the centre (Hull 20, shields 3, 6d6 at 24u)',
-        blocks: [['ENEMY', '#ff8a8a', ['Maw of Ruin as flagship (refitted, Hull 16) with a raider', 'Reinforcements on turns 4 and 7']],
-                 ['OBJECTIVES', '#ffc94d', ['Primary: Station Aurel survives 8 turns', 'Secondary: destroy or capture the Maw of Ruin']],
-                 ['REWARDS', '#7be3a4', ['+800 credits, +3 renown (+1 for the secondary). Operation complete']]] }
-    };
-    const order = ['m1', 'm2a', 'm2b', 'd1', 'm3', 'm4', 'd2', 'm5'];
     // Captains: the same traits the battle board applies.
     const caps = [
       { id: 'varga', name: 'Capt. Ilse Varga', trait: 'Gunnery Master', effect: 'With Lock On, re-roll the misses of this ship’s biggest volley, once per turn.', join: 'With the squadron from the start' },
       { id: 'rheel', name: 'Capt. Tomas Rheel', trait: 'Daredevil', effect: 'All Ahead Full keeps this ship’s full Turn value.', join: 'With the squadron from the start' },
       { id: 'okafor', name: 'Cmdr. Ama Okafor', trait: 'Boarding Master', effect: 'This ship’s boarders win ties in the first exchange of every boarding action.', join: 'Joins after M2A if every freighter gets through', key: 'okafor' },
-      { id: 'holt', name: 'Capt. Davin Holt', trait: 'Steady Hand', effect: 'Brace for Impact no longer halves this ship’s dice.', join: 'For hire at Forward Base Sela (300 credits)', key: 'holt' }
+      { id: 'holt', name: 'Capt. Davin Holt', trait: 'Steady Hand', effect: 'Brace for Impact no longer halves this ship’s dice.', join: 'For hire at Forward Base Sela or Meridian Anchorage (300 credits)', key: 'holt' }
     ];
-    this.D = { U: U, CLS: CLS, CRIT: CRIT, M: M, order: order, caps: caps, costs: { hull: 40, crit: 60, crew: 30 } };
+    this.D = { U: U, CLS: CLS, CRIT: CRIT, caps: caps, costs: { hull: 40, crit: 60, crew: 30 },
+      // New hulls sold at shipyards (D1, D3 and the yard before each operation's first mission).
+      HULLS: [{ cls: 'vigilant', price: 650, note: 'Speed 14u · Turn 50° · Hull 8 · 4-dice broadsides · 1 torpedo' }, { cls: 'resolute', price: 1300, note: 'Speed 12u · Turn 45° · Hull 14 · 7-dice broadsides · 5 refit slots' }],
+      NAMES: ['CNS Valour', 'CNS Steadfast', 'CNS Tenacity', 'CNS Bastion', 'CNS Corsair', 'CNS Lodestar', 'CNS Warden', 'CNS Ardent'], FLEET_MAX: 4 };
     return this.D;
-  }
-
-  // Where the operation stands: each node's state, and which drydock (if any) the fleet is at.
-  progress(sv) {
-    const d = sv.done || {}, left = sv.dockLeft || {}, st = {};
-    const after2 = !!(d.m2a || d.m2b);
-    st.m1 = d.m1 ? d.m1 : 'open';
-    ['m2a', 'm2b'].forEach((k) => { st[k] = d[k] ? d[k] : d.m1 ? 'open' : 'locked'; });
-    st.d1 = after2 ? (left.d1 ? 'won' : 'dock') : 'locked';
-    st.m3 = d.m3 ? d.m3 : left.d1 ? 'open' : 'locked';
-    st.m4 = d.m4 ? d.m4 : d.m3 ? 'open' : 'locked';
-    st.d2 = d.m4 ? (left.d2 ? 'won' : 'dock') : 'locked';
-    st.m5 = d.m5 ? d.m5 : left.d2 ? 'open' : 'locked';
-    const dock = !d.m1 ? 'start' : st.d1 === 'dock' ? 'd1' : st.d2 === 'dock' ? 'd2' : null;
-    return { st: st, dock: dock, complete: !!d.m5 };
   }
 
   price(n) { const k = (this.cur().mods || {}).dockPrice || 1; return Math.round(n * k); }
@@ -169,7 +122,32 @@ class Component extends DCLogic {
     this.write(sv, { rep: {}, fit: {} });
   }
 
-  leaveDock() { const sv = this.copy(), p = this.progress(sv); if (!p.dock || p.dock === 'start') return; sv.dockLeft = Object.assign({}, sv.dockLeft, { [p.dock]: true }); this.write(sv, { rep: {}, fit: {}, mission: p.dock === 'd1' ? 'm3' : 'm5' }); }
+  leaveDock() {
+    const sv = this.copy(), p = this.progress(sv); if (!p.dock || p.dock === 'start') return;
+    sv.dockLeft = Object.assign({}, sv.dockLeft, { [p.dock]: true });
+    const next = p.order.filter((k) => (p.op.nodes[k].req || []).indexOf(p.dock) >= 0)[0] || null;
+    this.write(sv, { rep: {}, fit: {}, mission: next });
+  }
+
+  // Commission a new hull at a shipyard: full crew and hull, green, no captain.
+  buyHull(cls) {
+    const sv = this.copy(), D = this.data(), P = this.progress(sv), info = this.dockInfo(sv, P.dock), h = D.HULLS.filter((x) => x.cls === cls)[0], C = D.CLS[cls];
+    if (!info || !info.shipyard || !h || sv.fleet.length >= D.FLEET_MAX || sv.credits - this.spentOf(this.state) < this.price(h.price)) return;
+    const used = sv.fleet.map((f) => f.name), name = D.NAMES.filter((n) => used.indexOf(n) < 0)[0] || 'CNS Reliant';
+    sv.fleet.push({ id: 'n_' + cls + '_' + Date.now().toString(36), cls: cls, name: name, hull: C.hull, crew: C.crew, crits: [], fit: {}, battles: 0, cap: null });
+    sv.credits -= this.price(h.price);
+    this.write(sv, { ship: sv.fleet[sv.fleet.length - 1].id });
+  }
+
+  // After an operation's final mission, the fleet moves on to the next one, scars and all.
+  nextOp() {
+    const sv = this.copy(), op = this.opOf(sv);
+    if (!op.next || !sv.done[op.final]) return;
+    sv.opsDone = (sv.opsDone || []).concat([op.id]); sv.op = op.next; sv.current = null;
+    if (sv.debrief) sv.debrief.seen = true;
+    sv.fleet.forEach((f) => { f.sitsOut = false; });
+    this.write(sv, { mission: this.opOf(sv).order[0], rep: {}, fit: {} });
+  }
   ready(k) { const sv = this.copy(); sv.current = k; this.write(sv); }
   standDown() { const sv = this.copy(); sv.current = null; this.write(sv); }
   toggleReserve(id) { const sv = this.copy(); sv.fleet.forEach((f) => { if (f.id === id) f.reserve = !f.reserve; }); this.write(sv); }
@@ -201,8 +179,8 @@ class Component extends DCLogic {
   }
 
   hireHolt() {
-    const sv = this.copy(), P = this.progress(sv), fee = this.price(300);
-    if (P.dock !== 'd2' || sv.holt || sv.credits - this.spentOf(this.state) < fee) return;
+    const sv = this.copy(), P = this.progress(sv), fee = this.price(300), info = this.dockInfo(sv, P.dock);
+    if (!info || !info.tavern || sv.holt || sv.credits - this.spentOf(this.state) < fee) return;
     sv.holt = true; sv.credits -= fee;
     this.write(sv);
   }
@@ -213,14 +191,15 @@ class Component extends DCLogic {
     const D = this.data(), st = this.state, sv = this.cur(), P = this.progress(sv);
     const fmt = (n) => Math.round(n).toLocaleString('en-GB');
     const spent = this.spentOf(st), left = sv.credits - spent;
-    const firstOpen = D.order.filter((k) => P.st[k] === 'open' || P.st[k] === 'dock')[0] || 'm5';
-    const mk = st.mission && D.M[st.mission] ? st.mission : (sv.current || firstOpen);
+    const OP = P.op, NODES = OP.nodes, ORDER = P.order;
+    const firstOpen = ORDER.filter((k) => P.st[k] === 'open' || P.st[k] === 'dock')[0] || OP.final;
+    const mk = st.mission && NODES[st.mission] ? st.mission : (sv.current && NODES[sv.current] ? sv.current : firstOpen);
     const look = { won: ['COMPLETED', '#11301f', '#7be3a4', '#7be3a4'], failed: ['FAILED', '#3a1212', '#ff8a8a', '#ff8a8a'], skipped: ['NOT FLOWN', '#1a2335', '#93a3bf', '#5a6a86'], open: ['AVAILABLE', '#3a2a08', '#ffc94d', '#ffc94d'], dock: ['DRYDOCK', '#16243d', '#8cc4ff', '#5aa9ff'], locked: ['LOCKED', '#1a2335', '#93a3bf', '#5a6a86'], ready: ['READY TO LAUNCH', '#3a2a08', '#ffc94d', '#ffc94d'] };
     const stOf = (k) => (sv.current === k && P.st[k] === 'open' ? 'ready' : P.st[k]);
-    const nodes = D.order.map((k) => {
-      const m = D.M[k], s = stOf(k), L = look[s], on = mk === k, dock = !!m.dock;
+    const nodes = ORDER.map((k) => {
+      const m = NODES[k], s = stOf(k), L = look[s], on = mk === k, dock = !!m.dock;
       return {
-        name: m.code + ' · ' + m.name, sub: s === 'ready' ? 'ready to launch' : m.type.toLowerCase(), subCol: L[3], glyph: dock ? '' : (s === 'won' ? '✓' : s === 'failed' ? '✗' : m.code.replace('M', '')),
+        name: m.code + ' · ' + m.name, sub: s === 'ready' ? 'ready to launch' : m.type.toLowerCase(), subCol: L[3], glyph: dock ? '' : (s === 'won' ? '✓' : s === 'failed' ? '✗' : m.code.slice(1)),
         aria: m.code + ' ' + m.name + ', ' + L[0].toLowerCase(), pressed: on ? 'true' : 'false', pick: () => this.setState({ mission: k }),
         style: 'position: absolute; left: ' + (m.x / 1.6).toFixed(2) + '%; top: ' + (m.y / 0.9).toFixed(2) + '%; transform: translate(-50%, -22px); display: flex; flex-direction: column; align-items: center; gap: 2px; padding: 0; background: transparent; border: 0; cursor: pointer; min-width: 44px; min-height: 44px;',
         dotStyle: 'display: flex; align-items: center; justify-content: center; width: 34px; height: 34px; border-radius: ' + (dock ? '6px; transform: rotate(45deg)' : '50%') + '; font-family: JetBrains Mono, monospace; font-size: 13px; font-weight: 700; background: ' + (on ? L[3] : '#0d1220') + '; color: ' + (on ? '#070a12' : L[3]) + '; box-shadow: 0 0 0 2px ' + L[3] + (on ? ', 0 0 16px ' + L[3] : '') + ';'
@@ -228,11 +207,13 @@ class Component extends DCLogic {
     });
     // Route lines: green for legs already flown.
     const flown = (a, b) => { const sa = P.st[a], sb = P.st[b]; return (sa === 'won' || sa === 'failed') && (sb === 'won' || sb === 'failed' || sb === 'dock'); };
-    const legs = [['m1', 'm2a'], ['m1', 'm2b'], ['m2a', 'd1'], ['m2b', 'd1'], ['d1', 'm3'], ['m3', 'm4'], ['m4', 'd2'], ['d2', 'm5']];
-    const rs = {}; legs.forEach((l, i) => { const sa = P.st[l[0]], sb = P.st[l[1]]; rs['l' + i] = flown(l[0], l[1]) ? 'stroke: #7be3a4' : (sa === 'won' || sa === 'failed') && sb === 'open' ? 'stroke: #ffc94d; stroke-dasharray: 1.6 1.2' : 'stroke: #33425f; stroke-dasharray: 1.6 1.2'; });
+    const legs = OP.legs.map((l) => {
+      const a = NODES[l[0]], b = NODES[l[1]], sa = P.st[l[0]], sb = P.st[l[1]], aDone = sa === 'won' || sa === 'failed';
+      return { d: 'M' + a.x + ',' + a.y + ' L' + b.x + ',' + b.y, style: flown(l[0], l[1]) ? 'stroke: #7be3a4' : aDone && (sb === 'open' || sb === 'dock') ? 'stroke: #ffc94d; stroke-dasharray: 1.6 1.2' : 'stroke: #33425f; stroke-dasharray: 1.6 1.2' };
+    });
 
     const deploy = sv.fleet.filter((f) => !f.sitsOut && !f.reserve);
-    const mm = D.M[mk], ms = stOf(mk), L = look[ms], res = (sv.results || {})[mk];
+    const mm = NODES[mk], ms = stOf(mk), L = look[ms], res = (sv.results || {})[mk];
     const blocks = mm.blocks.map((b) => ({ title: b[0], col: b[1], items: b[2] }));
     if (res) blocks.unshift({ title: 'RESULT · TURN ' + res.turn, col: res.won ? '#7be3a4' : '#ff8a8a', items: res.lines.map((l) => (l.ok ? '✓ ' : '✗ ') + l.text).concat(['+' + res.credits + ' credits · +' + res.renown + ' renown']).concat(res.lost.length ? ['Lost: ' + res.lost.join(', ')] : []).concat(res.prizes.length ? ['Prizes: ' + res.prizes.join(', ')] : []) });
     const canReady = ms === 'open' && deploy.length > 0;
@@ -241,13 +222,13 @@ class Component extends DCLogic {
       force: mm.dock ? 'Whole fleet' : deploy.length ? deploy.map((f) => f.name).join(' + ') : 'No ships ready',
       blocks: blocks, canReady: canReady, isReady: ms === 'ready',
       readyLabel: 'Ready the fleet for ' + mm.code, readyAct: () => this.ready(mk), standDown: () => this.standDown(),
-      canLeave: ms === 'dock' && P.dock === mk, leaveLabel: 'Leave ' + mm.name + (mk === 'd1' ? ' and unlock M3' : ' and unlock M5'), leaveAct: () => this.leaveDock(),
+      canLeave: ms === 'dock' && P.dock === mk, leaveLabel: 'Leave ' + mm.name + ((ORDER.filter((k) => (NODES[k].req || []).indexOf(mk) >= 0).map((k) => ' and unlock ' + NODES[k].code))[0] || ''), leaveAct: () => this.leaveDock(),
       noLaunch: !canReady && ms !== 'ready' && !(ms === 'dock' && P.dock === mk),
       lockNote: ms === 'won' ? (mm.dock ? 'Fleet has left dock' : 'Mission complete') : ms === 'failed' ? 'Mission failed: the operation moves on' : ms === 'skipped' ? 'Not flown: you took the other fork' : ms === 'open' ? 'No ships ready: every ship is in dock or reserve' : 'Locked: complete the earlier missions first',
       showRecall: ms === 'open' && !deploy.length && sv.fleet.some((f) => f.sitsOut), recall: () => this.recall()
     };
 
-    const dockOpen = !!P.dock, repairsOnly = P.dock === 'd2';
+    const DI = this.dockInfo(sv, P.dock), dockOpen = !!P.dock, repairsOnly = !!(DI && DI.repairsOnly);
     const sid = (sv.fleet.filter((f) => f.id === st.ship)[0] || sv.fleet[0] || {}).id;
     const ships = sv.fleet.map((f) => {
       const C = this.cls(f), r = Object.assign({ hull: 0, crit: 0, crew: 0 }, st.rep[f.id]), on = sid === f.id, col = f.prize ? '#d7b8ff' : '#5aa9ff';
@@ -299,27 +280,37 @@ class Component extends DCLogic {
         }),
         reserveNote: f.sitsOut ? 'In dock for work orders: sits out the next mission.' : f.reserve ? 'Held back: it will not fly the next mission.' : 'Flies the next mission.' };
     }
-    const dockName = P.dock === 'start' ? 'Fleet yard, before M1' : P.dock ? D.M[P.dock].name : 'No drydock in reach';
-    const dockNote = !P.dock ? 'Your fleet is in the field. Repairs and refits open at D1 Drydock Varn (after M2) and D2 Forward Base Sela (after M4); the next battle starts with every scar from the last.'
+    const dockName = DI ? DI.name : 'No drydock in reach';
+    const docks = ORDER.filter((k) => NODES[k].dock).map((k) => NODES[k].code + ' ' + NODES[k].name).join(' and ');
+    const dockNote = !P.dock ? 'Your fleet is in the field. Repairs and refits open at ' + docks + '; the next battle starts with every scar from the last.'
       : repairsOnly ? 'Forward Base Sela has no shipyard: repairs and crew only.' : 'Damage, criticals and crew losses carry over from the last battle. A ship having more than 4 hull repaired, or a new upgrade fitted, needs dock time and sits out the next mission.';
     const db = sv.debrief && !sv.debrief.seen ? sv.debrief : null;
-    const done = ['m1', 'm2a', 'm2b', 'm3', 'm4', 'm5'].filter((k) => (sv.done || {})[k] === 'won' || (sv.done || {})[k] === 'failed').length;
+    const flownN = ORDER.filter((k) => !NODES[k].dock && (sv.done[k] === 'won' || sv.done[k] === 'failed')).length;
+    const forks = {}; ORDER.forEach((k) => { if (NODES[k].fork) forks[NODES[k].fork] = (forks[NODES[k].fork] || 0) + 1; });
+    const totalN = ORDER.filter((k) => !NODES[k].dock).length - Object.keys(forks).reduce((a, k) => a + forks[k] - 1, 0);
+    const done = flownN;
     const lostAll = !sv.fleet.length;
     return {
-      creditsLeft: fmt(left), renown: String(sv.renown || 0), missions: done + ' / 5', fleetN: sv.fleet.length + (sv.fleet.length === 1 ? ' hull' : ' hulls'),
+      creditsLeft: fmt(left), renown: String(sv.renown || 0), missions: done + ' / ' + totalN, fleetN: sv.fleet.length + (sv.fleet.length === 1 ? ' hull' : ' hulls'),
       where: P.complete ? 'Complete' : P.dock ? 'In dock' : 'In the field',
       storage: st.mode === 'db' ? (this.store && this.store.shared ? 'Campaign saved in this canvas (one save for the canvas, synced across your devices); the battle board reads and writes the same save.' : 'Campaign saved to your private record in this canvas; the battle board reads and writes the same save.') : st.mode === 'local' ? 'Campaign saved in this browser (the canvas database was not available here); the battle board shares it.' : st.mode === 'loading' ? 'Loading your campaign…' : 'This view cannot save: progress lasts until you close it.',
       showDebrief: !!db, db: db ? { title: db.code + ' · ' + db.name + ': ' + (db.won ? 'mission accomplished' : 'mission failed'), col: db.won ? '#7be3a4' : '#ff8a8a', lines: db.lines.map((l) => ({ mark: l.ok ? '✓' : '✗', col: l.ok ? '#7be3a4' : '#ff8a8a', text: l.text })), rewards: '+' + db.credits + ' credits · +' + db.renown + ' renown', lost: db.lost.length ? 'Lost: ' + db.lost.join(', ') : 'No ships lost', prizes: db.prizes.length ? 'Prizes joining your fleet: ' + db.prizes.join(', ') : '', hasPrizes: db.prizes.length > 0 } : { title: '', col: '#7be3a4', lines: [], rewards: '', lost: '', prizes: '', hasPrizes: false },
       dismiss: () => this.dismiss(),
-      showEnd: P.complete || lostAll, endText: lostAll ? 'Your squadron is lost. Restart the operation to try again.' : 'Operation Iron Tide is over: ' + (sv.done.m5 === 'won' ? 'Station Aurel held. ' : 'Station Aurel fell. ') + (sv.renown || 0) + ' renown earned.',
+      showEnd: P.complete || lostAll, endText: lostAll ? 'Your squadron is lost. Restart the campaign to try again.' : OP.title + ' is over: ' + OP.ending(sv) + ' ' + (sv.renown || 0) + ' renown so far.' + (OP.next ? '' : ' That is the end of the campaign for now: Operation 3 is still being written.'),
+      canNextOp: P.complete && !!OP.next && !lostAll, nextOpLabel: OP.next ? 'Begin ' + this.opsData()[OP.next].title + ' with this fleet' : '', nextOp: () => this.nextOp(),
+      opKicker: 'GUNLINE · CAMPAIGN · OPERATION ' + OP.n + ' OF 3', opTitle: OP.title.toUpperCase(), opIntro: OP.intro, legs: legs,
+      yard: { show: !!(DI && DI.shipyard), full: sv.fleet.length >= D.FLEET_MAX, fullNote: 'Your fleet is at its limit of ' + D.FLEET_MAX + ' hulls.', hulls: D.HULLS.map((h) => {
+        const C = D.CLS[h.cls], pr = this.price(h.price), off = sv.fleet.length >= D.FLEET_MAX || left < pr;
+        return { name: C.cls, note: h.note, price: fmt(pr) + ' cr', act: () => this.buyHull(h.cls), off: off, label: off && sv.fleet.length < D.FLEET_MAX ? 'Too costly' : 'Commission',
+          btnStyle: 'min-height: 44px; min-width: 120px; padding: 0 12px; border-radius: 6px; font-weight: 700; font-size: 13px; border: 0; cursor: ' + (off ? 'not-allowed' : 'pointer') + '; ' + (off ? 'background: #111a2c; color: #4a5a7a;' : 'background: #5aa9ff; color: #070a12;') };
+      }) },
       restart: () => this.restart(), restartLabel: st.confirmReset ? 'Click again to wipe this campaign' : 'Restart operation', restartStyle: 'min-height: 44px; padding: 0 14px; border-radius: 6px; cursor: pointer; font-size: 13px; font-weight: 600; ' + (st.confirmReset ? 'background: #ff8a8a; color: #1a0606; border: 0;' : 'background: transparent; color: #e6edf8; border: 1px solid #33425f;'),
-      rs: rs,
       nodes: nodes, m: m, ships: ships, sel: sel,
       dockTitle: '2 · Drydock · ' + dockName, dockNote: dockNote, dockOpen: dockOpen, spent: fmt(spent), credits: fmt(sv.credits),
       reset: () => this.setState({ fit: {}, rep: {} }), confirm: () => this.confirmWork(), canConfirm: dockOpen && (spent > 0 || Object.keys(st.fit).length > 0), noConfirm: !(dockOpen && (spent > 0 || Object.keys(st.fit).length > 0)),
       captains: D.caps.map((c) => {
         const ship = sv.fleet.filter((f) => f.cap === c.id)[0], lost = (sv.capsLost || []).indexOf(c.id) >= 0, have = this.roster(sv).indexOf(c.id) >= 0;
-        const canHire = c.id === 'holt' && !sv.holt && P.dock === 'd2', fee = this.price(300), afford = left >= fee;
+        const canHire = c.id === 'holt' && !sv.holt && !!(DI && DI.tavern), fee = this.price(300), afford = left >= fee;
         const where = lost ? 'Lost with their ship' : ship ? 'Commands ' + ship.name : have ? 'Unassigned: pick a ship in the drydock panel above' : c.join;
         return { name: c.name, trait: c.trait, effect: c.effect, where: where, canHire: canHire, hire: () => this.hireHolt(), hireLabel: afford ? 'Hire for ' + fee + ' credits' : 'Needs ' + fee + ' credits', hireOff: !afford };
       }),
